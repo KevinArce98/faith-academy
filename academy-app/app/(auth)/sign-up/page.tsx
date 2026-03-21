@@ -10,10 +10,10 @@ import Link from 'next/link';
 import { createUserProfileAction } from '@/actions/auth';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
+import { VerificationCodeForm } from '@/components/auth/VerificationCodeForm';
 import { handleClerkErrors } from '@/utils/clerk-localization';
 import {
   signUpSchema,
-  verifyCodeSchema,
   type SignUpFormValues,
   type VerifyCodeFormValues,
 } from '@/lib/validations/auth';
@@ -33,15 +33,6 @@ export default function SignUpPage() {
   } = useForm<SignUpFormValues>({
     resolver: zodResolver(signUpSchema),
     defaultValues: { name: '', email: '', password: '' },
-  });
-
-  const {
-    register: registerVerify,
-    handleSubmit: handleVerifySubmit,
-    formState: { errors: verifyErrors },
-  } = useForm<VerifyCodeFormValues>({
-    resolver: zodResolver(verifyCodeSchema),
-    defaultValues: { code: '' },
   });
 
   useEffect(() => {
@@ -118,6 +109,19 @@ export default function SignUpPage() {
     }
   }
 
+  async function handleResendVerificationCode() {
+    setClerkError(null);
+    try {
+      await signUp.verifications.sendEmailCode();
+    } catch (err) {
+      if (isClerkAPIResponseError(err)) {
+        setClerkError(handleClerkErrors(err.errors));
+      } else {
+        setClerkError('No se pudo reenviar el código. Intenta de nuevo.');
+      }
+    }
+  }
+
   /* ── Verification step ──────────────────────────────────────── */
   if (
     signUp.status === 'missing_requirements' &&
@@ -125,58 +129,20 @@ export default function SignUpPage() {
     signUp.missingFields.length === 0
   ) {
     return (
-      <>
-        <h2 className="text-dark text-[28px] leading-tight font-bold">
-              Verifica tu correo
-            </h2>
-            <p className="mt-2 text-sm text-gray-400">
-              Enviamos un código de 6 dígitos a tu dirección de email
-            </p>
-
-            <form onSubmit={handleVerifySubmit(onVerify)} className="mt-8 flex flex-col gap-5">
-              <Input
-                label="Código de verificación"
-                inputMode="numeric"
-                autoComplete="one-time-code"
-                placeholder="000000"
-                className="h-12 rounded-xl tracking-widest"
-                error={verifyErrors.code?.message}
-                {...registerVerify('code')}
-              />
-
-              <Button
-                type="submit"
-                variant="contained"
-                size="lg"
-                disabled={fetchStatus === 'fetching'}
-                className="w-full rounded-xl"
-              >
-                {fetchStatus === 'fetching' ? (
-                  <>
-                    <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-                    </svg>
-                    Verificando...
-                  </>
-                ) : (
-                  'Verificar cuenta'
-                )}
-              </Button>
-            </form>
-
-            <p className="mt-4 text-center text-sm text-gray-400">
-              ¿No recibiste el código?{' '}
-              <Button
-                variant="text"
-                color="primary"
-                onClick={() => signUp.verifications.sendEmailCode()}
-                className="h-auto p-0 font-semibold hover:bg-transparent"
-              >
-                Reenviar
-              </Button>
-            </p>
-      </>
+      <VerificationCodeForm
+        title="Verifica tu correo"
+        description="Enviamos un código de 6 dígitos a tu dirección de email"
+        onSubmit={onVerify}
+        isSubmitting={fetchStatus === 'fetching'}
+        submitLabel="Verificar cuenta"
+        submittingLabel="Verificando..."
+        generalError={clerkError}
+        onResend={handleResendVerificationCode}
+        resendLabel="Reenviar"
+        resendHint="¿No recibiste el código?"
+        placeholder="000000"
+        inputLabel="Código de verificación"
+      />
     );
   }
 
@@ -202,7 +168,7 @@ export default function SignUpPage() {
               label="Nombre completo"
               placeholder="Juan Pérez"
               autoComplete="name"
-              className="h-12 rounded-xl"
+              className=""
               error={signUpErrors.name?.message}
               {...registerSignUp('name')}
             />
@@ -213,7 +179,7 @@ export default function SignUpPage() {
               label="Email"
               placeholder="correo@ejemplo.com"
               autoComplete="email"
-              className="h-12 rounded-xl"
+              className=""
               error={signUpErrors.email?.message}
               {...registerSignUp('email')}
             />
@@ -228,7 +194,7 @@ export default function SignUpPage() {
                   id="password"
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="new-password"
-                  className="text-dark focus:border-primary focus:ring-primary/20 h-12 w-full rounded-xl border border-gray-200 px-4 pr-12 text-sm transition-colors outline-none placeholder:text-gray-400 focus:ring-2"
+                  className="text-dark focus:border-primary focus:ring-primary/20 h-11 w-full rounded-lg border border-gray-200 px-4 pr-12 text-sm transition-colors outline-none placeholder:text-gray-400 focus:ring-2"
                   {...registerSignUp('password')}
                 />
                 <Button
@@ -267,7 +233,7 @@ export default function SignUpPage() {
               variant="contained"
               size="lg"
               disabled={fetchStatus === 'fetching'}
-              className="w-full rounded-xl"
+              className="w-full"
             >
               {fetchStatus === 'fetching' ? (
                 <>

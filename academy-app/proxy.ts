@@ -4,10 +4,15 @@ import { NextResponse } from 'next/server';
 const isPublicRoute = createRouteMatcher([
   '/sign-in(.*)',
   '/sign-up(.*)',
+  '/forgot-password(.*)',
   '/no-access(.*)',
 ]);
 
-const isAuthRoute = createRouteMatcher(['/sign-in(.*)', '/sign-up(.*)']);
+const isAuthRoute = createRouteMatcher([
+  '/sign-in(.*)',
+  '/sign-up(.*)',
+  '/forgot-password(.*)',
+]);
 
 export default clerkMiddleware(async (auth, req) => {
   const { userId } = await auth();
