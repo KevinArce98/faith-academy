@@ -1,0 +1,19 @@
+import { z } from 'zod';
+
+export const uploadUrlSchema = z.object({
+  studentId: z.string().min(1),
+  ext: z.enum(['jpg', 'jpeg', 'png', 'pdf', 'webp']),
+});
+
+export const createOrderSchema = z.object({
+  planId: z.string().min(1),
+  receiptKey: z.string().min(1),
+});
+
+export const rejectOrderSchema = z.object({
+  notes: z.string().min(1, 'Las notas son requeridas para rechazar una orden'),
+});
+
+export type UploadUrlInput = z.infer<typeof uploadUrlSchema>;
+export type CreateOrderInput = z.infer<typeof createOrderSchema>;
+export type RejectOrderInput = z.infer<typeof rejectOrderSchema>;
