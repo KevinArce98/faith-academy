@@ -59,7 +59,7 @@ const studioConfig: StudioConfig = {
     name: 'StudioFlow Academy',
     tagline: 'Academy',
     logoText: 'SF',
-    logoUrl: undefined,
+    logoUrl: '/logo.svg',
     favicon: undefined,
   },
   colors: {
