@@ -16,7 +16,7 @@ export default async function PaymentsPage() {
 
   const studentFilter = isManager ? {} : { studentId: user.id };
 
-  const [rawOrders, pendingCount, monthCount] = await Promise.all([
+  const [rawOrders, pendingCount, monthCount, rawPlans] = await Promise.all([
     db.membershipOrder.findMany({
       where: studentFilter,
       include: {
@@ -32,6 +32,13 @@ export default async function PaymentsPage() {
     db.membershipOrder.count({
       where: { ...studentFilter, createdAt: { gte: monthStart } },
     }),
+    isManager
+      ? Promise.resolve([])
+      : db.membershipPlan.findMany({
+          where: { isActive: true },
+          select: { id: true, name: true, price: true },
+          orderBy: { price: 'asc' },
+        }),
   ]);
 
   // Serialize Prisma Decimal → number so it can be passed to a Client Component
@@ -40,12 +47,15 @@ export default async function PaymentsPage() {
     plan: { ...o.plan, price: Number(o.plan.price) },
   }));
 
+  const plans = rawPlans.map((p) => ({ ...p, price: Number(p.price) }));
+
   return (
     <PaymentsClient
       orders={orders}
       pendingCount={pendingCount}
       monthCount={monthCount}
       isAdmin={isManager}
+      plans={plans}
     />
   );
 }

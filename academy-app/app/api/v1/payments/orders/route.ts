@@ -26,7 +26,7 @@ export async function POST(req: Request) {
     return Response.json({ error: 'Plan no encontrado' }, { status: 404 });
   }
 
-  const receiptUrl = `${process.env.R2_PUBLIC_URL}/${receiptKey}`;
+  const receiptUrl = `${process.env.CLOUDFLARE_R2_PUBLIC_URL}/${receiptKey}`;
 
   const order = await db.membershipOrder.create({
     data: {

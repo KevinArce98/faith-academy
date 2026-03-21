@@ -1,13 +1,25 @@
 'use client';
 
 import { useState, useTransition, useEffect } from 'react';
-import { FileText, Check, X, ChevronDown, SlidersHorizontal } from 'lucide-react';
+import {
+  FileText,
+  Check,
+  X,
+  ChevronDown,
+  SlidersHorizontal,
+  Plus,
+} from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { approvePayment, rejectPayment } from '@/actions/payments';
 import Image from 'next/image';
 import { Button } from '@/components/ui/Button';
 import { Pagination } from '@/components/ui/Pagination';
 import { usePagination } from '@/hooks/usePagination';
+import { useRouter } from 'next/navigation';
+import {
+  UploadPaymentModal,
+  type PlanOption,
+} from '@/components/dashboard/payments/UploadPaymentModal';
 
 type Plan = { id: string; name: string; price: number };
 type Student = { id: string; name: string; email: string };
@@ -27,6 +39,7 @@ type PaymentsClientProps = {
   pendingCount: number;
   monthCount: number;
   isAdmin?: boolean;
+  plans?: PlanOption[];
 };
 
 type TabKey = 'PENDING_REVIEW' | 'ACTIVE' | 'REJECTED' | 'ALL';
@@ -62,6 +75,7 @@ function ReceiptModal({
   price,
   orderId,
   onClose,
+  isAdmin = false,
 }: {
   url: string;
   student: Student;
@@ -69,6 +83,7 @@ function ReceiptModal({
   price: string;
   orderId: string;
   onClose: () => void;
+  isAdmin?: boolean;
 }) {
   const [isPending, startTransition] = useTransition();
   return (
@@ -78,7 +93,12 @@ function ReceiptModal({
           <h2 className="text-base font-bold text-white">
             Comprobante — {student.name}
           </h2>
-          <Button variant="text" color="neutral" onClick={onClose} className="h-auto p-1 hover:bg-transparent border-transparent">
+          <Button
+            variant="text"
+            color="neutral"
+            onClick={onClose}
+            className="h-auto border-transparent p-1 hover:bg-transparent"
+          >
             <X className="h-5 w-5 text-white/60 hover:text-white" />
           </Button>
         </div>
@@ -129,41 +149,49 @@ function ReceiptModal({
               </p>
             </div>
           </div>
-          <div className="flex gap-2">
-            <Button
-              variant="outlined"
-              onClick={() =>
-                startTransition(async () => {
-                  await rejectPayment(orderId);
-                  onClose();
-                })
-              }
-              disabled={isPending}
-              className="rounded-xl py-2 px-4"
-            >
-              Rechazar
-            </Button>
-            <Button
-              variant="contained"
-              onClick={() =>
-                startTransition(async () => {
-                  await approvePayment(orderId);
-                  onClose();
-                })
-              }
-              disabled={isPending}
-              className="rounded-xl py-2 px-4"
-            >
-              Aprobar Pago
-            </Button>
-          </div>
+          {isAdmin && (
+            <div className="flex gap-2">
+              <Button
+                variant="outlined"
+                onClick={() =>
+                  startTransition(async () => {
+                    await rejectPayment(orderId);
+                    onClose();
+                  })
+                }
+                disabled={isPending}
+                className="rounded-xl px-4 py-2"
+              >
+                Rechazar
+              </Button>
+              <Button
+                variant="contained"
+                onClick={() =>
+                  startTransition(async () => {
+                    await approvePayment(orderId);
+                    onClose();
+                  })
+                }
+                disabled={isPending}
+                className="rounded-xl px-4 py-2"
+              >
+                Aprobar Pago
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
 }
 
-function PaymentCard({ order, isAdmin = false }: { order: Order; isAdmin?: boolean }) {
+function PaymentCard({
+  order,
+  isAdmin = false,
+}: {
+  order: Order;
+  isAdmin?: boolean;
+}) {
   const [isPending, startTransition] = useTransition();
   const [status, setStatus] = useState(order.status);
   const [receiptOpen, setReceiptOpen] = useState(false);
@@ -210,7 +238,7 @@ function PaymentCard({ order, isAdmin = false }: { order: Order; isAdmin?: boole
         </div>
 
         <p className="text-dark mb-3 text-sm">
-          Plan mensual — ${String(order.plan.price)}
+          Plan mensual — ₡{String(order.plan.price)}
         </p>
 
         {/* Receipt thumbnail */}
@@ -223,6 +251,8 @@ function PaymentCard({ order, isAdmin = false }: { order: Order; isAdmin?: boole
               src={order.receiptUrl}
               alt="Comprobante"
               className="h-full w-full rounded-xl object-cover"
+              width={320}
+              height={160}
             />
           ) : (
             <div className="flex flex-col items-center gap-1 text-gray-300">
@@ -246,7 +276,7 @@ function PaymentCard({ order, isAdmin = false }: { order: Order; isAdmin?: boole
           variant="text"
           color="primary"
           onClick={() => setReceiptOpen(true)}
-          className="h-auto p-0 mb-3 text-xs hover:bg-transparent hover:underline"
+          className="mb-3 h-auto p-0 text-xs hover:bg-transparent hover:underline"
         >
           Ver comprobante completo
         </Button>
@@ -272,8 +302,7 @@ function PaymentCard({ order, isAdmin = false }: { order: Order; isAdmin?: boole
           <div className="bg-danger/5 border-danger/20 text-danger rounded-xl border px-4 py-3 text-center text-sm font-semibold">
             Rechazado
           </div>
-        ) : (
-          isAdmin ? (
+        ) : isAdmin ? (
           <div className="grid grid-cols-2 gap-3">
             <Button
               variant="contained"
@@ -285,7 +314,7 @@ function PaymentCard({ order, isAdmin = false }: { order: Order; isAdmin?: boole
                 })
               }
               disabled={isPending}
-              className="h-11 rounded-xl gap-1.5"
+              className="h-11 gap-1.5 rounded-xl"
             >
               <Check className="h-4 w-4" /> Aprobar
             </Button>
@@ -299,16 +328,15 @@ function PaymentCard({ order, isAdmin = false }: { order: Order; isAdmin?: boole
                 })
               }
               disabled={isPending}
-              className="h-11 rounded-xl gap-1.5"
+              className="h-11 gap-1.5 rounded-xl"
             >
               <X className="h-4 w-4" /> Rechazar
             </Button>
           </div>
-          ) : (
-          <div className="bg-warning/10 text-warning rounded-xl border border-warning/20 px-4 py-3 text-center text-sm font-semibold">
+        ) : (
+          <div className="bg-warning/10 text-warning border-warning/20 rounded-xl border px-4 py-3 text-center text-sm font-semibold">
             Pendiente de revision
           </div>
-          )
         )}
       </div>
 
@@ -320,6 +348,7 @@ function PaymentCard({ order, isAdmin = false }: { order: Order; isAdmin?: boole
           price={String(order.plan.price)}
           orderId={order.id}
           onClose={() => setReceiptOpen(false)}
+          isAdmin={isAdmin}
         />
       )}
     </>
@@ -331,9 +360,12 @@ export function PaymentsClient({
   pendingCount,
   monthCount,
   isAdmin = false,
+  plans = [],
 }: PaymentsClientProps) {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabKey>('PENDING_REVIEW');
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [uploadOpen, setUploadOpen] = useState(false);
 
   const filtered = orders.filter((o) =>
     activeTab === 'ALL' ? true : o.status === activeTab
@@ -356,17 +388,32 @@ export function PaymentsClient({
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-wrap items-center gap-2 md:gap-3">
-        <h1 className="text-dark text-2xl font-bold md:text-3xl">Pagos</h1>
+        <h1 className="text-dark text-2xl font-bold md:text-3xl">
+          {isAdmin ? 'Pagos' : 'Mis Pagos'}
+        </h1>
         <span className="bg-danger/10 text-danger rounded-full px-3 py-1 text-sm font-semibold">
           {pendingCount} pendientes
         </span>
         <span className="rounded-full bg-gray-100 px-3 py-1 text-sm font-semibold text-gray-600">
           {monthCount} este mes
         </span>
+        {!isAdmin && (
+          <Button
+            variant="contained"
+            color="primary"
+            className="ml-auto h-9 gap-1.5 rounded-xl px-4"
+            onClick={() => setUploadOpen(true)}
+          >
+            <Plus className="h-4 w-4" /> Subir pago
+          </Button>
+        )}
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-0 overflow-x-auto border-b border-gray-200" style={{ WebkitOverflowScrolling: 'touch' }}>
+      <div
+        className="flex items-center gap-0 overflow-x-auto border-b border-gray-200"
+        style={{ WebkitOverflowScrolling: 'touch' }}
+      >
         {TABS.map((tab) => {
           const count = tabCount(tab.key);
           return (
@@ -379,7 +426,7 @@ export function PaymentsClient({
                 'h-auto rounded-none border-b-2 px-5 py-2.5 text-sm font-medium',
                 activeTab === tab.key
                   ? 'border-primary text-primary hover:bg-transparent'
-                  : 'border-transparent text-gray-400 hover:bg-transparent hover:text-dark'
+                  : 'hover:text-dark border-transparent text-gray-400 hover:bg-transparent'
               )}
             >
               {tab.label}
@@ -393,32 +440,48 @@ export function PaymentsClient({
         })}
       </div>
 
-      {/* Filters */}
-      <div>
-        {/* Mobile filter toggle */}
-        <Button
-          variant="text"
-          color="neutral"
-          onClick={() => setFiltersOpen((v) => !v)}
-          className="h-9 px-3 text-sm border border-gray-200 hover:bg-gray-50 gap-1.5 md:hidden"
-        >
-          <SlidersHorizontal className="h-4 w-4" /> Filtros
-        </Button>
-        <div className={cn(
-          'items-center gap-3 flex-wrap',
-          filtersOpen ? 'flex mt-3' : 'hidden md:flex'
-        )}>
-          <Button variant="text" color="neutral" className="h-9 px-3 text-sm border border-gray-200 hover:bg-gray-50 gap-1.5">
-            16 Feb — 16 Mar <ChevronDown className="h-3.5 w-3.5" />
+      {/* Filters (admin only) */}
+      {isAdmin && (
+        <div>
+          {/* Mobile filter toggle */}
+          <Button
+            variant="text"
+            color="neutral"
+            onClick={() => setFiltersOpen((v) => !v)}
+            className="h-9 gap-1.5 border border-gray-200 px-3 text-sm hover:bg-gray-50 md:hidden"
+          >
+            <SlidersHorizontal className="h-4 w-4" /> Filtros
           </Button>
-          <Button variant="text" color="neutral" className="h-9 px-3 text-sm border border-gray-200 hover:bg-gray-50 gap-1.5">
-            Todos los planes <ChevronDown className="h-3.5 w-3.5" />
-          </Button>
-          <Button variant="text" color="neutral" className="h-9 px-3 text-sm border border-gray-200 bg-gray-50 hover:bg-gray-100 gap-1.5">
-            <FileText className="h-4 w-4" /> Exportar CSV
-          </Button>
+          <div
+            className={cn(
+              'flex-wrap items-center gap-3',
+              filtersOpen ? 'mt-3 flex' : 'hidden md:flex'
+            )}
+          >
+            <Button
+              variant="text"
+              color="neutral"
+              className="h-9 gap-1.5 border border-gray-200 px-3 text-sm hover:bg-gray-50"
+            >
+              16 Feb — 16 Mar <ChevronDown className="h-3.5 w-3.5" />
+            </Button>
+            <Button
+              variant="text"
+              color="neutral"
+              className="h-9 gap-1.5 border border-gray-200 px-3 text-sm hover:bg-gray-50"
+            >
+              Todos los planes <ChevronDown className="h-3.5 w-3.5" />
+            </Button>
+            <Button
+              variant="text"
+              color="neutral"
+              className="h-9 gap-1.5 border border-gray-200 bg-gray-50 px-3 text-sm hover:bg-gray-100"
+            >
+              <FileText className="h-4 w-4" /> Exportar CSV
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Cards grid */}
       {filtered.length === 0 ? (
@@ -448,6 +511,16 @@ export function PaymentsClient({
           label="pagos"
         />
       </div>
+
+      {/* Student upload modal */}
+      {!isAdmin && (
+        <UploadPaymentModal
+          isOpen={uploadOpen}
+          onClose={() => setUploadOpen(false)}
+          plans={plans}
+          onSuccess={() => router.refresh()}
+        />
+      )}
     </div>
   );
 }

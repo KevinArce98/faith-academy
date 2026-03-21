@@ -5,14 +5,14 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 const r2 = new S3Client({
   region: 'auto',
-  endpoint: process.env.R2_ENDPOINT!,
+  endpoint: process.env.CLOUDFLARE_R2_ENDPOINT!,
   credentials: {
-    accessKeyId: process.env.R2_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
+    accessKeyId: process.env.CLOUDFLARE_R2_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY!,
   },
 });
 
-const BUCKET = process.env.R2_BUCKET_NAME!;
+const BUCKET = process.env.CLOUDFLARE_R2_BUCKET_NAME!;
 const EXPIRES_IN = 300; // 5 minutos
 
 export async function POST(req: Request) {
