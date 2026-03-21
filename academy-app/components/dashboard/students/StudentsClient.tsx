@@ -246,7 +246,7 @@ export function StudentsClient({
                       </TableCell>
                       <TableCell className="text-dark text-sm">
                         {activeOrder?.expiresAt
-                          ? new Intl.DateTimeFormat('es-MX', {
+                          ? new Intl.DateTimeFormat('es-CR', {
                               day: 'numeric',
                               month: 'short',
                               year: 'numeric',
