@@ -8,46 +8,16 @@ import { Button } from '@/components/ui/Button';
 import { isStudent } from '@/lib/roles';
 import type { Role } from '@/lib/roles';
 import { StudentDashboard } from '@/components/dashboard/StudentDashboard';
-
-function greeting() {
-  const h = new Date().getHours();
-  if (h < 12) return 'Buenos dias';
-  if (h < 19) return 'Buenas tardes';
-  return 'Buenas noches';
-}
-
-function formatDate(date: Date) {
-  return new Intl.DateTimeFormat('es-MX', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  }).format(date);
-}
-
-function formatTime(date: Date) {
-  return new Intl.DateTimeFormat('es-MX', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  }).format(date);
-}
-
-function timeAgo(date: Date) {
-  const mins = Math.floor((Date.now() - date.getTime()) / 60000);
-  if (mins < 60) return `Hace ${mins} minutos`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `Hace ${hrs} hora${hrs > 1 ? 's' : ''}`;
-  return `Hace ${Math.floor(hrs / 24)} dias`;
-}
+import {
+  formatDate,
+  formatTime,
+  getInitials,
+  greeting,
+  timeAgo,
+} from '@/utils/general';
 
 function StudentInitials({ name }: { name: string }) {
-  const initials = name
-    .split(' ')
-    .slice(0, 2)
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase();
+  const initials = getInitials(name);
   return (
     <div className="bg-dark flex h-9 w-9 shrink-0 items-center justify-center rounded-full">
       <span className="text-xs font-bold text-white">{initials}</span>
@@ -244,7 +214,7 @@ export default async function DashboardPage() {
     },
     {
       label: 'Ingresos del Mes',
-      value: `$${monthRevenue.toLocaleString('es-MX', { minimumFractionDigits: 0 })}`,
+      value: `₡${monthRevenue.toLocaleString('es-CR', { minimumFractionDigits: 0 })}`,
       icon: DollarSign,
       sub: `${revenueChange >= 0 ? '+' : ''}${revenueChange}% vs mes anterior`,
       subColor: revenueChange >= 0 ? 'text-success' : 'text-danger',
@@ -272,7 +242,7 @@ export default async function DashboardPage() {
       {/* ── Header ─────────────────────────────────── */}
       <div className="flex flex-col gap-1 md:flex-row md:items-center md:justify-between">
         <h1 className="text-dark text-2xl font-bold md:text-[28px]">
-          {greeting()}, {user?.name.split(' ')[0]} 👋
+          {greeting()}, {user?.name?.split(' ')[0]} 👋
         </h1>
         <p className="text-sm text-gray-400 capitalize">{formatDate(now)}</p>
       </div>
@@ -338,7 +308,7 @@ export default async function DashboardPage() {
                     <tr key={order.id} className="hover:bg-gray-50/50">
                       <td className="py-3">
                         <div className="flex items-center gap-2">
-                          <StudentInitials name={order.student.name} />
+                          <StudentInitials name={order.student.name ?? ''} />
                           <div>
                             <p className="text-dark font-medium">
                               {order.student.name}
@@ -413,12 +383,9 @@ export default async function DashboardPage() {
               {/* Mobile cards */}
               <div className="space-y-3 md:hidden">
                 {pendingOrders.slice(0, 5).map((order) => (
-                  <div
-                    key={order.id}
-                    className="rounded-xl bg-gray-50 p-4"
-                  >
+                  <div key={order.id} className="rounded-xl bg-gray-50 p-4">
                     <div className="mb-2 flex items-center gap-2">
-                      <StudentInitials name={order.student.name} />
+                      <StudentInitials name={order.student.name ?? ''} />
                       <div className="min-w-0 flex-1">
                         <p className="text-dark truncate text-sm font-bold">
                           {order.student.name}
@@ -452,7 +419,7 @@ export default async function DashboardPage() {
                           type="submit"
                           variant="contained"
                           color="success"
-                          className="min-h-[44px] w-full rounded-lg text-xs"
+                          className="min-h-11 w-full rounded-lg text-xs"
                         >
                           Aprobar
                         </Button>
@@ -467,7 +434,7 @@ export default async function DashboardPage() {
                           type="submit"
                           variant="outlined"
                           color="danger"
-                          className="min-h-[44px] w-full rounded-lg text-xs"
+                          className="min-h-11 w-full rounded-lg text-xs"
                         >
                           Rechazar
                         </Button>
@@ -487,7 +454,7 @@ export default async function DashboardPage() {
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-dark text-base font-bold">Clases de Hoy</h2>
               <span className="text-xs text-gray-400">
-                {new Intl.DateTimeFormat('es-MX', {
+                {new Intl.DateTimeFormat('es-CR', {
                   day: 'numeric',
                   month: 'long',
                 }).format(now)}
@@ -536,7 +503,7 @@ export default async function DashboardPage() {
                   );
                   return (
                     <div key={student.id} className="flex items-center gap-3">
-                      <StudentInitials name={student.name} />
+                      <StudentInitials name={student.name ?? ''} />
                       <div className="min-w-0 flex-1">
                         <p className="text-dark truncate text-sm font-medium">
                           {student.name}

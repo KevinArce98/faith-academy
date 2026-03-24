@@ -65,6 +65,7 @@ model UserProfile {
   name      String?
   avatarUrl String?
   role      Role
+  isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
 
   orders       MembershipOrder[]

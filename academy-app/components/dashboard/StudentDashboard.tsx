@@ -44,7 +44,7 @@ function greeting() {
 }
 
 function formatDate(date: Date) {
-  return new Intl.DateTimeFormat('es-MX', {
+  return new Intl.DateTimeFormat('es-CR', {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
@@ -53,7 +53,7 @@ function formatDate(date: Date) {
 }
 
 function formatTime(dateStr: string) {
-  return new Intl.DateTimeFormat('es-MX', {
+  return new Intl.DateTimeFormat('es-CR', {
     hour: '2-digit',
     minute: '2-digit',
     hour12: false,
@@ -61,7 +61,7 @@ function formatTime(dateStr: string) {
 }
 
 function formatShortDate(dateStr: string) {
-  return new Intl.DateTimeFormat('es-MX', {
+  return new Intl.DateTimeFormat('es-CR', {
     day: 'numeric',
     month: 'short',
   }).format(new Date(dateStr));
@@ -274,7 +274,7 @@ export function StudentDashboard({
                         {payment.planName}
                       </p>
                       <p className="text-xs text-gray-400">
-                        ${payment.price.toLocaleString('es-MX')}
+                        ${payment.price.toLocaleString('es-CR')}
                       </p>
                     </div>
                     <div className="flex flex-col items-end gap-0.5">

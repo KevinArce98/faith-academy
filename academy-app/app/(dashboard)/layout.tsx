@@ -3,15 +3,7 @@ import { auth } from '@clerk/nextjs/server';
 import { getCurrentUser } from '@/lib/auth';
 import { DashboardShell } from '@/components/layout/DashboardShell';
 import type { Role } from '@/lib/roles';
-
-function getInitials(name: string) {
-  return name
-    .split(' ')
-    .slice(0, 2)
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase();
-}
+import { getInitials } from '@/utils/general';
 
 export default async function DashboardLayout({
   children,

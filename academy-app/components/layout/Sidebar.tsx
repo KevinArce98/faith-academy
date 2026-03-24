@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard,
   Users,
+  GraduationCap,
   CreditCard,
   Calendar,
   Tag,
@@ -27,13 +28,22 @@ type NavItem = {
 };
 
 function getBaseNavItems(role: Role): NavItem[] {
-  return [
+  const items: NavItem[] = [
     { href: '/', icon: LayoutDashboard, label: 'Inicio' },
     { href: '/students', icon: Users, label: 'Estudiantes' },
+  ];
+
+  if (role === 'ADMIN') {
+    items.push({ href: '/profesores', icon: GraduationCap, label: 'Profesores' });
+  }
+
+  items.push(
     { href: '/payments', icon: CreditCard, label: role === 'STUDENT' ? 'Mis Pagos' : 'Pagos' },
     { href: '/classes', icon: Calendar, label: 'Clases' },
     { href: '/plans', icon: Tag, label: 'Planes' },
-  ];
+  );
+
+  return items;
 }
 
 const conditionalNavItems: Array<

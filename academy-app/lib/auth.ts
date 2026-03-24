@@ -1,4 +1,5 @@
 import { auth, clerkClient } from '@clerk/nextjs/server';
+import type { Role } from '@/lib/roles';
 import { db } from './db';
 
 export async function getCurrentUser() {
@@ -16,21 +17,45 @@ export async function getCurrentUser() {
     try {
       const client = await clerkClient();
       const clerkUser = await client.users.getUser(userId);
-      user = await db.userProfile.create({
-        data: {
-          clerkId:   userId,
-          email:     clerkUser.emailAddresses[0]?.emailAddress ?? '',
-          name:      `${clerkUser.firstName ?? ''} ${clerkUser.lastName ?? ''}`.trim(),
-          avatarUrl: clerkUser.imageUrl ?? null,
-          role:      'STUDENT',
-        },
+      user = await createUserProfile({
+        clerkId:   userId,
+        email:     clerkUser.emailAddresses[0]?.emailAddress ?? '',
+        name:      `${clerkUser.firstName ?? ''} ${clerkUser.lastName ?? ''}`.trim(),
+        avatarUrl: clerkUser.imageUrl ?? null,
+        role:      'STUDENT',
       });
     } catch {
       return null;
     }
   }
 
+  if (!user.isActive) return null;
+
   return user;
+}
+
+export async function createUserProfile({
+  clerkId,
+  email,
+  name,
+  role = 'STUDENT',
+  avatarUrl = null,
+}: {
+  clerkId: string;
+  email: string;
+  name?: string | null;
+  role?: Role;
+  avatarUrl?: string | null;
+}) {
+  return db.userProfile.create({
+    data: {
+      clerkId,
+      email,
+      name,
+      role,
+      avatarUrl,
+    },
+  });
 }
 
 // Verificar rol y retornar el usuario

@@ -125,7 +125,7 @@ export default async function ReportsPage() {
   for (let i = 11; i >= 0; i--) {
     const mStart = new Date(now.getFullYear(), now.getMonth() - i, 1);
     const mEnd = new Date(now.getFullYear(), now.getMonth() - i + 1, 0);
-    const label = new Intl.DateTimeFormat('es-MX', { month: 'short' }).format(
+    const label = new Intl.DateTimeFormat('es-CR', { month: 'short' }).format(
       mStart
     );
     const rev = recentOrders

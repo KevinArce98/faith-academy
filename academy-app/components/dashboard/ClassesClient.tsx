@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { ChevronLeft, ChevronRight, X, List, Calendar } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
@@ -55,12 +56,17 @@ const DAYS_ABBR = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
 
 function NewClassModal({
   teachers,
+  weekStart,
   onClose,
 }: {
   teachers: Teacher[];
+  weekStart: Date;
   onClose: () => void;
 }) {
+  const router = useRouter();
   const [selectedDays, setSelectedDays] = useState<number[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     document.body.style.overflow = 'hidden';
@@ -71,6 +77,62 @@ function NewClassModal({
     setSelectedDays((prev) =>
       prev.includes(i) ? prev.filter((d) => d !== i) : [...prev, i]
     );
+  }
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError(null);
+
+    if (selectedDays.length === 0) {
+      setError('Selecciona al menos un dia de la semana');
+      return;
+    }
+
+    const form = e.currentTarget;
+    const data = new FormData(form);
+    const startTime = data.get('startTime') as string;
+    const endTime = data.get('endTime') as string;
+
+    const occurrences = selectedDays.map((dayIndex) => {
+      const date = new Date(weekStart);
+      date.setDate(date.getDate() + dayIndex);
+      const [sh, sm] = startTime.split(':').map(Number);
+      const [eh, em] = endTime.split(':').map(Number);
+      const startsAt = new Date(date);
+      startsAt.setHours(sh, sm, 0, 0);
+      const endsAt = new Date(date);
+      endsAt.setHours(eh, em, 0, 0);
+      return { startsAt: startsAt.toISOString(), endsAt: endsAt.toISOString() };
+    });
+
+    setLoading(true);
+    try {
+      const res = await fetch('/api/v1/classes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: data.get('name') as string,
+          skillLevel: data.get('skillLevel') as string,
+          teacherId: data.get('teacherId') as string,
+          maxCapacity: parseInt(data.get('capacity') as string),
+          cancelWindowHours: parseInt(data.get('cancelWindow') as string),
+          description: (data.get('description') as string) || undefined,
+          occurrences,
+        }),
+      });
+
+      if (res.ok) {
+        router.refresh();
+        onClose();
+      } else {
+        const json = await res.json();
+        setError(json?.error?.formErrors?.[0] ?? 'No se pudo crear la clase');
+      }
+    } catch {
+      setError('Error de conexión');
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -95,26 +157,19 @@ function NewClassModal({
               <X className="h-5 w-5 text-gray-400" />
             </Button>
           </div>
-          <form className="space-y-5 p-6">
+          <form className="space-y-5 p-6" onSubmit={handleSubmit}>
             <Input
               name="name"
               label="Nombre de la clase"
               placeholder="Ej. Ballet Basico — Grupo A"
+              required
             />
-            <div className="grid grid-cols-2 gap-4">
-              <Select label="Disciplina">
-                <option>Ballet</option>
-                <option>Salsa</option>
-                <option>Yoga</option>
-                <option>HIIT</option>
-              </Select>
-              <Select label="Nivel">
-                <option>Basico</option>
-                <option>Intermedio</option>
-                <option>Avanzado</option>
-                <option>Master</option>
-              </Select>
-            </div>
+            <Select name="skillLevel" label="Nivel">
+              <option value="BEGINNER">Basico</option>
+              <option value="INTERMEDIATE">Intermedio</option>
+              <option value="ADVANCED">Avanzado</option>
+              <option value="MASTER">Master</option>
+            </Select>
 
             {/* Days */}
             <div>
@@ -188,6 +243,10 @@ function NewClassModal({
               hint="Opcional"
             />
 
+            {error && (
+              <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>
+            )}
+
             <div className="flex gap-3 pt-2">
               <Button
                 type="button"
@@ -195,6 +254,7 @@ function NewClassModal({
                 color="neutral"
                 onClick={onClose}
                 className="h-11 flex-1 rounded-xl border border-gray-200 hover:bg-gray-50"
+                disabled={loading}
               >
                 Cancelar
               </Button>
@@ -202,8 +262,9 @@ function NewClassModal({
                 type="submit"
                 variant="contained"
                 className="h-11 flex-1 rounded-xl"
+                disabled={loading}
               >
-                Crear Clase
+                {loading ? 'Creando...' : 'Crear Clase'}
               </Button>
             </div>
           </form>
@@ -263,7 +324,7 @@ export function ClassesClient({
     });
   }
 
-  const weekLabel = `${weekDays[0].getDate()} — ${weekDays[6].getDate()} ${new Intl.DateTimeFormat('es-MX', { month: 'long', year: 'numeric' }).format(weekDays[6])}`;
+  const weekLabel = `${weekDays[0].getDate()} — ${weekDays[6].getDate()} ${new Intl.DateTimeFormat('es-CR', { month: 'long', year: 'numeric' }).format(weekDays[6])}`;
 
   const today = new Date();
 
@@ -437,7 +498,7 @@ export function ClassesClient({
                     {listPagination.paginated.map((cls) => {
                       const start = new Date(cls.startsAt);
                       const end = new Date(cls.endsAt);
-                      const dayName = new Intl.DateTimeFormat('es-MX', {
+                      const dayName = new Intl.DateTimeFormat('es-CR', {
                         weekday: 'long',
                       }).format(start);
                       const timeStr = `${start.getHours().toString().padStart(2, '0')}:${start.getMinutes().toString().padStart(2, '0')} — ${end.getHours().toString().padStart(2, '0')}:${end.getMinutes().toString().padStart(2, '0')}`;
@@ -508,7 +569,7 @@ export function ClassesClient({
                 return Object.entries(grouped).map(([dateStr, dayClasses]) => {
                   const d = new Date(dateStr);
                   const isToday = dateStr === todayStr;
-                  const label = `${isToday ? 'HOY — ' : ''}${new Intl.DateTimeFormat('es-MX', { weekday: 'long', day: 'numeric', month: 'short' }).format(d)}`;
+                  const label = `${isToday ? 'HOY — ' : ''}${new Intl.DateTimeFormat('es-CR', { weekday: 'long', day: 'numeric', month: 'short' }).format(d)}`;
                   return (
                     <div key={dateStr}>
                       <p className="mb-2 text-xs font-bold uppercase tracking-wide text-gray-400">
@@ -578,6 +639,7 @@ export function ClassesClient({
           <NewClassModal
             key="new-class-modal"
             teachers={teachers}
+            weekStart={currentWeek}
             onClose={() => setModal(false)}
           />
         )}

@@ -70,7 +70,7 @@ export function StudentDrawer({
         )}
         <p className="text-xs text-gray-400">
           Miembro desde{' '}
-          {new Intl.DateTimeFormat('es-MX', {
+          {new Intl.DateTimeFormat('es-CR', {
             month: 'long',
             year: 'numeric',
           }).format(student.createdAt)}
@@ -125,7 +125,7 @@ export function StudentDrawer({
                 {activeOrder.expiresAt && (
                   <p className="text-danger text-xs">
                     Vence:{' '}
-                    {new Intl.DateTimeFormat('es-MX', {
+                    {new Intl.DateTimeFormat('es-CR', {
                       day: 'numeric',
                       month: 'short',
                       year: 'numeric',
@@ -172,7 +172,7 @@ export function StudentDrawer({
                     {o.expiresAt && (
                       <p className="text-xs text-gray-400">
                         Vence{' '}
-                        {new Intl.DateTimeFormat('es-MX', {
+                        {new Intl.DateTimeFormat('es-CR', {
                           day: 'numeric',
                           month: 'short',
                         }).format(new Date(o.expiresAt))}

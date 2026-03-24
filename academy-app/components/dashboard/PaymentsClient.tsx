@@ -117,7 +117,7 @@ function ReceiptModal({
                 Comprobante de Pago
               </p>
               <p className="text-xs text-gray-400">
-                {new Intl.DateTimeFormat('es-MX', {
+                {new Intl.DateTimeFormat('es-CR', {
                   day: 'numeric',
                   month: 'long',
                   year: 'numeric',
@@ -289,7 +289,7 @@ function PaymentCard({
               {order.creditGranted && order.expiresAt && (
                 <p className="text-xs text-gray-500">
                   {order.creditGranted} creditos activados · Vence{' '}
-                  {new Intl.DateTimeFormat('es-MX', {
+                  {new Intl.DateTimeFormat('es-CR', {
                     day: 'numeric',
                     month: 'short',
                     year: 'numeric',

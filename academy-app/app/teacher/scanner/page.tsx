@@ -186,7 +186,7 @@ export default function ScannerPage() {
                     {entry.ok ? entry.student?.name : getStatusLabel(entry)}
                   </span>
                   <span className="text-xs text-slate-500">
-                    {entry.scannedAt.toLocaleTimeString('es-MX', {
+                    {entry.scannedAt.toLocaleTimeString('es-CR', {
                       hour: '2-digit',
                       minute: '2-digit',
                       second: '2-digit',

@@ -392,7 +392,7 @@ export function StudentsClient({
                     ) : null}
                     {activeOrder?.expiresAt && (
                       <span className="text-xs text-gray-400">
-                        {new Intl.DateTimeFormat('es-MX', {
+                        {new Intl.DateTimeFormat('es-CR', {
                           day: 'numeric',
                           month: 'short',
                         }).format(new Date(activeOrder.expiresAt))}

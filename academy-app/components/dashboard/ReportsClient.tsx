@@ -69,7 +69,7 @@ export function ReportsClient({
   }, []);
 
   const formatCurrency = (value: number) =>
-    new Intl.NumberFormat('es-MX', {
+    new Intl.NumberFormat('es-CR', {
       style: 'currency',
       currency: 'MXN',
       maximumFractionDigits: 0,
