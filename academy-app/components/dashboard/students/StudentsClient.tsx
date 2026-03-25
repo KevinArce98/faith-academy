@@ -1,14 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import {
-  Eye,
-  Pencil,
-  MoreHorizontal,
-  Users2,
-  Search,
-  Plus,
-} from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Eye, Pencil, Users2, Search, Plus, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { cn } from '@/lib/cn';
@@ -27,6 +21,8 @@ import { Select } from '@/components/ui/Select';
 import { Checkbox } from '@/components/ui/Checkbox';
 import { Pagination } from '@/components/ui/Pagination';
 import { usePagination } from '@/hooks/usePagination';
+import { ResponsiveModal } from '@/components/ui/ResponsiveModal';
+import { EditStudentModal } from './EditStudentModal';
 import {
   Table,
   TableBody,
@@ -44,30 +40,96 @@ type StudentsClientProps = {
   total: number;
 };
 
+type ToastState = { type: 'success' | 'error'; message: string } | null;
+
+async function request<T = unknown>(
+  url: string,
+  options?: RequestInit
+): Promise<T> {
+  const res = await fetch(url, {
+    headers: { 'Content-Type': 'application/json' },
+    ...options,
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(data?.error ?? 'Error inesperado.');
+  }
+  return data;
+}
+
 export function StudentsClient({
   students,
   plans,
   total,
 }: StudentsClientProps) {
+  const router = useRouter();
   const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [planFilter, setPlanFilter] = useState('all');
+  const [familyFilter, setFamilyFilter] = useState<'all' | 'with' | 'without'>(
+    'all'
+  );
   const [modalOpen, setModalOpen] = useState(false);
   const [selected, setSelected] = useState<Student | null>(null);
   const [tbodyRef] = useAutoAnimate<HTMLTableSectionElement>();
   const [rowsSelected, setRowsSelected] = useState<Student[]>([]);
+  const [editing, setEditing] = useState<Student | null>(null);
+  const [deleting, setDeleting] = useState<Student | null>(null);
+  const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [toast, setToast] = useState<ToastState>(null);
 
-  const filtered = students.filter(
-    (s) =>
+  const filtered = students.filter((s) => {
+    const matchesSearch =
       s.name.toLowerCase().includes(search.toLowerCase()) ||
-      s.email.toLowerCase().includes(search.toLowerCase())
-  );
+      s.email.toLowerCase().includes(search.toLowerCase());
+
+    const activeOrder = s.orders.find((o) => o.status === 'ACTIVE');
+    const status = activeOrder?.status ?? 'EXPIRED';
+
+    const matchesStatus =
+      statusFilter === 'all' ||
+      (statusFilter === 'ACTIVE' && status === 'ACTIVE') ||
+      (statusFilter === 'EXPIRED' && status === 'EXPIRED') ||
+      (statusFilter === 'PENDING_REVIEW' && status === 'PENDING_REVIEW');
+
+    const matchesPlan =
+      planFilter === 'all' ||
+      (activeOrder && activeOrder.plan.id === planFilter);
+
+    const matchesFamily =
+      familyFilter === 'all' ||
+      (familyFilter === 'with' && s.familyMember) ||
+      (familyFilter === 'without' && !s.familyMember);
+
+    return matchesSearch && matchesStatus && matchesPlan && matchesFamily;
+  });
 
   const pagination = usePagination(filtered, { pageSize: 10 });
 
-  // Reset to page 1 when search changes
+  // Reset to page 1 when search or filters change
   useEffect(() => {
     pagination.reset();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search]);
+  }, [search, statusFilter, planFilter, familyFilter]);
+
+  async function deleteStudent(student: Student) {
+    setLoadingId(student.id);
+    try {
+      await request(`/api/v1/students/${student.id}`, { method: 'DELETE' });
+      setToast({ type: 'success', message: `${student.name} eliminado.` });
+      setDeleting(null);
+      setSelected((current) => (current?.id === student.id ? null : current));
+      router.refresh();
+    } catch (err) {
+      setToast({
+        type: 'error',
+        message:
+          err instanceof Error ? err.message : 'Error al eliminar alumno.',
+      });
+    } finally {
+      setLoadingId(null);
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -85,6 +147,19 @@ export function StudentsClient({
           + Nuevo Alumno
         </Button>
       </div>
+
+      {toast && (
+        <div
+          className={cn(
+            'rounded-xl border px-4 py-3 text-sm font-medium',
+            toast.type === 'success'
+              ? 'border-success/20 bg-success/10 text-success'
+              : 'border-danger/20 bg-danger/10 text-danger'
+          )}
+        >
+          {toast.message}
+        </div>
+      )}
 
       {/* Mobile FAB */}
       <button
@@ -110,21 +185,40 @@ export function StudentsClient({
           className="flex items-center gap-3 overflow-x-auto pb-1"
           style={{ WebkitOverflowScrolling: 'touch' }}
         >
-          <Select className="h-9 shrink-0">
-            <option>Todos los estados</option>
-            <option>Activo</option>
-            <option>Vencido</option>
-            <option>En revision</option>
+          <Select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="h-9 shrink-0"
+          >
+            <option value="all">Todos los estados</option>
+            <option value="ACTIVE">Activo</option>
+            <option value="EXPIRED">Vencido</option>
+            <option value="PENDING_REVIEW">En revision</option>
           </Select>
-          <Select className="h-9 shrink-0">
-            <option>Todos los planes</option>
+          <Select
+            value={planFilter}
+            onChange={(e) => setPlanFilter(e.target.value)}
+            className="h-9 shrink-0"
+          >
+            <option value="all">Todos los planes</option>
             {plans.map((p) => (
-              <option key={p.id}>{p.name}</option>
+              <option key={p.id} value={p.id}>
+                {p.name}
+              </option>
             ))}
           </Select>
           <Button
-            variant="text"
+            variant={familyFilter === 'with' ? 'contained' : 'text'}
             color="neutral"
+            onClick={() =>
+              setFamilyFilter(
+                familyFilter === 'with'
+                  ? 'all'
+                  : familyFilter === 'all'
+                    ? 'with'
+                    : 'all'
+              )
+            }
             className="text-dark h-9 shrink-0 border border-gray-200 px-4 text-sm font-medium hover:bg-gray-50"
           >
             <Users2 className="h-4 w-4" /> Familia
@@ -139,7 +233,10 @@ export function StudentsClient({
             <TableHead>
               <TableHeader className="w-8 px-3 pl-5">
                 <Checkbox
-                  checked={rowsSelected.length === filtered.length}
+                  checked={
+                    filtered.length > 0 &&
+                    rowsSelected.length === filtered.length
+                  }
                   onChange={(e) => {
                     if (e.target.checked) {
                       setRowsSelected(filtered);
@@ -276,6 +373,7 @@ export function StudentsClient({
                           <Button
                             variant="text"
                             color="neutral"
+                            onClick={() => setSelected(student)}
                             className="h-auto p-1.5 text-gray-400"
                           >
                             <Eye className="h-4 w-4" />
@@ -283,16 +381,20 @@ export function StudentsClient({
                           <Button
                             variant="text"
                             color="neutral"
+                            onClick={() => setEditing(student)}
                             className="h-auto p-1.5 text-gray-400"
+                            disabled={loadingId === student.id}
                           >
                             <Pencil className="h-4 w-4" />
                           </Button>
                           <Button
                             variant="text"
                             color="neutral"
+                            onClick={() => setDeleting(student)}
                             className="h-auto p-1.5 text-gray-400"
+                            disabled={loadingId === student.id}
                           >
-                            <MoreHorizontal className="h-4 w-4" />
+                            <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
                       </TableCell>
@@ -403,14 +505,26 @@ export function StudentsClient({
                     className="flex items-center gap-1"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <button className="flex min-h-[44px] min-w-[44px] items-center justify-center text-gray-400">
+                    <button
+                      onClick={() => setSelected(student)}
+                      className="flex min-h-[44px] min-w-[44px] items-center justify-center text-gray-400"
+                      disabled={loadingId === student.id}
+                    >
                       <Eye className="h-4 w-4" />
                     </button>
-                    <button className="flex min-h-[44px] min-w-[44px] items-center justify-center text-gray-400">
+                    <button
+                      onClick={() => setEditing(student)}
+                      className="flex min-h-[44px] min-w-[44px] items-center justify-center text-gray-400"
+                      disabled={loadingId === student.id}
+                    >
                       <Pencil className="h-4 w-4" />
                     </button>
-                    <button className="flex min-h-[44px] min-w-[44px] items-center justify-center text-gray-400">
-                      <MoreHorizontal className="h-4 w-4" />
+                    <button
+                      onClick={() => setDeleting(student)}
+                      className="flex min-h-[44px] min-w-[44px] items-center justify-center text-gray-400"
+                      disabled={loadingId === student.id}
+                    >
+                      <Trash2 className="h-4 w-4" />
                     </button>
                   </div>
                 </div>
@@ -466,6 +580,51 @@ export function StudentsClient({
           />
         )}
       </AnimatePresence>
+
+      <EditStudentModal
+        student={editing}
+        plans={plans}
+        onClose={() => setEditing(null)}
+        onUpdated={(message) => {
+          setToast({ type: 'success', message });
+          setEditing(null);
+          router.refresh();
+        }}
+      />
+
+      <ResponsiveModal
+        isOpen={!!deleting}
+        onClose={() => setDeleting(null)}
+        title="Eliminar Alumno"
+      >
+        {deleting && (
+          <div className="space-y-4 p-6">
+            <p className="text-sm text-gray-600">
+              {`¿Eliminar a ${deleting.name}? Esta acción no se puede deshacer.`}
+            </p>
+            <div className="flex gap-3">
+              <Button
+                type="button"
+                variant="outlined"
+                color="neutral"
+                className="flex-1"
+                onClick={() => setDeleting(null)}
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="button"
+                color="danger"
+                className="flex-1"
+                onClick={() => deleteStudent(deleting)}
+                disabled={loadingId === deleting.id}
+              >
+                Confirmar
+              </Button>
+            </div>
+          </div>
+        )}
+      </ResponsiveModal>
     </div>
   );
 }

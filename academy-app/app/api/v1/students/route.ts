@@ -42,7 +42,7 @@ export async function POST(req: Request) {
     return Response.json({ success: false, error: parsed.error.flatten() }, { status: 422 });
   }
 
-  const { name, email, notes } = parsed.data;
+  const { name, email, notes, phone } = parsed.data;
   // Normalize planId: treat empty string as null
   const planId = parsed.data.planId?.trim() || null;
 
@@ -70,6 +70,7 @@ export async function POST(req: Request) {
             clerkId: clerkUser.id,
             email,
             name,
+            phone: phone?.trim() ? phone.trim() : null,
             role: 'STUDENT',
           },
         });

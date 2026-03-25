@@ -4,6 +4,7 @@ export type Order = {
   status: string;
   expiresAt: Date | null;
   creditGranted: number | null;
+  notes?: string | null;
   plan: Plan;
 };
 export type FamilyMember = { family: { name: string }; position: number };
@@ -11,6 +12,7 @@ export type Student = {
   id: string;
   name: string;
   email: string;
+  phone?: string;
   role: string;
   createdAt: Date;
   orders: Order[];

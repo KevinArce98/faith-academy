@@ -62,6 +62,7 @@ model UserProfile {
   id        String   @id @default(cuid())
   clerkId   String   @unique
   email     String
+  phone     String?
   name      String?
   avatarUrl String?
   role      Role

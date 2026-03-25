@@ -35,6 +35,8 @@ export default async function StudentsPage() {
   // Serialize dates for client component
   const serialized = students.map((s) => ({
     ...s,
+    name: s.name || '',
+    phone: s.phone ?? undefined,
     createdAt: s.createdAt,
     orders: s.orders.map((o) => ({
       ...o,
