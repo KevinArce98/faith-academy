@@ -2,7 +2,15 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ChevronLeft, ChevronRight, X, List, Calendar } from 'lucide-react';
+import {
+  ChevronLeft,
+  ChevronRight,
+  X,
+  List,
+  Calendar,
+  Edit,
+  Trash2,
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { cn } from '@/lib/cn';
@@ -34,10 +42,13 @@ type Cls = {
   endsAt: string;
   maxCapacity: number;
   skillLevel: string;
+  teacherId: string;
+  description?: string | null;
+  cancelWindowHours?: number;
   _count: ClsCount;
 };
 
-type Teacher = { id: string; name: string };
+type Teacher = { id: string; name: string | null };
 
 type ClassesClientProps = {
   classes: Cls[];
@@ -50,6 +61,13 @@ const LEVEL_COLORS: Record<string, string> = {
   INTERMEDIATE: 'bg-primary/20 text-primary border-primary/30',
   ADVANCED: 'bg-warning/20 text-warning border-warning/30',
   MASTER: 'bg-dark/20 text-dark border-dark/30',
+};
+
+const LEVEL_TRANSLATIONS: Record<string, string> = {
+  BEGINNER: 'Básico',
+  INTERMEDIATE: 'Intermedio',
+  ADVANCED: 'Avanzado',
+  MASTER: 'Master',
 };
 
 const DAYS_ABBR = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
@@ -70,7 +88,9 @@ function NewClassModal({
 
   useEffect(() => {
     document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = 'unset'; };
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
   }, []);
 
   function toggleDay(i: number) {
@@ -151,123 +171,457 @@ function NewClassModal({
         <div className="flex justify-center pt-3 pb-1 md:hidden">
           <div className="h-1 w-10 rounded-full bg-gray-300" />
         </div>
-          <div className="flex items-center justify-between border-b border-gray-100 px-6 py-5">
-            <h2 className="text-dark text-lg font-bold">Nueva Clase</h2>
-            <Button variant="text" color="neutral" onClick={onClose} className="h-auto p-1">
-              <X className="h-5 w-5 text-gray-400" />
+        <div className="flex items-center justify-between border-b border-gray-100 px-6 py-5">
+          <h2 className="text-dark text-lg font-bold">Nueva Clase</h2>
+          <Button
+            variant="text"
+            color="neutral"
+            onClick={onClose}
+            className="h-auto p-1"
+          >
+            <X className="h-5 w-5 text-gray-400" />
+          </Button>
+        </div>
+        <form className="space-y-5 p-6" onSubmit={handleSubmit}>
+          <Input
+            name="name"
+            label="Nombre de la clase"
+            placeholder="Ej. Ballet Basico — Grupo A"
+            required
+          />
+          <Select name="skillLevel" label="Nivel">
+            <option value="BEGINNER">Basico</option>
+            <option value="INTERMEDIATE">Intermedio</option>
+            <option value="ADVANCED">Avanzado</option>
+            <option value="MASTER">Master</option>
+          </Select>
+
+          {/* Days */}
+          <div>
+            <label className="text-dark mb-2 block text-sm font-medium">
+              Dias de la semana
+            </label>
+            <div className="flex gap-2">
+              {DAYS_ABBR.map((d, i) => (
+                <Button
+                  key={i}
+                  type="button"
+                  onClick={() => toggleDay(i)}
+                  variant={selectedDays.includes(i) ? 'contained' : 'text'}
+                  color={selectedDays.includes(i) ? 'dark' : 'neutral'}
+                  className={cn(
+                    'h-9 w-9 rounded-xl p-0',
+                    !selectedDays.includes(i) &&
+                      'border-transparent bg-gray-100 text-gray-400 hover:bg-gray-200'
+                  )}
+                >
+                  {d}
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <Input
+              name="startTime"
+              type="time"
+              label="Hora inicio"
+              defaultValue="09:00"
+            />
+            <Input
+              name="endTime"
+              type="time"
+              label="Hora fin"
+              defaultValue="10:00"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <Input
+              name="capacity"
+              type="number"
+              label="Capacidad maxima"
+              defaultValue={20}
+            />
+            <Input
+              name="cancelWindow"
+              type="number"
+              label="Ventana de cancelacion"
+              defaultValue={24}
+              endAdornment="horas"
+            />
+          </div>
+
+          <Select name="teacherId" label="Profesor asignado">
+            <option value="">Seleccionar profesor</option>
+            {teachers.map((t) => (
+              <option key={t.id} value={t.id}>
+                Prof. {t.name || 'Sin nombre'}
+              </option>
+            ))}
+          </Select>
+
+          <Textarea
+            name="description"
+            label="Descripcion"
+            placeholder="Descripcion breve de la clase..."
+            rows={3}
+            hint="Opcional"
+          />
+
+          {error && (
+            <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
+              {error}
+            </p>
+          )}
+
+          <div className="flex gap-3 pt-2">
+            <Button
+              type="button"
+              variant="text"
+              color="neutral"
+              onClick={onClose}
+              className="h-11 flex-1 rounded-xl border border-gray-200 hover:bg-gray-50"
+              disabled={loading}
+            >
+              Cancelar
+            </Button>
+            <Button
+              type="submit"
+              variant="contained"
+              className="h-11 flex-1 rounded-xl"
+              disabled={loading}
+            >
+              {loading ? 'Creando...' : 'Crear Clase'}
             </Button>
           </div>
-          <form className="space-y-5 p-6" onSubmit={handleSubmit}>
+        </form>
+      </motion.div>
+    </div>
+  );
+}
+
+function EditClassModal({
+  classData,
+  teachers,
+  onClose,
+}: {
+  classData: Cls;
+  teachers: Teacher[];
+  onClose: () => void;
+}) {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, []);
+
+  const start = new Date(classData.startsAt);
+  const end = new Date(classData.endsAt);
+  const startTime = `${start.getHours().toString().padStart(2, '0')}:${start.getMinutes().toString().padStart(2, '0')}`;
+  const endTime = `${end.getHours().toString().padStart(2, '0')}:${end.getMinutes().toString().padStart(2, '0')}`;
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError(null);
+
+    const form = e.currentTarget;
+    const data = new FormData(form);
+    const startTime = data.get('startTime') as string;
+    const endTime = data.get('endTime') as string;
+
+    const [sh, sm] = startTime.split(':').map(Number);
+    const [eh, em] = endTime.split(':').map(Number);
+
+    const startDateTime = new Date(start);
+    startDateTime.setHours(sh, sm, 0, 0);
+    const endDateTime = new Date(start);
+    endDateTime.setHours(eh, em, 0, 0);
+
+    if (endDateTime <= startDateTime) {
+      setError('La hora de fin debe ser posterior a la hora de inicio');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/v1/classes/${classData.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: data.get('name') as string,
+          skillLevel: data.get('skillLevel') as string,
+          teacherId: data.get('teacherId') as string,
+          maxCapacity: parseInt(data.get('capacity') as string),
+          cancelWindowHours: parseInt(data.get('cancelWindow') as string),
+          description: (data.get('description') as string) || undefined,
+          startsAt: startDateTime.toISOString(),
+          endsAt: endDateTime.toISOString(),
+        }),
+      });
+
+      if (res.ok) {
+        router.refresh();
+        onClose();
+      } else {
+        const json = await res.json();
+        setError(
+          json?.error?.formErrors?.[0] ?? 'No se pudo actualizar la clase'
+        );
+      }
+    } catch {
+      setError('Error de conexión');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 md:items-center md:p-4"
+      onClick={onClose}
+    >
+      <motion.div
+        className="max-h-[90vh] w-full overflow-y-auto rounded-t-3xl bg-white shadow-2xl md:max-w-lg md:rounded-2xl"
+        variants={modalVariants}
+        initial="hidden"
+        animate="visible"
+        exit="exit"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex justify-center pt-3 pb-1 md:hidden">
+          <div className="h-1 w-10 rounded-full bg-gray-300" />
+        </div>
+        <div className="flex items-center justify-between border-b border-gray-100 px-6 py-5">
+          <h2 className="text-dark text-lg font-bold">Editar Clase</h2>
+          <Button
+            variant="text"
+            color="neutral"
+            onClick={onClose}
+            className="h-auto p-1"
+          >
+            <X className="h-5 w-5 text-gray-400" />
+          </Button>
+        </div>
+        <form className="space-y-5 p-6" onSubmit={handleSubmit}>
+          <Input
+            name="name"
+            label="Nombre de la clase"
+            placeholder="Ej. Ballet Basico — Grupo A"
+            defaultValue={classData.name}
+            required
+          />
+          <Select
+            name="skillLevel"
+            label="Nivel"
+            defaultValue={classData.skillLevel}
+          >
+            <option value="BEGINNER">Basico</option>
+            <option value="INTERMEDIATE">Intermedio</option>
+            <option value="ADVANCED">Avanzado</option>
+            <option value="MASTER">Master</option>
+          </Select>
+
+          <div className="grid grid-cols-2 gap-4">
             <Input
-              name="name"
-              label="Nombre de la clase"
-              placeholder="Ej. Ballet Basico — Grupo A"
-              required
+              name="startTime"
+              type="time"
+              label="Hora inicio"
+              defaultValue={startTime}
             />
-            <Select name="skillLevel" label="Nivel">
-              <option value="BEGINNER">Basico</option>
-              <option value="INTERMEDIATE">Intermedio</option>
-              <option value="ADVANCED">Avanzado</option>
-              <option value="MASTER">Master</option>
-            </Select>
-
-            {/* Days */}
-            <div>
-              <label className="text-dark mb-2 block text-sm font-medium">
-                Dias de la semana
-              </label>
-              <div className="flex gap-2">
-                {DAYS_ABBR.map((d, i) => (
-                  <Button
-                    key={i}
-                    type="button"
-                    onClick={() => toggleDay(i)}
-                    variant={selectedDays.includes(i) ? 'contained' : 'text'}
-                    color={selectedDays.includes(i) ? 'dark' : 'neutral'}
-                    className={cn(
-                      'h-9 w-9 rounded-xl p-0',
-                      !selectedDays.includes(i) && 'bg-gray-100 text-gray-400 border-transparent hover:bg-gray-200'
-                    )}
-                  >
-                    {d}
-                  </Button>
-                ))}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <Input
-                name="startTime"
-                type="time"
-                label="Hora inicio"
-                defaultValue="09:00"
-              />
-              <Input
-                name="endTime"
-                type="time"
-                label="Hora fin"
-                defaultValue="10:00"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <Input
-                name="capacity"
-                type="number"
-                label="Capacidad maxima"
-                defaultValue={20}
-              />
-              <Input
-                name="cancelWindow"
-                type="number"
-                label="Ventana de cancelacion"
-                defaultValue={24}
-                endAdornment="horas"
-              />
-            </div>
-
-            <Select name="teacherId" label="Profesor asignado">
-              <option value="">Seleccionar profesor</option>
-              {teachers.map((t) => (
-                <option key={t.id} value={t.id}>
-                  Prof. {t.name}
-                </option>
-              ))}
-            </Select>
-
-            <Textarea
-              name="description"
-              label="Descripcion"
-              placeholder="Descripcion breve de la clase..."
-              rows={3}
-              hint="Opcional"
+            <Input
+              name="endTime"
+              type="time"
+              label="Hora fin"
+              defaultValue={endTime}
             />
+          </div>
 
-            {error && (
-              <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>
-            )}
+          <div className="grid grid-cols-2 gap-4">
+            <Input
+              name="capacity"
+              type="number"
+              label="Capacidad maxima"
+              defaultValue={classData.maxCapacity}
+            />
+            <Input
+              name="cancelWindow"
+              type="number"
+              label="Ventana de cancelacion"
+              defaultValue={24}
+              endAdornment="horas"
+            />
+          </div>
 
-            <div className="flex gap-3 pt-2">
-              <Button
-                type="button"
-                variant="text"
-                color="neutral"
-                onClick={onClose}
-                className="h-11 flex-1 rounded-xl border border-gray-200 hover:bg-gray-50"
-                disabled={loading}
-              >
-                Cancelar
-              </Button>
-              <Button
-                type="submit"
-                variant="contained"
-                className="h-11 flex-1 rounded-xl"
-                disabled={loading}
-              >
-                {loading ? 'Creando...' : 'Crear Clase'}
-              </Button>
+          <Select
+            name="teacherId"
+            label="Profesor asignado"
+            defaultValue={classData.teacherId}
+          >
+            <option value="">Seleccionar profesor</option>
+            {teachers.map((t) => (
+              <option key={t.id} value={t.id}>
+                Prof. {t.name || 'Sin nombre'}
+              </option>
+            ))}
+          </Select>
+
+          <Textarea
+            name="description"
+            label="Descripcion"
+            placeholder="Descripcion breve de la clase..."
+            rows={3}
+            hint="Opcional"
+            defaultValue={classData.description || ''}
+          />
+
+          {error && (
+            <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
+              {error}
+            </p>
+          )}
+
+          <div className="flex gap-3 pt-2">
+            <Button
+              type="button"
+              variant="text"
+              color="neutral"
+              onClick={onClose}
+              className="h-11 flex-1 rounded-xl border border-gray-200 hover:bg-gray-50"
+              disabled={loading}
+            >
+              Cancelar
+            </Button>
+            <Button
+              type="submit"
+              variant="contained"
+              className="h-11 flex-1 rounded-xl"
+              disabled={loading}
+            >
+              {loading ? 'Actualizando...' : 'Actualizar Clase'}
+            </Button>
+          </div>
+        </form>
+      </motion.div>
+    </div>
+  );
+}
+
+function DeleteClassModal({
+  classData,
+  onClose,
+}: {
+  classData: Cls;
+  onClose: () => void;
+}) {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, []);
+
+  async function handleDelete() {
+    setError(null);
+    setLoading(true);
+
+    try {
+      const res = await fetch(`/api/v1/classes/${classData.id}`, {
+        method: 'DELETE',
+      });
+
+      if (res.ok) {
+        router.refresh();
+        onClose();
+      } else {
+        const json = await res.json();
+        setError(json?.error ?? 'No se pudo eliminar la clase');
+      }
+    } catch {
+      setError('Error de conexión');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 md:items-center md:p-4"
+      onClick={onClose}
+    >
+      <motion.div
+        className="w-full overflow-y-auto rounded-t-3xl bg-white shadow-2xl md:max-w-md md:rounded-2xl"
+        variants={modalVariants}
+        initial="hidden"
+        animate="visible"
+        exit="exit"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex justify-center pt-3 pb-1 md:hidden">
+          <div className="h-1 w-10 rounded-full bg-gray-300" />
+        </div>
+        <div className="flex items-center justify-between border-b border-gray-100 px-6 py-5">
+          <h2 className="text-dark text-lg font-bold">Eliminar Clase</h2>
+          <Button
+            variant="text"
+            color="neutral"
+            onClick={onClose}
+            className="h-auto p-1"
+          >
+            <X className="h-5 w-5 text-gray-400" />
+          </Button>
+        </div>
+        <div className="space-y-5 p-6">
+          <div className="text-center">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+              <Trash2 className="h-6 w-6 text-red-600" />
             </div>
-          </form>
+            <p className="text-dark text-lg font-semibold">
+              ¿Eliminar esta clase?
+            </p>
+            <p className="mt-2 text-sm text-gray-600">{classData.name}</p>
+            <p className="mt-1 text-xs text-gray-500">
+              Esta acción no se puede deshacer
+            </p>
+          </div>
+
+          {error && (
+            <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
+              {error}
+            </p>
+          )}
+
+          <div className="flex gap-3 pt-2">
+            <Button
+              type="button"
+              variant="text"
+              color="neutral"
+              onClick={onClose}
+              className="h-11 flex-1 rounded-xl border border-gray-200 hover:bg-gray-50"
+              disabled={loading}
+            >
+              Cancelar
+            </Button>
+            <Button
+              type="button"
+              variant="contained"
+              onClick={handleDelete}
+              className="h-11 flex-1 rounded-xl"
+              disabled={loading}
+            >
+              {loading ? 'Eliminando...' : 'Eliminar'}
+            </Button>
+          </div>
+        </div>
       </motion.div>
     </div>
   );
@@ -280,6 +634,9 @@ export function ClassesClient({
 }: ClassesClientProps) {
   const [view, setView] = useState<'week' | 'list'>('week');
   const [modalOpen, setModal] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedClass, setSelectedClass] = useState<Cls | null>(null);
   const [currentWeek, setWeek] = useState(new Date(weekStart));
   const [listRef] = useAutoAnimate<HTMLTableSectionElement>();
   const [isMobile, setIsMobile] = useState(false);
@@ -336,15 +693,20 @@ export function ClassesClient({
         <div className="flex items-center gap-3">
           <div className="flex overflow-hidden rounded-xl border border-gray-200">
             <Button
-              onClick={() => { if (!isMobile) setView('week'); }}
+              onClick={() => {
+                if (!isMobile) setView('week');
+              }}
               variant={view === 'week' ? 'contained' : 'text'}
               color={view === 'week' ? 'dark' : 'neutral'}
               className={cn(
                 'rounded-none px-4 py-2',
-                isMobile && 'opacity-40 cursor-not-allowed',
-                view !== 'week' && 'border-transparent text-gray-500 hover:bg-gray-50'
+                isMobile && 'cursor-not-allowed opacity-40',
+                view !== 'week' &&
+                  'border-transparent text-gray-500 hover:bg-gray-50'
               )}
-              title={isMobile ? 'Vista de semana disponible en desktop' : undefined}
+              title={
+                isMobile ? 'Vista de semana disponible en desktop' : undefined
+              }
             >
               <span className="flex items-center gap-1.5">
                 <Calendar className="h-4 w-4" /> Semana
@@ -356,7 +718,8 @@ export function ClassesClient({
               color={view === 'list' ? 'dark' : 'neutral'}
               className={cn(
                 'rounded-none border-l border-gray-200 px-4 py-2',
-                view !== 'list' && 'border-transparent text-gray-500 hover:bg-gray-50'
+                view !== 'list' &&
+                  'border-transparent text-gray-500 hover:bg-gray-50'
               )}
             >
               <span className="flex items-center gap-1.5">
@@ -399,7 +762,7 @@ export function ClassesClient({
           variant="text"
           color="neutral"
           onClick={goToday}
-          className="h-auto px-3 py-1.5 text-xs border border-gray-200 hover:bg-gray-50"
+          className="h-auto border border-gray-200 px-3 py-1.5 text-xs hover:bg-gray-50"
         >
           Hoy
         </Button>
@@ -493,6 +856,7 @@ export function ClassesClient({
                     <TableHeader>Horario</TableHeader>
                     <TableHeader>Nivel</TableHeader>
                     <TableHeader>Asistencia</TableHeader>
+                    <TableHeader>Acciones</TableHeader>
                   </TableHead>
                   <TableBody ref={listRef}>
                     {listPagination.paginated.map((cls) => {
@@ -521,11 +885,42 @@ export function ClassesClient({
                                   'border-transparent bg-gray-100 text-gray-600'
                               )}
                             >
-                              {cls.skillLevel}
+                              {LEVEL_TRANSLATIONS[cls.skillLevel] ||
+                                cls.skillLevel}
                             </span>
                           </TableCell>
                           <TableCell className="text-gray-600">
                             {cls._count.attendances}/{cls.maxCapacity}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex gap-1">
+                              <Button
+                                variant="text"
+                                size="sm"
+                                onClick={() => {
+                                  setSelectedClass(cls);
+                                  setEditModalOpen(true);
+                                }}
+                                className="h-8 w-8 p-0"
+                                color="neutral"
+                                title="Editar clase"
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="text"
+                                size="sm"
+                                onClick={() => {
+                                  setSelectedClass(cls);
+                                  setDeleteModalOpen(true);
+                                }}
+                                color="neutral"
+                                className="h-8 w-8 p-0"
+                                title="Eliminar clase"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
                           </TableCell>
                         </TableRow>
                       );
@@ -558,7 +953,9 @@ export function ClassesClient({
               </p>
             ) : (
               (() => {
-                const grouped = listPagination.paginated.reduce<Record<string, typeof classes>>((acc, cls) => {
+                const grouped = listPagination.paginated.reduce<
+                  Record<string, typeof classes>
+                >((acc, cls) => {
                   const d = new Date(cls.startsAt);
                   const key = d.toDateString();
                   if (!acc[key]) acc[key] = [];
@@ -572,7 +969,7 @@ export function ClassesClient({
                   const label = `${isToday ? 'HOY — ' : ''}${new Intl.DateTimeFormat('es-CR', { weekday: 'long', day: 'numeric', month: 'short' }).format(d)}`;
                   return (
                     <div key={dateStr}>
-                      <p className="mb-2 text-xs font-bold uppercase tracking-wide text-gray-400">
+                      <p className="mb-2 text-xs font-bold tracking-wide text-gray-400 uppercase">
                         {label}
                       </p>
                       <div className="space-y-2">
@@ -581,31 +978,57 @@ export function ClassesClient({
                           const end = new Date(cls.endsAt);
                           const timeStr = `${start.getHours().toString().padStart(2, '0')}:${start.getMinutes().toString().padStart(2, '0')} — ${end.getHours().toString().padStart(2, '0')}:${end.getMinutes().toString().padStart(2, '0')}`;
                           const levelColor = LEVEL_COLORS[cls.skillLevel];
-                          const borderColor = levelColor?.includes('success') ? 'border-l-green-500'
-                            : levelColor?.includes('primary') ? 'border-l-blue-500'
-                            : levelColor?.includes('warning') ? 'border-l-amber-500'
-                            : 'border-l-gray-400';
+                          const borderColor = levelColor?.includes('success')
+                            ? 'border-l-green-500'
+                            : levelColor?.includes('primary')
+                              ? 'border-l-blue-500'
+                              : levelColor?.includes('warning')
+                                ? 'border-l-amber-500'
+                                : 'border-l-gray-400';
                           return (
                             <div
                               key={cls.id}
-                              className={cn('rounded-xl border-l-4 bg-white p-4 shadow-sm', borderColor)}
+                              className={cn(
+                                'rounded-xl border-l-4 bg-white p-4 shadow-sm',
+                                borderColor
+                              )}
                             >
                               <div className="mb-1 flex items-center gap-2">
                                 <span className="rounded-full bg-gray-100 px-2 py-0.5 font-mono text-xs text-gray-500">
                                   {timeStr}
                                 </span>
-                                <span className="text-dark text-sm font-bold">{cls.name}</span>
+                                <span className="text-dark text-sm font-bold">
+                                  {cls.name}
+                                </span>
                               </div>
-                              <p className="mb-2 text-xs text-gray-400">
-                                Cupos: {cls._count.attendances}/{cls.maxCapacity}
+                              <p className="mb-3 text-xs text-gray-400">
+                                Cupos: {cls._count.attendances}/
+                                {cls.maxCapacity}
                               </p>
-                              <Button
-                                variant="text"
-                                color="primary"
-                                className="h-auto w-full justify-center rounded-lg border border-gray-100 py-2 text-xs font-semibold"
-                              >
-                                Ver inscritos
-                              </Button>
+                              <div className="flex gap-2">
+                                <Button
+                                  variant="text"
+                                  onClick={() => {
+                                    setSelectedClass(cls);
+                                    setEditModalOpen(true);
+                                  }}
+                                  className="h-auto flex-1 justify-center rounded-lg border border-gray-100 py-2 text-xs font-semibold"
+                                >
+                                  <Edit className="mr-1 h-3 w-3" />
+                                  Editar
+                                </Button>
+                                <Button
+                                  variant="text"
+                                  onClick={() => {
+                                    setSelectedClass(cls);
+                                    setDeleteModalOpen(true);
+                                  }}
+                                  className="h-auto flex-1 justify-center rounded-lg border border-gray-100 py-2 text-xs font-semibold"
+                                >
+                                  <Trash2 className="mr-1 h-3 w-3" />
+                                  Eliminar
+                                </Button>
+                              </div>
                             </div>
                           );
                         })}
@@ -641,6 +1064,27 @@ export function ClassesClient({
             teachers={teachers}
             weekStart={currentWeek}
             onClose={() => setModal(false)}
+          />
+        )}
+        {editModalOpen && selectedClass && (
+          <EditClassModal
+            key="edit-class-modal"
+            classData={selectedClass}
+            teachers={teachers}
+            onClose={() => {
+              setEditModalOpen(false);
+              setSelectedClass(null);
+            }}
+          />
+        )}
+        {deleteModalOpen && selectedClass && (
+          <DeleteClassModal
+            key="delete-class-modal"
+            classData={selectedClass}
+            onClose={() => {
+              setDeleteModalOpen(false);
+              setSelectedClass(null);
+            }}
           />
         )}
       </AnimatePresence>
