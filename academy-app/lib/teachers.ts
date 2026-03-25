@@ -27,7 +27,7 @@ export async function getTeachersWithClasses(): Promise<TeacherProfile[]> {
   const profesores = await Promise.all(
     teachers.map(async (teacher) => {
       const clases = await db.class.findMany({
-        where: { teacherId: teacher.clerkId, isActive: true },
+        where: { teacherId: teacher.id, isActive: true },
         select: {
           id: true,
           name: true,

@@ -10,9 +10,10 @@ function jsonError(message: string, status = 400) {
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> }
 ) {
   await requireRole('ADMIN');
+  const { id } = await params;
   const {
     isActive,
     role,
@@ -23,19 +24,19 @@ export async function PATCH(
     name?: string;
   } = await req.json();
 
-  const teacher = await db.userProfile.findUnique({ where: { id: params.id } });
+  const teacher = await db.userProfile.findUnique({ where: { id } });
   if (!teacher) {
     return jsonError('Profesor no encontrado.', 404);
   }
 
   if (isActive === false) {
     const clasesActivas = await db.class.count({
-      where: { teacherId: teacher.clerkId, isActive: true },
+      where: { teacherId: teacher.id, isActive: true },
     });
     if (clasesActivas > 0) {
       return jsonError(
         `No se puede desactivar. El profesor tiene ${clasesActivas} clase(s) activa(s). Reasigna las clases primero.`,
-        400,
+        400
       );
     }
   }
@@ -60,7 +61,7 @@ export async function PATCH(
     return jsonError('No hay cambios para aplicar.');
   }
 
-  const updated = await db.userProfile.update({ where: { id: params.id }, data });
+  const updated = await db.userProfile.update({ where: { id }, data });
 
   const clerkPayload: Record<string, unknown> = {};
   if (role && role !== teacher.role) {
@@ -73,7 +74,9 @@ export async function PATCH(
   }
 
   if (Object.keys(clerkPayload).length) {
-    const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY! });
+    const clerk = createClerkClient({
+      secretKey: process.env.CLERK_SECRET_KEY!,
+    });
     await clerk.users.updateUser(teacher.clerkId, clerkPayload);
   }
 
@@ -88,28 +91,29 @@ export async function PATCH(
 
 export async function DELETE(
   _req: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> }
 ) {
   await requireRole('ADMIN');
+  const { id } = await params;
 
-  const teacher = await db.userProfile.findUnique({ where: { id: params.id } });
+  const teacher = await db.userProfile.findUnique({ where: { id } });
   if (!teacher) {
     return jsonError('Profesor no encontrado.', 404);
   }
 
   const clasesActivas = await db.class.count({
-    where: { teacherId: teacher.clerkId, isActive: true },
+    where: { teacherId: teacher.id, isActive: true },
   });
   if (clasesActivas > 0) {
     return jsonError(
       `No se puede eliminar. Tiene ${clasesActivas} clase(s) activa(s).`,
-      400,
+      400
     );
   }
 
   const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY! });
   await clerk.users.deleteUser(teacher.clerkId);
-  await db.userProfile.delete({ where: { id: params.id } });
+  await db.userProfile.delete({ where: { id } });
 
   revalidatePath('/profesores');
   revalidatePath('/classes');

@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useState, useTransition } from 'react';
+import { FormEvent, useState } from 'react';
 import { ResponsiveModal } from '@/components/ui/ResponsiveModal';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
@@ -12,10 +12,13 @@ async function patchTeacher(id: string, payload: Record<string, unknown>) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
   });
+  
   const data = await res.json().catch(() => ({}));
+  
   if (!res.ok) {
     throw new Error(data?.error ?? 'Error al actualizar el profesor.');
   }
+  
   return data;
 }
 
@@ -28,7 +31,7 @@ type EditTeacherModalProps = {
 export function EditTeacherModal({ teacher, onClose, onUpdated }: EditTeacherModalProps) {
   const [name, setName] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [isPending, startTransition] = useTransition();
+  const [isPending, setIsPending] = useState(false);
 
   function handleClose() {
     setName('');
@@ -38,25 +41,29 @@ export function EditTeacherModal({ teacher, onClose, onUpdated }: EditTeacherMod
 
   const displayedName = teacher ? name || teacher.name || '' : '';
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    
     if (!teacher) return;
+    
     const trimmed = displayedName.replace(/\s+/g, ' ').trim();
+    
     if (!trimmed) {
       setError('El nombre es requerido.');
       return;
     }
 
-    startTransition(() => {
-      patchTeacher(teacher.id, { name: trimmed })
-        .then(() => {
-          onUpdated('Información del profesor actualizada.');
-          handleClose();
-        })
-        .catch((err) => {
-          setError(err instanceof Error ? err.message : 'Error al actualizar.');
-        });
-    });
+    setIsPending(true);
+    
+    try {
+      await patchTeacher(teacher.id, { name: trimmed });
+      onUpdated('Información del profesor actualizada.');
+      handleClose();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al actualizar.');
+    } finally {
+      setIsPending(false);
+    }
   }
 
   return (
@@ -72,6 +79,7 @@ export function EditTeacherModal({ teacher, onClose, onUpdated }: EditTeacherMod
             value={displayedName}
             onChange={(e) => setName(e.target.value)}
             placeholder="Nombre del profesor"
+            disabled={isPending}
           />
           <Input
             label="Email"
