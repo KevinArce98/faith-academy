@@ -2,7 +2,7 @@
 
 import { useEffect, type ReactNode } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { modalVariants } from '@/lib/animations';
+import { modalVariants, overlayVariants } from '@/lib/animations';
 
 type ResponsiveModalProps = {
   isOpen: boolean;
@@ -27,9 +27,13 @@ export function ResponsiveModal({
   return (
     <AnimatePresence>
       {isOpen && (
-        <div
+        <motion.div
           className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 md:items-center md:p-4"
           onClick={onClose}
+          variants={overlayVariants}
+          initial="hidden"
+          animate="visible"
+          exit="exit"
         >
           <motion.div
             variants={modalVariants}
@@ -56,7 +60,7 @@ export function ResponsiveModal({
             )}
             <div className="pb-8 md:pb-0">{children}</div>
           </motion.div>
-        </div>
+        </motion.div>
       )}
     </AnimatePresence>
   );

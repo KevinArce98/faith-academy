@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { togglePlanActive } from '@/actions/plans';
 import { INTERVAL_LABEL, getPlanColor } from '@/interfaces/plans';
 import type { Plan } from '@/interfaces/plans';
+import { formatPrice } from '@/utils/general';
 
 interface PlanCardProps {
   plan: Plan;
@@ -23,11 +24,7 @@ export function PlanCard({
   onToggle,
 }: PlanCardProps) {
   const colors = getPlanColor(plan.name);
-  const price = new Intl.NumberFormat('es-CR', {
-    style: 'currency',
-    currency: 'CRC',
-    maximumFractionDigits: 0,
-  }).format(Number(plan.price));
+  const price = formatPrice(plan.price);
 
   async function handleToggle() {
     onToggle?.(plan.id, !plan.isActive);

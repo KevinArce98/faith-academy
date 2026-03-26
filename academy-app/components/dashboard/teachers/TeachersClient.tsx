@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { GraduationCap, Calendar, MoreVertical } from 'lucide-react';
+import { GraduationCap, Calendar } from 'lucide-react';
 import { TeacherProfile } from '@/interfaces/teachers';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
@@ -11,6 +11,7 @@ import { cn } from '@/lib/cn';
 import { getInitials } from '@/utils/general';
 import { ResponsiveModal } from '@/components/ui/ResponsiveModal';
 import { EditTeacherModal } from './EditTeacherModal';
+import { TeacherMenu } from './TeacherMenu';
 
 const DATE_FORMAT = new Intl.DateTimeFormat('es-CR', {
   day: 'numeric',
@@ -133,62 +134,6 @@ export function TeachersClient({ teachers, activeCount }: TeachersClientProps) {
     );
   }
 
-  function TeacherMenu({ teacher }: { teacher: TeacherProfile }) {
-    const open = menuOpen === teacher.id;
-    return (
-      <div className="relative">
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            setMenuOpen(open ? null : teacher.id);
-          }}
-          className="text-gray-400 hover:text-dark"
-          aria-label="Acciones"
-        >
-          <MoreVertical className="h-5 w-5" />
-        </button>
-        {open && (
-          <div className="absolute right-0 z-20 mt-2 w-48 rounded-xl border border-gray-100 bg-white text-sm shadow-xl">
-            <button
-              className="w-full px-4 py-2 text-left hover:bg-gray-50"
-              onClick={() => {
-                setEditing(teacher);
-                setMenuOpen(null);
-              }}
-            >
-              Editar
-            </button>
-            <button
-              className="text-left w-full px-4 py-2 hover:bg-gray-50"
-              onClick={() => {
-                setConfirm({ type: 'role', teacher });
-                setMenuOpen(null);
-              }}
-            >
-              Cambiar a Alumno
-            </button>
-            <button
-              className="text-left w-full px-4 py-2 hover:bg-gray-50"
-              onClick={() => toggleActive(teacher)}
-              disabled={loadingId === teacher.id}
-            >
-              {teacher.isActive ? 'Desactivar' : 'Activar'}
-            </button>
-            <button
-              className="text-left w-full px-4 py-2 text-danger hover:bg-danger/5"
-              onClick={() => {
-                setConfirm({ type: 'delete', teacher });
-                setMenuOpen(null);
-              }}
-            >
-              Eliminar
-            </button>
-          </div>
-        )}
-      </div>
-    );
-  }
-
   const toastClass = useMemo(() => {
     if (!toast) return '';
     return toast.type === 'success'
@@ -248,7 +193,27 @@ export function TeachersClient({ teachers, activeCount }: TeachersClientProps) {
                   </div>
                   <div className="flex flex-col items-end gap-2">
                     <Badge variant={badgeVariant as never}>{badgeLabel}</Badge>
-                    <TeacherMenu teacher={teacher} />
+                    <TeacherMenu
+                      teacher={teacher}
+                      isOpen={menuOpen === teacher.id}
+                      loading={loadingId === teacher.id}
+                      onToggleMenu={() =>
+                        setMenuOpen(menuOpen === teacher.id ? null : teacher.id)
+                      }
+                      onEdit={() => {
+                        setEditing(teacher);
+                        setMenuOpen(null);
+                      }}
+                      onChangeRole={() => {
+                        setConfirm({ type: 'role', teacher });
+                        setMenuOpen(null);
+                      }}
+                      onToggleActive={() => toggleActive(teacher)}
+                      onDelete={() => {
+                        setConfirm({ type: 'delete', teacher });
+                        setMenuOpen(null);
+                      }}
+                    />
                   </div>
                 </div>
 

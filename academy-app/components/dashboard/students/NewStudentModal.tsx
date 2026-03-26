@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Plan } from '@/interfaces/students';
-import { modalVariants } from '@/lib/animations';
+import { modalVariants, overlayVariants } from '@/lib/animations';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
@@ -88,9 +88,13 @@ export function NewStudentModal({
   }
 
   return (
-    <div
+    <motion.div
       className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 md:items-center md:p-4"
       onClick={onClose}
+      variants={overlayVariants}
+      initial="hidden"
+      animate="visible"
+      exit="exit"
     >
       <motion.div
         className="max-h-[90vh] w-full overflow-y-auto rounded-t-3xl bg-white shadow-2xl md:max-w-lg md:rounded-2xl"
@@ -236,6 +240,6 @@ export function NewStudentModal({
           </>
         )}
       </motion.div>
-    </div>
+    </motion.div>
   );
 }

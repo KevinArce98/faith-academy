@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { Calendar, CreditCard, Tag, Clock } from 'lucide-react';
 import { cn } from '@/lib/cn';
+import { formatDate, formatPrice, formatTime, greeting } from '@/utils/general';
 
 type UpcomingClass = {
   id: string;
@@ -35,30 +36,6 @@ export type StudentDashboardProps = {
   upcomingClasses: UpcomingClass[];
   recentPayments: RecentPayment[];
 };
-
-function greeting() {
-  const h = new Date().getHours();
-  if (h < 12) return 'Buenos dias';
-  if (h < 19) return 'Buenas tardes';
-  return 'Buenas noches';
-}
-
-function formatDate(date: Date) {
-  return new Intl.DateTimeFormat('es-CR', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  }).format(date);
-}
-
-function formatTime(dateStr: string) {
-  return new Intl.DateTimeFormat('es-CR', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  }).format(new Date(dateStr));
-}
 
 function formatShortDate(dateStr: string) {
   return new Intl.DateTimeFormat('es-CR', {
@@ -226,7 +203,8 @@ export function StudentDashboard({
                     </p>
                     <div className="flex items-center gap-2 text-xs text-gray-400">
                       <Clock className="h-3 w-3" />
-                      {formatTime(cls.startsAt)} - {formatTime(cls.endsAt)}
+                      {formatTime(new Date(cls.startsAt))} -{' '}
+                      {formatTime(new Date(cls.endsAt))}
                     </div>
                   </div>
                   <span className="shrink-0 rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-500">
@@ -274,7 +252,7 @@ export function StudentDashboard({
                         {payment.planName}
                       </p>
                       <p className="text-xs text-gray-400">
-                        ${payment.price.toLocaleString('es-CR')}
+                        {formatPrice(payment.price)}
                       </p>
                     </div>
                     <div className="flex flex-col items-end gap-0.5">

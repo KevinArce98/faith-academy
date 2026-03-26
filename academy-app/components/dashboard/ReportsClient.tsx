@@ -16,34 +16,9 @@ import {
 } from 'recharts';
 
 import studioConfig from '@/config/studio.config';
-
-interface Stats {
-  totalRevenue: number;
-  revenueChange: number;
-  activeStudents: number;
-  newStudentsCount: number;
-  newStudentsChange: number;
-  renewalRate: number;
-  avgWeeklyClasses: number;
-}
-
-interface PopularClass {
-  name: string;
-  attended: number;
-  capacity: number | null;
-}
-
-interface PlanData {
-  name: string;
-  count: number;
-}
-
-interface ReportsClientProps {
-  stats: Stats;
-  monthlyRevenue: { month: string; revenue: number }[];
-  popularClasses: PopularClass[];
-  planData: PlanData[];
-}
+import { formatPrice } from '@/utils/general';
+import { StatCard } from '@/components/dashboard/reports/StatCard';
+import type { ReportsClientProps } from '@/components/dashboard/reports/reports.types';
 
 const COLORS = [
   studioConfig.colors.primary,
@@ -68,13 +43,6 @@ export function ReportsClient({
     return () => window.removeEventListener('resize', check);
   }, []);
 
-  const formatCurrency = (value: number) =>
-    new Intl.NumberFormat('es-CR', {
-      style: 'currency',
-      currency: 'MXN',
-      maximumFractionDigits: 0,
-    }).format(value);
-
   return (
     <div className="space-y-6 p-0 md:p-6">
       <h1 className="text-2xl font-bold">Reportes</h1>
@@ -83,7 +51,7 @@ export function ReportsClient({
       <div className="grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-4">
         <StatCard
           title="Ingresos del mes"
-          value={formatCurrency(stats.totalRevenue)}
+          value={formatPrice(stats.totalRevenue)}
           change={stats.revenueChange}
           suffix="%"
         />
@@ -112,9 +80,7 @@ export function ReportsClient({
             <YAxis
               tickFormatter={(v: number) => `$${(v / 1000).toFixed(0)}k`}
             />
-            <Tooltip
-              formatter={(value) => formatCurrency(Number(value ?? 0))}
-            />
+            <Tooltip formatter={(value) => formatPrice(Number(value ?? 0))} />
             <Bar dataKey="revenue" fill={studioConfig.colors.primary} radius={4} />
           </BarChart>
         </ResponsiveContainer>
@@ -188,33 +154,6 @@ export function ReportsClient({
           )}
         </div>
       </div>
-    </div>
-  );
-}
-
-interface StatCardProps {
-  title: string;
-  value: string;
-  change?: number;
-  suffix?: string;
-}
-
-function StatCard({ title, value, change, suffix = '' }: StatCardProps) {
-  return (
-    <div className="rounded-xl border bg-white p-5 shadow-sm">
-      <p className="text-muted-foreground text-sm">{title}</p>
-      <p className="mt-1 text-2xl font-bold">{value}</p>
-      {change !== undefined && (
-        <p
-          className={`mt-1 text-xs font-medium ${
-            change >= 0 ? 'text-green-600' : 'text-red-600'
-          }`}
-        >
-          {change >= 0 ? '+' : ''}
-          {change}
-          {suffix} vs mes anterior
-        </p>
-      )}
     </div>
   );
 }

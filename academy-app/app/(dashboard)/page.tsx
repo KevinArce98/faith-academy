@@ -10,6 +10,7 @@ import type { Role } from '@/lib/roles';
 import { StudentDashboard } from '@/components/dashboard/StudentDashboard';
 import {
   formatDate,
+  formatPrice,
   formatTime,
   getInitials,
   greeting,
@@ -214,7 +215,7 @@ export default async function DashboardPage() {
     },
     {
       label: 'Ingresos del Mes',
-      value: `₡${monthRevenue.toLocaleString('es-CR', { minimumFractionDigits: 0 })}`,
+      value: formatPrice(monthRevenue),
       icon: DollarSign,
       sub: `${revenueChange >= 0 ? '+' : ''}${revenueChange}% vs mes anterior`,
       subColor: revenueChange >= 0 ? 'text-success' : 'text-danger',

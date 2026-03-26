@@ -3,7 +3,7 @@
 import { useTransition } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertTriangle, X } from 'lucide-react';
-import { modalVariants } from '@/lib/animations';
+import { modalVariants, overlayVariants } from '@/lib/animations';
 import { Button } from '@/components/ui/Button';
 import { deletePlan } from '@/actions/plans';
 import type { Plan } from '@/interfaces/plans';
@@ -37,9 +37,13 @@ export function DeletePlanConfirm({
 
   return (
     <AnimatePresence>
-      <div
+      <motion.div
         className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 md:items-center md:p-4"
         onClick={onClose}
+        variants={overlayVariants}
+        initial="hidden"
+        animate="visible"
+        exit="exit"
       >
         <motion.div
           className="w-full rounded-t-3xl bg-white shadow-2xl md:max-w-sm md:rounded-2xl"
@@ -111,7 +115,7 @@ export function DeletePlanConfirm({
             </Button>
           </div>
         </motion.div>
-      </div>
+      </motion.div>
     </AnimatePresence>
   );
 }

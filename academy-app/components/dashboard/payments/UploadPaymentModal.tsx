@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/Button';
 import { Select } from '@/components/ui/Select';
 import { ResponsiveModal } from '@/components/ui/ResponsiveModal';
+import { formatPrice } from '@/utils/general';
 
 export type PlanOption = { id: string; name: string; price: number };
 
@@ -125,7 +126,7 @@ export function UploadPaymentModal({
           <option value="">Selecciona un plan</option>
           {plans.map((plan) => (
             <option key={plan.id} value={plan.id}>
-              {plan.name} — ${plan.price} MXN
+              {plan.name} — {formatPrice(plan.price)}
             </option>
           ))}
         </Select>
@@ -214,7 +215,7 @@ export function UploadPaymentModal({
             <div className="mt-1 flex items-center justify-between">
               <span className="text-gray-500">Total a pagar</span>
               <span className="text-primary font-bold">
-                ₡{selectedPlan.price}
+                {formatPrice(selectedPlan.price)}
               </span>
             </div>
           </div>
