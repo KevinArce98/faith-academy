@@ -20,16 +20,18 @@ import {
   UploadPaymentModal,
   type PlanOption,
 } from '@/components/dashboard/payments/UploadPaymentModal';
+import { formatPrice, getInitials, timeAgo } from '@/utils/general';
 
 type Plan = { id: string; name: string; price: number };
 type Student = { id: string; name: string; email: string };
 type Order = {
   id: string;
   status: string;
-  createdAt: Date;
+  createdAt: Date | string;
+  approvedAt: Date | string | null;
   receiptUrl: string | null;
   creditGranted: number | null;
-  expiresAt: Date | null;
+  expiresAt: Date | string | null;
   student: Student;
   plan: Plan;
 };
@@ -51,41 +53,30 @@ const TABS: { key: TabKey; label: string }[] = [
   { key: 'ALL', label: 'Todos' },
 ];
 
-function timeAgo(date: Date) {
-  const mins = Math.floor((Date.now() - new Date(date).getTime()) / 60000);
-  if (mins < 60) return `Hace ${mins} minutos`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `Hace ${hrs} hora${hrs > 1 ? 's' : ''}`;
-  return `Hace ${Math.floor(hrs / 24)} dias`;
-}
-
-function getInitials(name: string) {
-  return name
-    .split(' ')
-    .slice(0, 2)
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase();
-}
-
 function ReceiptModal({
   url,
   student,
   plan,
   price,
-  orderId,
+  status,
   onClose,
+  onApprove,
+  onReject,
   isAdmin = false,
 }: {
   url: string;
   student: Student;
   plan: Plan;
   price: string;
-  orderId: string;
+  status: string;
   onClose: () => void;
+  onApprove?: () => Promise<void>;
+  onReject?: () => Promise<void>;
   isAdmin?: boolean;
 }) {
   const [isPending, startTransition] = useTransition();
+  const canReview = isAdmin && status === 'PENDING_REVIEW';
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
       <div className="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl">
@@ -130,7 +121,7 @@ function ReceiptModal({
                 </div>
               </div>
               <p className="text-primary pt-2 text-lg font-bold">
-                TOTAL ${price} MXN
+                TOTAL {formatPrice(price)}
               </p>
             </div>
           )}
@@ -145,17 +136,18 @@ function ReceiptModal({
             <div>
               <p className="text-dark text-sm font-semibold">{student.name}</p>
               <p className="text-xs text-gray-400">
-                {plan.name} · ${price}
+                {plan.name} · {formatPrice(price)}
               </p>
             </div>
           </div>
-          {isAdmin && (
+          {canReview && (
             <div className="flex gap-2">
               <Button
                 variant="outlined"
                 onClick={() =>
                   startTransition(async () => {
-                    await rejectPayment(orderId);
+                    if (!onReject) return;
+                    await onReject();
                     onClose();
                   })
                 }
@@ -168,7 +160,8 @@ function ReceiptModal({
                 variant="contained"
                 onClick={() =>
                   startTransition(async () => {
-                    await approvePayment(orderId);
+                    if (!onApprove) return;
+                    await onApprove();
                     onClose();
                   })
                 }
@@ -192,12 +185,32 @@ function PaymentCard({
   order: Order;
   isAdmin?: boolean;
 }) {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [status, setStatus] = useState(order.status);
+  const [approvedAt, setApprovedAt] = useState<Date | string | null>(
+    order.approvedAt
+  );
   const [receiptOpen, setReceiptOpen] = useState(false);
 
   const approved = status === 'ACTIVE';
   const rejected = status === 'REJECTED';
+  const statusDate =
+    approved || rejected ? (approvedAt ?? order.createdAt) : order.createdAt;
+
+  const handleApprove = async () => {
+    await approvePayment(order.id);
+    setStatus('ACTIVE');
+    setApprovedAt(new Date());
+    router.refresh();
+  };
+
+  const handleReject = async () => {
+    await rejectPayment(order.id);
+    setStatus('REJECTED');
+    setApprovedAt(new Date());
+    router.refresh();
+  };
 
   return (
     <>
@@ -232,13 +245,11 @@ function PaymentCard({
               </span>
             </div>
           </div>
-          <span className="text-xs text-gray-400">
-            {timeAgo(order.createdAt)}
-          </span>
+          <span className="text-xs text-gray-400">{timeAgo(statusDate)}</span>
         </div>
 
         <p className="text-dark mb-3 text-sm">
-          Plan mensual — ₡{String(order.plan.price)}
+          Plan mensual — {formatPrice(order.plan.price)}
         </p>
 
         {/* Receipt thumbnail */}
@@ -285,10 +296,10 @@ function PaymentCard({
           <div className="bg-success/5 border-success/20 text-success flex items-center gap-2 rounded-xl border px-4 py-3 text-sm">
             <Check className="h-4 w-4" />
             <div>
-              <p className="font-semibold">Aprobado — hace un momento</p>
+              <p className="font-semibold">Aprobado — {timeAgo(statusDate)}</p>
               {order.creditGranted && order.expiresAt && (
                 <p className="text-xs text-gray-500">
-                  {order.creditGranted} creditos activados · Vence{' '}
+                  {order.creditGranted} créditos activados · Vence{' '}
                   {new Intl.DateTimeFormat('es-CR', {
                     day: 'numeric',
                     month: 'short',
@@ -309,8 +320,7 @@ function PaymentCard({
               color="success"
               onClick={() =>
                 startTransition(async () => {
-                  await approvePayment(order.id);
-                  setStatus('ACTIVE');
+                  await handleApprove();
                 })
               }
               disabled={isPending}
@@ -323,8 +333,7 @@ function PaymentCard({
               color="danger"
               onClick={() =>
                 startTransition(async () => {
-                  await rejectPayment(order.id);
-                  setStatus('REJECTED');
+                  await handleReject();
                 })
               }
               disabled={isPending}
@@ -346,8 +355,10 @@ function PaymentCard({
           student={order.student}
           plan={order.plan}
           price={String(order.plan.price)}
-          orderId={order.id}
+          status={status}
           onClose={() => setReceiptOpen(false)}
+          onApprove={handleApprove}
+          onReject={handleReject}
           isAdmin={isAdmin}
         />
       )}
