@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/Button';
 import type { TeacherProfile } from '@/interfaces/teachers';
 
 async function patchTeacher(id: string, payload: Record<string, unknown>) {
-  const res = await fetch(`/api/v1/profesores/${id}`, {
+  const res = await fetch(`/api/v1/teachers/${id}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),

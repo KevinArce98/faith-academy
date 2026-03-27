@@ -34,7 +34,7 @@ function getBaseNavItems(role: Role): NavItem[] {
   ];
 
   if (role === 'ADMIN') {
-    items.push({ href: '/profesores', icon: GraduationCap, label: 'Profesores' });
+    items.push({ href: '/teachers', icon: GraduationCap, label: 'Profesores' });
   }
 
   items.push(

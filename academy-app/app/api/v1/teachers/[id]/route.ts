@@ -80,7 +80,7 @@ export async function PATCH(
     await clerk.users.updateUser(teacher.clerkId, clerkPayload);
   }
 
-  revalidatePath('/profesores');
+  revalidatePath('/teachers');
   revalidatePath('/classes');
   if (role === 'STUDENT') {
     revalidatePath('/students');
@@ -115,7 +115,7 @@ export async function DELETE(
   await clerk.users.deleteUser(teacher.clerkId);
   await db.userProfile.delete({ where: { id } });
 
-  revalidatePath('/profesores');
+  revalidatePath('/teachers');
   revalidatePath('/classes');
 
   return Response.json({ success: true });

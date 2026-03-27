@@ -6,7 +6,7 @@ export const ROLE_ROUTE_ACCESS: Record<Role, string[]> = {
   ADMIN: [
     '/',
     '/students',
-    '/profesores',
+    '/teachers',
     '/payments',
     '/classes',
     '/plans',

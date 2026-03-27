@@ -65,7 +65,7 @@ export function TeachersClient({ teachers, activeCount }: TeachersClientProps) {
     setLoadingId(teacher.id);
     closeMenus();
     try {
-      await request(`/api/v1/profesores/${teacher.id}`, {
+      await request(`/api/v1/teachers/${teacher.id}`, {
         method: 'PATCH',
         body: JSON.stringify({ isActive: !teacher.isActive }),
       });
@@ -87,7 +87,7 @@ export function TeachersClient({ teachers, activeCount }: TeachersClientProps) {
     setLoadingId(teacher.id);
     closeMenus();
     try {
-      await request(`/api/v1/profesores/${teacher.id}`, {
+      await request(`/api/v1/teachers/${teacher.id}`, {
         method: 'PATCH',
         body: JSON.stringify({ role: 'STUDENT' }),
       });
@@ -105,7 +105,7 @@ export function TeachersClient({ teachers, activeCount }: TeachersClientProps) {
     setLoadingId(teacher.id);
     closeMenus();
     try {
-      await request(`/api/v1/profesores/${teacher.id}`, { method: 'DELETE' });
+      await request(`/api/v1/teachers/${teacher.id}`, { method: 'DELETE' });
       setToast({ type: 'success', message: `${teacher.name ?? 'Profesor'} eliminado.` });
       router.refresh();
     } catch (err) {

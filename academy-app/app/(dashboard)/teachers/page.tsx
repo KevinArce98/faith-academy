@@ -3,7 +3,7 @@ import { requireRole } from '@/lib/auth';
 import { getTeachersWithClasses } from '@/lib/teachers';
 import { TeachersClient } from '@/components/dashboard/teachers/TeachersClient';
 
-export default async function ProfesoresPage() {
+export default async function TeachersPage() {
   try {
     await requireRole('ADMIN');
   } catch {

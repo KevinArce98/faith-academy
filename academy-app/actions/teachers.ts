@@ -48,7 +48,7 @@ export async function createTeacherAction(formData: {
     role: 'TEACHER',
   });
 
-  revalidatePath('/profesores');
+  revalidatePath('/teachers');
   revalidatePath('/classes');
 
   return { success: true, userId: userProfile.id, tempPassword } as const;
@@ -70,7 +70,7 @@ export async function changeUserRoleAction(
   });
 
   revalidatePath('/students');
-  revalidatePath('/profesores');
+  revalidatePath('/teachers');
   revalidatePath('/classes');
 
   return { success: true } as const;
