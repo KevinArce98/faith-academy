@@ -6,7 +6,7 @@
 		"start:api": "pnpm --filter academy-api start",
 		"dev:api": "pnpm --filter academy-api dev",
 		"dev:web": "pnpm --filter academy-app-web dev",
-		"build:api": "pnpm --filter academy-api prisma:generate && pnpm --filter academy-api build",
+		"build:api": "cd academy-api && pnpm prisma generate && pnpm build",
 		"build:web": "pnpm --filter academy-app-web build",
 		"build:new-stack": "pnpm build:api && pnpm build:web"
 	}
