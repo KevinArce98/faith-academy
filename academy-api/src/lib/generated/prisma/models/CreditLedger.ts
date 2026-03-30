@@ -8,7 +8,7 @@
  *
  * 🟢 You can import this file directly.
  */
-import type * as runtime from "@prisma/client/runtime/library"
+import type * as runtime from "@prisma/client/runtime/client"
 import type * as $Enums from "../enums.js"
 import type * as Prisma from "../internal/prismaNamespace.js"
 
@@ -224,7 +224,7 @@ export type CreditLedgerGroupByOutputType = {
   _max: CreditLedgerMaxAggregateOutputType | null
 }
 
-type GetCreditLedgerGroupByPayload<T extends CreditLedgerGroupByArgs> = Prisma.PrismaPromise<
+export type GetCreditLedgerGroupByPayload<T extends CreditLedgerGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<CreditLedgerGroupByOutputType, T['by']> &
       {
@@ -1316,6 +1316,11 @@ export type CreditLedgerFindManyArgs<ExtArgs extends runtime.Types.Extensions.In
    * Skip the first `n` CreditLedgers.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of CreditLedgers.
+   */
   distinct?: Prisma.CreditLedgerScalarFieldEnum | Prisma.CreditLedgerScalarFieldEnum[]
 }
 

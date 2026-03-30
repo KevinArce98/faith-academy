@@ -8,7 +8,7 @@
  *
  * 🟢 You can import this file directly.
  */
-import type * as runtime from "@prisma/client/runtime/library"
+import type * as runtime from "@prisma/client/runtime/client"
 import type * as $Enums from "../enums.js"
 import type * as Prisma from "../internal/prismaNamespace.js"
 
@@ -249,7 +249,7 @@ export type ClassGroupByOutputType = {
   _max: ClassMaxAggregateOutputType | null
 }
 
-type GetClassGroupByPayload<T extends ClassGroupByArgs> = Prisma.PrismaPromise<
+export type GetClassGroupByPayload<T extends ClassGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<ClassGroupByOutputType, T['by']> &
       {
@@ -1623,6 +1623,11 @@ export type ClassFindManyArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    * Skip the first `n` Classes.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of Classes.
+   */
   distinct?: Prisma.ClassScalarFieldEnum | Prisma.ClassScalarFieldEnum[]
 }
 
