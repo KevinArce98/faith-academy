@@ -1,0 +1,221 @@
+generator client {
+  provider      = "prisma-client"
+  output        = "../src/lib/generated/prisma"
+  binaryTargets = ["native", "linux-arm64-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  TEACHER
+  STUDENT
+}
+
+enum IntervalType {
+  WEEKLY
+  MONTHLY
+  FIXED_PACKAGE
+}
+
+enum OrderStatus {
+  PENDING_REVIEW
+  ACTIVE
+  EXPIRED
+  REJECTED
+  CANCELLED
+}
+
+enum LedgerType {
+  CREDIT_GRANT
+  CREDIT_DEBIT
+  CREDIT_REFUND
+  CREDIT_EXPIRY
+}
+
+enum AttendanceStatus {
+  RESERVED
+  ATTENDED
+  CANCELLED
+  NO_SHOW
+}
+
+enum SkillLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  MASTER
+}
+
+enum ContentType {
+  VIDEO
+  DOCUMENT
+  IMAGE
+}
+
+model UserProfile {
+  id        String   @id @default(cuid())
+  clerkId   String   @unique
+  email     String
+  phone     String?
+  name      String?
+  avatarUrl String?
+  role      Role
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  orders       MembershipOrder[]
+  attendances  Attendance[]
+  skills       UserSkill[]
+  familyMember FamilyMember?
+  streak       Streak?
+  waitlists    ClassWaitlist[]
+}
+
+model Family {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+
+  members FamilyMember[]
+}
+
+model FamilyMember {
+  id        String @id @default(cuid())
+  familyId  String
+  studentId String @unique
+  position  Int
+
+  family  Family      @relation(fields: [familyId], references: [id])
+  student UserProfile @relation(fields: [studentId], references: [id])
+}
+
+model MembershipPlan {
+  id            String       @id @default(cuid())
+  name          String
+  description   String?
+  price         Decimal      @db.Decimal(10, 2)
+  credits       Int
+  intervalType  IntervalType
+  intervalValue Int          @default(1)
+  isActive      Boolean      @default(true)
+
+  orders MembershipOrder[]
+}
+
+model MembershipOrder {
+  id            String      @id @default(cuid())
+  studentId     String
+  planId        String
+  status        OrderStatus @default(PENDING_REVIEW)
+  receiptUrl    String?
+  creditGranted Int?
+  startsAt      DateTime?
+  expiresAt     DateTime?
+  approvedById  String?
+  approvedAt    DateTime?
+  notes         String?
+  createdAt     DateTime    @default(now())
+
+  student       UserProfile    @relation(fields: [studentId], references: [id])
+  plan          MembershipPlan @relation(fields: [planId], references: [id])
+  ledgerEntries CreditLedger[]
+}
+
+model CreditLedger {
+  id           String     @id @default(cuid())
+  studentId    String
+  orderId      String?
+  attendanceId String?
+  type         LedgerType
+  amount       Int
+  balance      Int
+  note         String?
+  createdAt    DateTime   @default(now())
+
+  order MembershipOrder? @relation(fields: [orderId], references: [id])
+}
+
+model Class {
+  id                String     @id @default(cuid())
+  teacherId         String
+  name              String
+  description       String?
+  skillLevel        SkillLevel
+  maxCapacity       Int
+  creditCost        Int        @default(1)
+  cancelWindowHours Int        @default(24)
+  startsAt          DateTime
+  endsAt            DateTime
+  isActive          Boolean    @default(true)
+  createdAt         DateTime   @default(now())
+
+  attendances Attendance[]
+  waitlist    ClassWaitlist[]
+  content     Content[]
+}
+
+model Attendance {
+  id             String           @id @default(cuid())
+  classId        String
+  studentId      String
+  status         AttendanceStatus @default(RESERVED)
+  creditDeducted Boolean          @default(false)
+  qrToken        String?          @unique
+  checkedAt      DateTime?
+  cancelledAt    DateTime?
+  createdAt      DateTime         @default(now())
+
+  class   Class       @relation(fields: [classId], references: [id])
+  student UserProfile @relation(fields: [studentId], references: [id])
+}
+
+model ClassWaitlist {
+  id         String    @id @default(cuid())
+  classId    String
+  studentId  String
+  position   Int
+  notifiedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  class   Class       @relation(fields: [classId], references: [id])
+  student UserProfile @relation(fields: [studentId], references: [id])
+
+  @@unique([classId, studentId])
+}
+
+model UserSkill {
+  id         String     @id @default(cuid())
+  studentId  String
+  skillLevel SkillLevel
+  discipline String
+  updatedAt  DateTime   @updatedAt
+
+  student UserProfile @relation(fields: [studentId], references: [id])
+}
+
+model Streak {
+  id             String    @id @default(cuid())
+  studentId      String    @unique
+  currentStreak  Int       @default(0)
+  longestStreak  Int       @default(0)
+  lastActivityAt DateTime?
+  updatedAt      DateTime  @updatedAt
+
+  student UserProfile @relation(fields: [studentId], references: [id])
+}
+
+model Content {
+  id          String      @id @default(cuid())
+  classId     String?
+  title       String
+  description String?
+  type        ContentType
+  url         String
+  createdAt   DateTime    @default(now())
+
+  class Class? @relation(fields: [classId], references: [id])
+}

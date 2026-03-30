@@ -1,0 +1,14 @@
+{
+  "name": "@academy/shared",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./config/*": "./config/*.ts",
+    "./interfaces/*": "./interfaces/*.ts",
+    "./lib/*": "./lib/*.ts",
+    "./validations/*": "./validations/*.ts"
+  },
+  "dependencies": {
+    "zod": "^4.3.6"
+  }
+}
