@@ -17,7 +17,7 @@ import {
 
 export default function SignIn() {
   const { isSignedIn } = useAuth();
-  const { signIn, fetchStatus } = useSignIn();
+  const { signIn, fetchStatus, isLoaded: signInLoaded } = useSignIn();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [clerkError, setClerkError] = useState<string | null>(null);
@@ -138,6 +138,15 @@ export default function SignIn() {
         setClerkError('No se pudo reenviar el código. Intenta de nuevo.');
       }
     }
+  }
+
+  /* ── Guard: wait for Clerk to initialize ───────────────────────── */
+  if (!signInLoaded || !signIn) {
+    return (
+      <div className="flex items-center justify-center p-12">
+        <div className="h-6 w-6 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
   }
 
   /* ── Verification step (needs_client_trust / needs_second_factor) ── */

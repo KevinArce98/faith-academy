@@ -18,7 +18,7 @@ import {
 
 export default function SignUp() {
   const { isSignedIn } = useAuth();
-  const { signUp, fetchStatus } = useSignUp();
+  const { signUp, fetchStatus, isLoaded: signUpLoaded } = useSignUp();
   const navigate = useNavigate();
   const apiClient = useApiClient();
   const [showPassword, setShowPassword] = useState(false);
@@ -123,6 +123,15 @@ export default function SignUp() {
         setClerkError('No se pudo reenviar el código. Intenta de nuevo.');
       }
     }
+  }
+
+  /* ── Guard: wait for Clerk to initialize ───────────────────────── */
+  if (!signUpLoaded || !signUp) {
+    return (
+      <div className="flex items-center justify-center p-12">
+        <div className="h-6 w-6 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
   }
 
   /* ── Verification step ──────────────────────────────────────── */

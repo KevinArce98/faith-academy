@@ -1,4 +1,4 @@
-import { Variants, Transition } from 'framer-motion';
+import type { Variants, Transition } from 'framer-motion';
 
 // Transicion base — spring suave para la mayoria de elementos
 export const spring: Transition = {
