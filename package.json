@@ -2,6 +2,11 @@
 	"name": "studio-flow-academy-monorepo",
 	"private": true,
 	"packageManager": "pnpm@10.30.3",
+	"pnpm": {
+		"patchedDependencies": {
+			"@prisma/dev@0.24.3": "patches/@prisma__dev@0.24.3.patch"
+		}
+	},
 	"scripts": {
 		"start:api": "pnpm --filter academy-api start",
 		"dev:api": "pnpm --filter academy-api dev",
