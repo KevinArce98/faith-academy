@@ -8,7 +8,6 @@ import {
   Trash2,
 } from 'lucide-react';
 import { AnimatePresence } from 'framer-motion';
-import { useQueryClient } from '@tanstack/react-query';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { cn } from '@/lib/cn';
 import { formatTime } from '@/utils/general';
@@ -51,7 +50,6 @@ export function ClassesClient({
   teachers,
   weekStart,
 }: ClassesClientProps) {
-  const queryClient = useQueryClient();
   const [view, setView] = useState<'week' | 'list'>('week');
   const [modalOpen, setModal] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);

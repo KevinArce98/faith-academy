@@ -8,7 +8,7 @@
  *
  * 🟢 You can import this file directly.
  */
-import type * as runtime from "@prisma/client/runtime/client"
+import type * as runtime from "@prisma/client/runtime/library"
 import type * as $Enums from "../enums.js"
 import type * as Prisma from "../internal/prismaNamespace.js"
 
@@ -199,7 +199,7 @@ export type ClassWaitlistGroupByOutputType = {
   _max: ClassWaitlistMaxAggregateOutputType | null
 }
 
-export type GetClassWaitlistGroupByPayload<T extends ClassWaitlistGroupByArgs> = Prisma.PrismaPromise<
+type GetClassWaitlistGroupByPayload<T extends ClassWaitlistGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<ClassWaitlistGroupByOutputType, T['by']> &
       {
@@ -1333,11 +1333,6 @@ export type ClassWaitlistFindManyArgs<ExtArgs extends runtime.Types.Extensions.I
    * Skip the first `n` ClassWaitlists.
    */
   skip?: number
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-   * 
-   * Filter by unique combinations of ClassWaitlists.
-   */
   distinct?: Prisma.ClassWaitlistScalarFieldEnum | Prisma.ClassWaitlistScalarFieldEnum[]
 }
 

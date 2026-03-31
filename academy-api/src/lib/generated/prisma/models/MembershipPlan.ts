@@ -8,7 +8,7 @@
  *
  * 🟢 You can import this file directly.
  */
-import type * as runtime from "@prisma/client/runtime/client"
+import type * as runtime from "@prisma/client/runtime/library"
 import type * as $Enums from "../enums.js"
 import type * as Prisma from "../internal/prismaNamespace.js"
 
@@ -221,7 +221,7 @@ export type MembershipPlanGroupByOutputType = {
   _max: MembershipPlanMaxAggregateOutputType | null
 }
 
-export type GetMembershipPlanGroupByPayload<T extends MembershipPlanGroupByArgs> = Prisma.PrismaPromise<
+type GetMembershipPlanGroupByPayload<T extends MembershipPlanGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<MembershipPlanGroupByOutputType, T['by']> &
       {
@@ -1252,11 +1252,6 @@ export type MembershipPlanFindManyArgs<ExtArgs extends runtime.Types.Extensions.
    * Skip the first `n` MembershipPlans.
    */
   skip?: number
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-   * 
-   * Filter by unique combinations of MembershipPlans.
-   */
   distinct?: Prisma.MembershipPlanScalarFieldEnum | Prisma.MembershipPlanScalarFieldEnum[]
 }
 

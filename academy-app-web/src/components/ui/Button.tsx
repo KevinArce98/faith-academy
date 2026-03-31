@@ -1,5 +1,5 @@
 import { cn } from '@/lib/cn';
-import { ButtonHTMLAttributes, forwardRef } from 'react';
+import { type ButtonHTMLAttributes, forwardRef } from 'react';
 
 // ─── Variant ────────────────────────────────────────────────────────────────
 // contained  → filled background

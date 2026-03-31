@@ -1,4 +1,4 @@
-import { useState, FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useApiClient } from '@/lib/api';
 import { Check, Copy, CircleCheckBig } from 'lucide-react';

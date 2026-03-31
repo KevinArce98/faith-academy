@@ -1,5 +1,5 @@
 import { cn } from '@/lib/cn';
-import { InputHTMLAttributes, forwardRef } from 'react';
+import { type InputHTMLAttributes, forwardRef } from 'react';
 
 type CheckboxProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'type'>;
 

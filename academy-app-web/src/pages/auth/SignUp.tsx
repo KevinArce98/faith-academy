@@ -18,12 +18,13 @@ import {
 
 export default function SignUp() {
   const { isSignedIn } = useAuth();
-  const { signUp, fetchStatus, isLoaded: signUpLoaded } = useSignUp();
+  const { signUp, setActive, isLoaded: signUpLoaded } = useSignUp();
   const navigate = useNavigate();
   const apiClient = useApiClient();
   const [showPassword, setShowPassword] = useState(false);
   const [name, setName] = useState('');
   const [clerkError, setClerkError] = useState<string | null>(null);
+  const [isPending, setIsPending] = useState(false);
 
   const {
     register: registerSignUp,
@@ -39,83 +40,71 @@ export default function SignUp() {
   }, [isSignedIn, navigate]);
 
   async function onSignUp(form: SignUpFormValues) {
+    if (!signUp) return;
     setClerkError(null);
+    setIsPending(true);
     setName(form.name);
 
     try {
-      const { error } = await signUp.password({
+      await signUp.create({
         emailAddress: form.email,
         password: form.password,
       });
-      if (error) {
-        if (isClerkAPIResponseError(error)) {
-          setClerkError(handleClerkErrors(error.errors));
-        } else {
-          setClerkError('Error al crear la cuenta. Intenta de nuevo.');
-        }
-        return;
-      }
 
-      await signUp.verifications.sendEmailCode();
+      await signUp.prepareEmailAddressVerification({ strategy: 'email_code' });
     } catch (err) {
       if (isClerkAPIResponseError(err)) {
         setClerkError(handleClerkErrors(err.errors));
       } else {
         setClerkError('Error al crear la cuenta. Intenta de nuevo.');
       }
+    } finally {
+      setIsPending(false);
     }
   }
 
   async function onVerify(form: VerifyCodeFormValues) {
+    if (!signUp) return;
     setClerkError(null);
-    const { error } = await signUp.verifications.verifyEmailCode({ code: form.code });
-    if (error) {
-      if (isClerkAPIResponseError(error)) {
-        setClerkError(handleClerkErrors(error.errors));
+    setIsPending(true);
+    try {
+      const result = await signUp.attemptEmailAddressVerification({ code: form.code });
+
+      if (result.status === 'complete') {
+        try {
+          await apiClient('/api/v1/auth/create-profile', {
+            method: 'POST',
+            body: JSON.stringify({
+              userId: result.createdUserId,
+              email: result.emailAddress,
+              name,
+            }),
+          });
+        } catch (err) {
+          console.error('Error creating user profile:', err);
+        }
+
+        await setActive?.({ session: result.createdSessionId });
+        navigate('/', { replace: true });
+      } else {
+        console.error('Sign-up not complete:', result.status);
+      }
+    } catch (err) {
+      if (isClerkAPIResponseError(err)) {
+        setClerkError(handleClerkErrors(err.errors));
       } else {
         setClerkError('Error al verificar el código. Intenta de nuevo.');
       }
-      return;
-    }
-
-    if (signUp.status === 'complete') {
-      try {
-        await apiClient('/api/v1/auth/create-profile', {
-          method: 'POST',
-          body: JSON.stringify({
-            userId: signUp.createdUserId,
-            email: signUp.emailAddress,
-            name,
-          }),
-        });
-      } catch (err) {
-        console.error('Error creating user profile:', err);
-        return;
-      }
-
-      await signUp.finalize({
-        navigate: ({ session, decorateUrl }) => {
-          if (session?.currentTask) {
-            console.log(session?.currentTask);
-            return;
-          }
-          const url = decorateUrl('/');
-          if (url.startsWith('http')) {
-            window.location.href = url;
-          } else {
-            navigate(url);
-          }
-        },
-      });
-    } else {
-      console.error('Sign-up attempt not complete:', signUp);
+    } finally {
+      setIsPending(false);
     }
   }
 
   async function handleResendVerificationCode() {
+    if (!signUp) return;
     setClerkError(null);
     try {
-      await signUp.verifications.sendEmailCode();
+      await signUp.prepareEmailAddressVerification({ strategy: 'email_code' });
     } catch (err) {
       if (isClerkAPIResponseError(err)) {
         setClerkError(handleClerkErrors(err.errors));
@@ -145,7 +134,7 @@ export default function SignUp() {
         title="Verifica tu correo"
         description="Enviamos un código de 6 dígitos a tu dirección de email"
         onSubmit={onVerify}
-        isSubmitting={fetchStatus === 'fetching'}
+        isSubmitting={isPending}
         submitLabel="Verificar cuenta"
         submittingLabel="Verificando..."
         generalError={clerkError}
@@ -180,7 +169,6 @@ export default function SignUp() {
           label="Nombre completo"
           placeholder="Juan Pérez"
           autoComplete="name"
-          className=""
           error={signUpErrors.name?.message}
           {...registerSignUp('name')}
         />
@@ -191,7 +179,6 @@ export default function SignUp() {
           label="Email"
           placeholder="correo@ejemplo.com"
           autoComplete="email"
-          className=""
           error={signUpErrors.email?.message}
           {...registerSignUp('email')}
         />
@@ -244,10 +231,10 @@ export default function SignUp() {
           type="submit"
           variant="contained"
           size="lg"
-          disabled={fetchStatus === 'fetching'}
+          disabled={isPending}
           className="w-full"
         >
-          {fetchStatus === 'fetching' ? (
+          {isPending ? (
             <>
               <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />

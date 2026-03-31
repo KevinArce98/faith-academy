@@ -1,9 +1,9 @@
 import { cn } from '@/lib/cn';
 import {
-  HTMLAttributes,
-  TableHTMLAttributes,
-  TdHTMLAttributes,
-  ThHTMLAttributes,
+  type HTMLAttributes,
+  type TableHTMLAttributes,
+  type TdHTMLAttributes,
+  type ThHTMLAttributes,
   forwardRef,
 } from 'react';
 

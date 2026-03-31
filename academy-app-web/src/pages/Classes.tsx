@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useApiClient } from '@/lib/api';
 import { ClassesClient } from '@/components/dashboard/ClassesClient';
@@ -15,7 +14,7 @@ function getMondayISO(date: Date): string {
 
 export default function Classes() {
   const apiClient = useApiClient();
-  const [weekStart, setWeekStart] = useState<string>(() => getMondayISO(new Date()));
+  const weekStart = getMondayISO(new Date());
 
   const { data: classesData, isLoading: classesLoading, isError: classesError } = useQuery({
     queryKey: ['classes', weekStart],
@@ -27,18 +26,6 @@ export default function Classes() {
     queryFn: () => apiClient<TeacherProfile[]>('/api/v1/teachers'),
     staleTime: 5 * 60 * 1000,
   });
-
-  function prevWeek() {
-    const d = new Date(weekStart);
-    d.setDate(d.getDate() - 7);
-    setWeekStart(d.toISOString());
-  }
-
-  function nextWeek() {
-    const d = new Date(weekStart);
-    d.setDate(d.getDate() + 7);
-    setWeekStart(d.toISOString());
-  }
 
   if (classesLoading || teachersLoading) {
     return (
@@ -63,8 +50,6 @@ export default function Classes() {
       classes={classesData.classes as never}
       teachers={teachers}
       weekStart={weekStart}
-      onPrevWeek={prevWeek}
-      onNextWeek={nextWeek}
     />
   );
 }

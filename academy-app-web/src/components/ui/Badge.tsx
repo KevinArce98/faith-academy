@@ -1,5 +1,5 @@
 import { cn } from '@/lib/cn';
-import { HTMLAttributes } from 'react';
+import { type HTMLAttributes } from 'react';
 
 type BadgeVariant =
   | 'active'

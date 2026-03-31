@@ -19,7 +19,8 @@ import {
 export default function ForgotPassword() {
   const navigate = useNavigate();
   const { isSignedIn } = useAuth();
-  const { signIn, fetchStatus } = useSignIn();
+  const { signIn } = useSignIn();
+  const [isPending, setIsPending] = useState(false);
   const { setActive } = useClerk();
   const signInResource = signIn
     ? (signIn as unknown as {
@@ -66,6 +67,7 @@ export default function ForgotPassword() {
   async function onRequestReset(values: ForgotPasswordFormValues) {
     if (!signInResource) return;
     setGeneralError(null);
+    setIsPending(true);
 
     try {
       await signInResource.create({
@@ -80,12 +82,15 @@ export default function ForgotPassword() {
       } else {
         setGeneralError('No pudimos enviar el código. Intenta de nuevo.');
       }
+    } finally {
+      setIsPending(false);
     }
   }
 
   async function onResetPassword(values: ResetPasswordFormValues) {
     if (!signInResource) return;
     setGeneralError(null);
+    setIsPending(true);
 
     try {
       const result = await signInResource.attemptFirstFactor({
@@ -107,6 +112,8 @@ export default function ForgotPassword() {
       } else {
         setGeneralError('No pudimos restablecer la contraseña. Intenta de nuevo.');
       }
+    } finally {
+      setIsPending(false);
     }
   }
 
@@ -177,10 +184,10 @@ export default function ForgotPassword() {
             type="submit"
             variant="contained"
             size="lg"
-            disabled={fetchStatus === 'fetching'}
+            disabled={isPending}
             className="w-full"
           >
-            {fetchStatus === 'fetching' ? 'Actualizando...' : 'Actualizar contraseña'}
+            {isPending ? 'Actualizando...' : 'Actualizar contraseña'}
           </Button>
         </form>
 
@@ -243,10 +250,10 @@ export default function ForgotPassword() {
           type="submit"
           variant="contained"
           size="lg"
-          disabled={fetchStatus === 'fetching'}
+          disabled={isPending}
           className="w-full"
         >
-          {fetchStatus === 'fetching' ? 'Enviando...' : 'Enviar código'}
+          {isPending ? 'Enviando...' : 'Enviar código'}
         </Button>
       </form>
 

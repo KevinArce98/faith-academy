@@ -2,11 +2,6 @@
 	"name": "studio-flow-academy-monorepo",
 	"private": true,
 	"packageManager": "pnpm@10.30.3",
-	"pnpm": {
-		"overrides": {
-			"zeptomatch": "1.x"
-		}
-	},
 	"scripts": {
 		"start:api": "pnpm --filter academy-api start",
 		"dev:api": "pnpm --filter academy-api dev",
