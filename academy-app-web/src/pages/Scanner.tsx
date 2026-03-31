@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '@clerk/clerk-react';
+import { useAuth } from "@clerk/react";
 import { BrowserMultiFormatReader } from '@zxing/browser';
 import { NotFoundException } from '@zxing/library';
 import { useApiClient } from '@/lib/api';
-import studioConfig from '@shared/config/studio.config';
+import studioConfig from '@/lib/config/studio.config';
 
 interface ScanResult {
   ok: boolean;

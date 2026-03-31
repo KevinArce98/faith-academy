@@ -1,6 +1,6 @@
 import { db } from './db.js';
 import type { UserProfile } from '../lib/generated/prisma/client.js';
-import type { TeacherProfile } from '@academy/shared/interfaces/teachers';
+import type { TeacherProfile } from './interfaces/teachers.js';
 
 const dayFormatter = new Intl.DateTimeFormat('es-CR', { weekday: 'short' });
 

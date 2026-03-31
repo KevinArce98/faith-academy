@@ -1,5 +1,5 @@
 import { Settings as SettingsIcon, Palette, Building2, Bell, Shield, Globe } from 'lucide-react';
-import studioConfig from '@shared/config/studio.config';
+import studioConfig from '@/lib/config/studio.config';
 
 const sections = [
   { icon: Building2, label: 'Estudio', desc: 'Nombre, logo, información general' },

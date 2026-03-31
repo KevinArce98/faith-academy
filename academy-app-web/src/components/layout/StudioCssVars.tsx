@@ -1,4 +1,4 @@
-import studioConfig from '@shared/config/studio.config';
+import studioConfig from '@/lib/config/studio.config';
 import { useEffect } from 'react';
 
 export function StudioCssVars() {

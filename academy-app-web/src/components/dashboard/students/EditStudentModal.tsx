@@ -6,11 +6,11 @@ import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { Button } from '@/components/ui/Button';
-import type { Plan, Student } from '@shared/interfaces/students';
+import type { Plan, Student } from '@/lib/interfaces/students';
 import {
   updateStudentSchema,
   type UpdateStudentInput,
-} from '@shared/validations/students';
+} from '@/lib/validations/students';
 import { useApiClient } from '@/lib/api';
 
 type EditStudentModalProps = {

@@ -1,6 +1,6 @@
-import { useClerk } from '@clerk/clerk-react';
+import { useClerk } from "@clerk/react";
 import { useNavigate } from 'react-router-dom';
-import studioConfig from '@shared/config/studio.config';
+import studioConfig from '@/lib/config/studio.config';
 import { Button } from '@/components/ui/Button';
 
 export default function NoAccess() {

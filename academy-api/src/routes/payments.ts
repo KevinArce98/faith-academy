@@ -1,7 +1,7 @@
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Hono } from 'hono';
-import { createOrderSchema, rejectOrderSchema, uploadUrlSchema } from '@academy/shared/validations/payments';
+import { createOrderSchema, rejectOrderSchema, uploadUrlSchema } from '../lib/validations/payments.js';
 import { addDays, addMonths, addYears } from '../lib/utils/date.js';
 import { authMiddleware } from '../middleware/auth.js';
 import { getCurrentUser, requireRole } from '../lib/auth.js';

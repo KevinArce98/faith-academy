@@ -3,7 +3,7 @@ import { useApiClient } from '@/lib/api';
 import { PlansClient } from '@/components/dashboard/PlansClient';
 import { isAdminOrTeacher } from '@/lib/roles';
 import type { Role } from '@/lib/roles';
-import type { Plan } from '@shared/interfaces/plans';
+import type { Plan } from '@/lib/interfaces/plans';
 
 type MeResponse = { name: string; role: Role };
 type PlansResponse = { plans: Plan[] } | Plan[];

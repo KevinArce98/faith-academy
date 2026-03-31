@@ -3,7 +3,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend,
 } from 'recharts';
-import studioConfig from '@shared/config/studio.config';
+import studioConfig from '@/lib/config/studio.config';
 import { formatPrice } from '@/utils/general';
 import { StatCard } from '@/components/dashboard/reports/StatCard';
 import type { ReportsClientProps } from '@/components/dashboard/reports/reports.types';

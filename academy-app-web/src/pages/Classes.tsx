@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useApiClient } from '@/lib/api';
 import { ClassesClient } from '@/components/dashboard/ClassesClient';
-import type { TeacherProfile } from '@shared/interfaces/teachers';
+import type { TeacherProfile } from '@/lib/interfaces/teachers';
 
 function getMondayISO(date: Date): string {
   const d = new Date(date);

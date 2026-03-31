@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useApiClient } from '@/lib/api';
 import { GraduationCap, Calendar } from 'lucide-react';
-import type { TeacherProfile } from '@shared/interfaces/teachers';
+import type { TeacherProfile } from '@/lib/interfaces/teachers';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { NewTeacherModal } from './NewTeacherModal';

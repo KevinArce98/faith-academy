@@ -15,8 +15,7 @@
     "moduleDetection": "force",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "@shared/*": ["../shared/*"]
+      "@/*": ["./src/*"]
     },
     "noEmit": true,
     "jsx": "react-jsx",

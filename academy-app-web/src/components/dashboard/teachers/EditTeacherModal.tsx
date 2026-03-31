@@ -3,7 +3,7 @@ import { useApiClient } from '@/lib/api';
 import { ResponsiveModal } from '@/components/ui/ResponsiveModal';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
-import type { TeacherProfile } from '@shared/interfaces/teachers';
+import type { TeacherProfile } from '@/lib/interfaces/teachers';
 
 type EditTeacherModalProps = {
   teacher: TeacherProfile | null;

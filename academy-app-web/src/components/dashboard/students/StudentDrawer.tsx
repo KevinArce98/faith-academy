@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { STATUS_COLORS, STATUS_LABELS } from '@shared/interfaces/students';
-import type { Student } from '@shared/interfaces/students';
+import { STATUS_COLORS, STATUS_LABELS } from '@/lib/interfaces/students';
+import type { Student } from '@/lib/interfaces/students';
 import { slideInRight } from '@/lib/animations';
 import { X } from 'lucide-react';
 import { getInitials } from '@/utils/general';

@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useApiClient } from '@/lib/api';
-import type { TeacherProfile } from '@shared/interfaces/teachers';
+import type { TeacherProfile } from '@/lib/interfaces/teachers';
 import { TeachersClient } from '@/components/dashboard/teachers/TeachersClient';
 
 export default function Teachers() {

@@ -1,6 +1,6 @@
 import { MoreVertical } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
-import type { TeacherProfile } from '@shared/interfaces/teachers';
+import type { TeacherProfile } from '@/lib/interfaces/teachers';
 
 type TeacherMenuProps = {
   teacher: TeacherProfile;

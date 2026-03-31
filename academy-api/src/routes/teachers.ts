@@ -6,7 +6,7 @@ import { requireRole, createUserProfile } from '../lib/auth.js';
 import { getTeachersWithClasses } from '../lib/teachers.js';
 import { db } from '../lib/db.js';
 import type { AuthVariables } from '../types/auth.js';
-import type { Role } from '@academy/shared/lib/roles';
+import type { Role } from '../lib/roles.js';
 
 const teachersRoutes = new Hono<{ Variables: AuthVariables }>();
 

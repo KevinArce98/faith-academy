@@ -2,8 +2,8 @@ import { Pencil, Star, Calendar, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { Button } from '@/components/ui/Button';
 import { useApiClient } from '@/lib/api';
-import { INTERVAL_LABEL, getPlanColor } from '@shared/interfaces/plans';
-import type { Plan } from '@shared/interfaces/plans';
+import { INTERVAL_LABEL, getPlanColor } from '@/lib/interfaces/plans';
+import type { Plan } from '@/lib/interfaces/plans';
 import { formatPrice } from '@/utils/general';
 
 interface PlanCardProps {

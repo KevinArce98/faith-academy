@@ -1,5 +1,5 @@
 import { createClerkClient } from '@clerk/backend';
-import type { Role } from '@academy/shared/lib/roles';
+import type { Role } from './roles.js';
 import type { AuthContext } from '../types/auth.js';
 import { db } from './db.js';
 

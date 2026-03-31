@@ -5,7 +5,7 @@ import { authMiddleware } from '../middleware/auth.js';
 import { requireRole } from '../lib/auth.js';
 import { db } from '../lib/db.js';
 import type { AuthVariables } from '../types/auth.js';
-import type { Role } from '@academy/shared/lib/roles';
+import type { Role } from '../lib/roles.js';
 
 const usersRoutes = new Hono<{ Variables: AuthVariables }>();
 

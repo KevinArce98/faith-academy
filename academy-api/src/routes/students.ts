@@ -1,6 +1,6 @@
 import { createClerkClient } from '@clerk/backend';
 import { Hono } from 'hono';
-import { createStudentSchema, updateStudentSchema } from '@academy/shared/validations/students';
+import { createStudentSchema, updateStudentSchema } from '../lib/validations/students.js';
 import { authMiddleware } from '../middleware/auth.js';
 import { getCurrentUser, requireRole } from '../lib/auth.js';
 import { db } from '../lib/db.js';

@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useApiClient } from '@/lib/api';
-import type { Plan, Student } from '@shared/interfaces/students';
+import type { Plan, Student } from '@/lib/interfaces/students';
 import { StudentsClient } from '@/components/dashboard/students/StudentsClient';
 
 type StudentsResponse = { students: Student[]; total: number };

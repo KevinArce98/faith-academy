@@ -4,7 +4,7 @@ import { AlertTriangle, X } from 'lucide-react';
 import { modalVariants, overlayVariants } from '@/lib/animations';
 import { Button } from '@/components/ui/Button';
 import { useApiClient } from '@/lib/api';
-import type { Plan } from '@shared/interfaces/plans';
+import type { Plan } from '@/lib/interfaces/plans';
 
 interface DeletePlanConfirmProps {
   plan: Plan;

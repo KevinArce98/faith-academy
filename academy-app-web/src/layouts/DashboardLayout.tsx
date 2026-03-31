@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Outlet, Navigate } from 'react-router-dom';
-import { useAuth, useUser } from '@clerk/clerk-react';
+import { useAuth, useUser } from "@clerk/react";
 import { DashboardShell } from '@/components/layout/DashboardShell';
 import { useApiClient } from '@/lib/api';
 import { getInitials } from '@/utils/general';

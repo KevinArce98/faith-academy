@@ -6,7 +6,7 @@ import { usePagination } from '@/hooks/usePagination';
 import { PlanCard } from '@/components/dashboard/plans/PlanCard';
 import { PlanModal } from '@/components/dashboard/plans/PlanModal';
 import { DeletePlanConfirm } from '@/components/dashboard/plans/DeletePlanConfirm';
-import type { Plan, PlansClientProps } from '@shared/interfaces/plans';
+import type { Plan, PlansClientProps } from '@/lib/interfaces/plans';
 
 export function PlansClient({ plans, isAdmin = false }: PlansClientProps) {
   const [planList, setPlanList] = useState<Plan[]>(plans);

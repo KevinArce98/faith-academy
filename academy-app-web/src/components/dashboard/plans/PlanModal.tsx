@@ -10,9 +10,9 @@ import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { Button } from '@/components/ui/Button';
 import { useApiClient } from '@/lib/api';
-import { INTERVAL_OPTIONS } from '@shared/interfaces/plans';
-import { planFormSchema } from '@shared/validations/plans';
-import type { Plan, PlanFormValues } from '@shared/interfaces/plans';
+import { INTERVAL_OPTIONS } from '@/lib/interfaces/plans';
+import { planFormSchema } from '@/lib/validations/plans';
+import type { Plan, PlanFormValues } from '@/lib/interfaces/plans';
 
 interface PlanModalProps {
   plan?: Plan | null;

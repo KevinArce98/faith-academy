@@ -13,9 +13,9 @@ import {
   X,
 } from 'lucide-react';
 import { cn } from '@/lib/cn';
-import studioConfig from '@shared/config/studio.config';
+import studioConfig from '@/lib/config/studio.config';
 import { Button } from '@/components/ui/Button';
-import { useClerk } from '@clerk/clerk-react';
+import { useClerk } from "@clerk/react";
 import { canAccessRoute, type Role } from '@/lib/roles';
 
 type NavItem = {

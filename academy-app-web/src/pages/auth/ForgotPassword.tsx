@@ -1,5 +1,6 @@
-import { useAuth, useClerk, useSignIn } from '@clerk/clerk-react';
-import { isClerkAPIResponseError } from '@clerk/clerk-react/errors';
+import { useAuth, useClerk } from "@clerk/react";
+import { useSignIn } from "@clerk/react/legacy";
+import { isClerkAPIResponseError } from '@clerk/react/errors';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
