@@ -37,7 +37,10 @@ export function PaymentCard({ order, isAdmin = false }: PaymentCardProps) {
   };
 
   const handleReject = async () => {
-    await apiClient(`/api/v1/payments/orders/${order.id}/reject`, { method: 'POST' });
+    await apiClient(`/api/v1/payments/orders/${order.id}/reject`, {
+      method: 'POST',
+      body: JSON.stringify({ notes: '' }),
+    });
     setStatus('REJECTED');
     setApprovedAt(new Date());
     queryClient.invalidateQueries({ queryKey: ['payments'] });

@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from "@clerk/react";
+import { useQuery } from '@tanstack/react-query';
 import { BrowserMultiFormatReader } from '@zxing/browser';
 import { NotFoundException } from '@zxing/library';
 import { useApiClient } from '@/lib/api';
+import { isAdminOrTeacher, type Role } from '@/lib/roles';
 import studioConfig from '@/lib/config/studio.config';
 
 interface ScanResult {
@@ -28,8 +30,15 @@ export default function Scanner() {
   const [history, setHistory] = useState<ScanResult[]>([]);
   const lastTokenRef = useRef<string>('');
 
+  const { data: me, isLoading: meLoading } = useQuery<{ role: Role }>({
+    queryKey: ['me'],
+    queryFn: () => apiClient<{ role: Role }>('/api/v1/auth/me'),
+    enabled: isLoaded && !!isSignedIn,
+  });
+
   useEffect(() => {
     if (!isLoaded || !isSignedIn) return;
+    if (!me || !isAdminOrTeacher(me.role)) return;
     if (!videoRef.current) return;
 
     const reader = new BrowserMultiFormatReader();
@@ -79,9 +88,9 @@ export default function Scanner() {
       controlsRef.current?.stop();
       setScanning(false);
     };
-  }, [isLoaded, isSignedIn]);
+  }, [isLoaded, isSignedIn, me]);
 
-  if (!isLoaded) {
+  if (!isLoaded || meLoading) {
     return (
       <div className="flex h-screen items-center justify-center">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
@@ -91,6 +100,10 @@ export default function Scanner() {
 
   if (!isSignedIn) {
     return <Navigate to="/sign-in" replace />;
+  }
+
+  if (!me || !isAdminOrTeacher(me.role)) {
+    return <Navigate to="/no-access" replace />;
   }
 
   function getCardStyle(entry: ScanResult): React.CSSProperties {

@@ -67,7 +67,7 @@ export function PlanCard({
             <span
               className={cn(
                 'absolute top-1 h-4 w-4 rounded-full bg-white shadow transition-transform duration-200',
-                plan.isActive ? 'translate-x-1' : '-translate-x-5'
+                plan.isActive ? 'translate-x-6' : 'translate-x-0.5'
               )}
             />
           </button>

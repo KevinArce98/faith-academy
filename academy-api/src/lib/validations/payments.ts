@@ -11,7 +11,7 @@ export const createOrderSchema = z.object({
 });
 
 export const rejectOrderSchema = z.object({
-  notes: z.string().min(1, 'Las notas son requeridas para rechazar una orden'),
+  notes: z.string().optional().default(''),
 });
 
 export type UploadUrlInput = z.infer<typeof uploadUrlSchema>;

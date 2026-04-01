@@ -63,7 +63,7 @@ export default function DashboardLayout() {
 
   return (
     <DashboardShell user={{ name: displayName, role: profile.role, initials }}>
-      <Outlet />
+      <Outlet context={{ role: profile.role }} />
     </DashboardShell>
   );
 }

@@ -3,9 +3,12 @@ import { useLocation } from 'react-router-dom';
 import { Bell, X, Menu } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
+import { useQuery } from '@tanstack/react-query';
 import { cn } from '@/lib/cn';
 import { slideInRight, overlayVariants } from '@/lib/animations';
 import { Button } from '@/components/ui/Button';
+import { useApiClient } from '@/lib/api';
+import { timeAgo } from '@/utils/general';
 
 const ROUTE_LABELS: Record<string, string> = {
   dashboard: 'Inicio',
@@ -13,49 +16,18 @@ const ROUTE_LABELS: Record<string, string> = {
   payments: 'Pagos',
   classes: 'Clases',
   plans: 'Planes',
+  teachers: 'Profesores',
   'video-library': 'Biblioteca de Videos',
   reports: 'Reportes',
-  settings: 'Configuración',
 };
 
-type Notification = {
+type ApiNotification = {
   id: string;
+  type: string;
   title: string;
   body: string;
-  time: string;
-  unread: boolean;
+  createdAt: string;
 };
-
-const mockNotifications: Notification[] = [
-  {
-    id: '1',
-    title: 'Pago pendiente',
-    body: 'Maria Garcia solicito Plan Pro',
-    time: 'Hace 5 min',
-    unread: true,
-  },
-  {
-    id: '2',
-    title: 'Pago pendiente',
-    body: 'Carlos Lopez solicito Plan Basico',
-    time: 'Hace 18 min',
-    unread: true,
-  },
-  {
-    id: '3',
-    title: 'Clase Ballet al 90% de capacidad',
-    body: 'Ballet Basico · 9:00am tiene 18/20 cupos',
-    time: 'Hace 1 hora',
-    unread: false,
-  },
-  {
-    id: '4',
-    title: 'Membresia por vencer',
-    body: 'Carlos Lopez — membresia vence en 3 dias',
-    time: 'Hace 2 horas',
-    unread: false,
-  },
-];
 
 type TopbarProps = {
   userInitials: string;
@@ -64,11 +36,22 @@ type TopbarProps = {
 
 export function Topbar({ userInitials, onMenuClick }: TopbarProps) {
   const [notifOpen, setNotifOpen] = useState(false);
-  const [notifications, setNotifs] = useState(mockNotifications);
+  const [readIds, setReadIds] = useState<Set<string>>(new Set());
   const [listRef] = useAutoAnimate<HTMLDivElement>();
   const { pathname } = useLocation();
+  const apiClient = useApiClient();
 
-  // Build breadcrumbs: "Dashboard / Alumnos"
+  const { data, isLoading } = useQuery<{ notifications: ApiNotification[] }>({
+    queryKey: ['notifications'],
+    queryFn: () => apiClient<{ notifications: ApiNotification[] }>('/api/v1/notifications'),
+    staleTime: 2 * 60 * 1000,
+    refetchInterval: 5 * 60 * 1000,
+  });
+
+  const notifications = data?.notifications ?? [];
+  const unreadCount = notifications.filter((n) => !readIds.has(n.id)).length;
+
+  // Build breadcrumbs: "Inicio / Alumnos"
   const segments = pathname.split('/').filter(Boolean);
   const breadcrumbs = [
     { label: 'Inicio' },
@@ -77,10 +60,12 @@ export function Topbar({ userInitials, onMenuClick }: TopbarProps) {
       .map((s) => ({ label: ROUTE_LABELS[s] ?? s })),
   ];
 
-  const unreadCount = notifications.filter((n) => n.unread).length;
-
   function markAllRead() {
-    setNotifs((prev) => prev.map((n) => ({ ...n, unread: false })));
+    setReadIds(new Set(notifications.map((n) => n.id)));
+  }
+
+  function handleOpen() {
+    setNotifOpen(true);
   }
 
   return (
@@ -123,13 +108,13 @@ export function Topbar({ userInitials, onMenuClick }: TopbarProps) {
         <Button
           variant="text"
           color="neutral"
-          onClick={() => setNotifOpen((v) => !v)}
+          onClick={handleOpen}
           className="relative h-auto p-2 hover:bg-gray-50 active:scale-90 border-transparent"
         >
-          <Bell className="h-5 w-5 text-gray-500" />
+          <Bell className={cn('h-5 w-5', isLoading ? 'text-gray-300' : 'text-gray-500')} />
           {unreadCount > 0 && (
             <span className="bg-primary absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold text-white">
-              {unreadCount}
+              {unreadCount > 9 ? '9+' : unreadCount}
             </span>
           )}
         </Button>
@@ -166,14 +151,16 @@ export function Topbar({ userInitials, onMenuClick }: TopbarProps) {
               <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
                 <h2 className="text-dark text-base font-bold">Notificaciones</h2>
                 <div className="flex items-center gap-3">
-                  <Button
-                    variant="text"
-                    color="primary"
-                    onClick={markAllRead}
-                    className="h-auto p-0 text-xs font-semibold hover:bg-transparent hover:underline"
-                  >
-                    Marcar todas leidas
-                  </Button>
+                  {unreadCount > 0 && (
+                    <Button
+                      variant="text"
+                      color="primary"
+                      onClick={markAllRead}
+                      className="h-auto p-0 text-xs font-semibold hover:bg-transparent hover:underline"
+                    >
+                      Marcar todas leídas
+                    </Button>
+                  )}
                   <Button
                     variant="text"
                     color="neutral"
@@ -186,29 +173,43 @@ export function Topbar({ userInitials, onMenuClick }: TopbarProps) {
               </div>
 
               <div ref={listRef} className="flex-1 divide-y divide-gray-50 overflow-y-auto">
-                {notifications.map((n) => (
-                  <div
-                    key={n.id}
-                    className={cn('px-5 py-4', n.unread && 'bg-primary/5')}
-                  >
-                    <div className="flex items-start gap-2">
-                      {n.unread && (
-                        <div className="bg-primary mt-1 h-2 w-2 shrink-0 rounded-full" />
-                      )}
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-start justify-between gap-2">
-                          <p className="text-dark text-sm font-semibold">
-                            {n.title}
-                          </p>
-                          <span className="shrink-0 text-xs text-gray-400">
-                            {n.time}
-                          </span>
-                        </div>
-                        <p className="mt-0.5 text-xs text-gray-500">{n.body}</p>
-                      </div>
-                    </div>
+                {isLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
                   </div>
-                ))}
+                ) : notifications.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center gap-2 py-16 text-center">
+                    <Bell className="h-10 w-10 text-gray-200" />
+                    <p className="text-sm text-gray-400">Sin notificaciones</p>
+                  </div>
+                ) : (
+                  notifications.map((n) => {
+                    const unread = !readIds.has(n.id);
+                    return (
+                      <div
+                        key={n.id}
+                        className={cn('px-5 py-4', unread && 'bg-primary/5')}
+                      >
+                        <div className="flex items-start gap-2">
+                          {unread && (
+                            <div className="bg-primary mt-1.5 h-2 w-2 shrink-0 rounded-full" />
+                          )}
+                          <div className={cn('min-w-0 flex-1', !unread && 'pl-4')}>
+                            <div className="flex items-start justify-between gap-2">
+                              <p className="text-dark text-sm font-semibold">
+                                {n.title}
+                              </p>
+                              <span className="shrink-0 text-xs text-gray-400">
+                                {timeAgo(n.createdAt)}
+                              </span>
+                            </div>
+                            <p className="mt-0.5 text-xs text-gray-500">{n.body}</p>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
               </div>
             </motion.div>
           </>

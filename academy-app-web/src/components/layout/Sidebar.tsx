@@ -8,7 +8,6 @@ import {
   Tag,
   PlayCircle,
   BarChart2,
-  Settings,
   LogOut,
   X,
 } from 'lucide-react';
@@ -55,12 +54,6 @@ const conditionalNavItems: Array<
   { href: '/reports', icon: BarChart2, label: 'Reportes', feature: 'reports' },
 ];
 
-const bottomNavItem: NavItem = {
-  href: '/settings',
-  icon: Settings,
-  label: 'Configuración',
-};
-
 type SidebarProps = {
   user: {
     name: string;
@@ -80,7 +73,6 @@ export function Sidebar({ user, onClose }: SidebarProps) {
     ...conditionalNavItems.filter(
       (item) => studioConfig.features[item.feature]
     ),
-    bottomNavItem,
   ].filter((item) => canAccessRoute(user.role, item.href));
 
   function isActive(href: string) {

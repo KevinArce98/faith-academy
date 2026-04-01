@@ -10,6 +10,7 @@ import contentRoutes from './routes/content.js'
 import dashboardRoutes from './routes/dashboard.js'
 import paymentsRoutes from './routes/payments.js'
 import plansRoutes from './routes/plans.js'
+import notificationsRoutes from './routes/notifications.js'
 import reportsRoutes from './routes/reports.js'
 import studentsRoutes from './routes/students.js'
 import teachersRoutes from './routes/teachers.js'
@@ -39,6 +40,7 @@ app.route('/api/v1/payments', paymentsRoutes)
 app.route('/api/v1/teachers', teachersRoutes)
 app.route('/api/v1/plans', plansRoutes)
 app.route('/api/v1/dashboard', dashboardRoutes)
+app.route('/api/v1/notifications', notificationsRoutes)
 app.route('/api/v1/reports', reportsRoutes)
 app.route('/api/v1/content', contentRoutes)
 

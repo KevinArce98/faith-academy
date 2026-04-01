@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import { authMiddleware } from '../middleware/auth.js';
 import { getCurrentUser, requireRole } from '../lib/auth.js';
+import { features } from '../lib/features.js';
 import { db, type DbClient } from '../lib/db.js';
 import { generateQRPayload, verifyQRPayload } from '../lib/qr.js';
 import { promoteWaitlist } from '../lib/utils/waitlist.js';
@@ -45,6 +46,10 @@ attendanceRoutes.get('/student/qr', authMiddleware, async (c) => {
 
 // POST /attendance/scan — teacher scans student QR
 attendanceRoutes.post('/attendance/scan', authMiddleware, async (c) => {
+  if (!features.attendanceScanner) {
+    return c.json({ error: 'Módulo no disponible' }, 403);
+  }
+
   let user;
   try {
     user = await requireRole(c, 'TEACHER');
@@ -206,7 +211,8 @@ attendanceRoutes.post('/attendances/:id/cancel', authMiddleware, async (c) => {
       });
 
       if (!attendance) throw new Error('ATTENDANCE_NOT_FOUND');
-      if (attendance.studentId !== user.id) throw new Error('FORBIDDEN');
+      // STUDENTs can only cancel their own reservations; ADMIN/TEACHER can cancel any
+      if (user.role === 'STUDENT' && attendance.studentId !== user.id) throw new Error('FORBIDDEN');
       if (attendance.status !== 'RESERVED') throw new Error('NOT_CANCELLABLE');
 
       const now = new Date();

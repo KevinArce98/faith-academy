@@ -179,7 +179,7 @@ paymentsRoutes.post('/orders/:id/reject', authMiddleware, async (c) => {
   const id = c.req.param('id');
 
   const body = await c.req.json().catch(() => null);
-  const parsed = rejectOrderSchema.safeParse(body);
+  const parsed = rejectOrderSchema.safeParse(body ?? {});
   if (!parsed.success) {
     return c.json({ error: parsed.error.flatten() }, 422);
   }
@@ -221,6 +221,12 @@ paymentsRoutes.post('/upload-url', authMiddleware, async (c) => {
   }
 
   const { studentId, ext } = parsed.data;
+
+  // STUDENTs can only upload receipts for themselves
+  if (user.role === 'STUDENT' && studentId !== user.id) {
+    return c.json({ error: 'No autorizado' }, 403);
+  }
+
   const key = `receipts/${user.id}/${studentId}/${Date.now()}.${ext}`;
 
   const command = new PutObjectCommand({

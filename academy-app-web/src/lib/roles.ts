@@ -12,7 +12,6 @@ export const ROLE_ROUTE_ACCESS: Record<Role, string[]> = {
     '/plans',
     '/video-library',
     '/reports',
-    '/settings',
   ],
   TEACHER: [
     '/',

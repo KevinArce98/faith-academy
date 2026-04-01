@@ -116,7 +116,10 @@ function AdminDashboard({ data }: { data: AdminDashboardData }) {
 
   const rejectMutation = useMutation({
     mutationFn: (orderId: string) =>
-      apiClient(`/api/v1/payments/orders/${orderId}/reject`, { method: 'POST' }),
+      apiClient(`/api/v1/payments/orders/${orderId}/reject`, {
+        method: 'POST',
+        body: JSON.stringify({ notes: '' }),
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },

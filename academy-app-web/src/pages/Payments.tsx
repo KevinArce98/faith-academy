@@ -7,6 +7,7 @@ import type { Order } from '@/components/dashboard/payments/payments.types';
 
 type MeResponse = { name: string; role: Role };
 type PlanOption = { id: string; name: string; price: number };
+type PlansResponse = { plans: PlanOption[] } | PlanOption[];
 type OrdersResponse = { orders: Order[] } | Order[];
 
 export default function Payments() {
@@ -24,9 +25,9 @@ export default function Payments() {
     enabled: !!me,
   });
 
-  const { data: plansData, isLoading: plansLoading } = useQuery<PlanOption[]>({
+  const { data: plansData, isLoading: plansLoading } = useQuery<PlansResponse>({
     queryKey: ['plans-options'],
-    queryFn: () => apiClient<PlanOption[]>('/api/v1/plans?activeOnly=true'),
+    queryFn: () => apiClient<PlansResponse>('/api/v1/plans?activeOnly=true'),
     enabled: !!me && !isAdminOrTeacher(me.role),
   });
 
@@ -52,7 +53,11 @@ export default function Payments() {
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const pendingCount = orders.filter((o) => o.status === 'PENDING_REVIEW').length;
   const monthCount = orders.filter((o) => new Date(o.createdAt) >= monthStart).length;
-  const plans = plansData ?? [];
+  const plans: PlanOption[] = !plansData
+    ? []
+    : Array.isArray(plansData)
+      ? plansData
+      : plansData.plans;
 
   return (
     <PaymentsClient

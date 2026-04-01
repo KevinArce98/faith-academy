@@ -22,7 +22,10 @@ const toggleSchema = z.object({
 
 // GET /plans
 plansRoutes.get('/', authMiddleware, async (c) => {
+  const activeOnly = c.req.query('activeOnly') === 'true';
+
   const plans = await db.membershipPlan.findMany({
+    where: activeOnly ? { isActive: true } : undefined,
     orderBy: { name: 'asc' },
     include: {
       _count: {
@@ -107,7 +110,7 @@ plansRoutes.delete('/:id', authMiddleware, async (c) => {
 // PATCH /plans/:id/toggle — toggle isActive
 plansRoutes.patch('/:id/toggle', authMiddleware, async (c) => {
   try {
-    await requireRole(c, ['ADMIN', 'TEACHER']);
+    await requireRole(c, 'ADMIN');
   } catch (error) {
     const status = error instanceof Error && error.message === 'UNAUTHENTICATED' ? 401 : 403;
     return c.json({ error: 'No autorizado' }, status);

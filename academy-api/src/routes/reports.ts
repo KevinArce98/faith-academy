@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import { authMiddleware } from '../middleware/auth.js';
 import { requireRole } from '../lib/auth.js';
+import { features } from '../lib/features.js';
 import { db } from '../lib/db.js';
 import type { AuthVariables } from '../types/auth.js';
 
@@ -12,6 +13,10 @@ function sumPrice(orders: Array<{ plan: { price: unknown } }>): number {
 
 // GET /reports
 reportsRoutes.get('/', authMiddleware, async (c) => {
+  if (!features.reports) {
+    return c.json({ error: 'Módulo no disponible' }, 403);
+  }
+
   try {
     await requireRole(c, 'ADMIN');
   } catch (error) {

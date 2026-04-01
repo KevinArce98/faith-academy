@@ -1,5 +1,7 @@
+import { Navigate, useOutletContext } from 'react-router-dom';
 import { Settings as SettingsIcon, Palette, Building2, Bell, Shield, Globe } from 'lucide-react';
 import studioConfig from '@/lib/config/studio.config';
+import { isAdmin, type Role } from '@/lib/roles';
 
 const sections = [
   { icon: Building2, label: 'Estudio', desc: 'Nombre, logo, información general' },
@@ -11,6 +13,9 @@ const sections = [
 ];
 
 export default function Settings() {
+  const { role } = useOutletContext<{ role: Role }>();
+  if (!isAdmin(role)) return <Navigate to="/no-access" replace />;
+
   return (
     <div className="max-w-3xl space-y-8">
       <h1 className="text-dark text-3xl font-bold">Configuracion</h1>

@@ -16,7 +16,6 @@ import Classes from '@/pages/Classes';
 import Payments from '@/pages/Payments';
 import Plans from '@/pages/Plans';
 import Reports from '@/pages/Reports';
-import Settings from '@/pages/Settings';
 import VideoLibrary from '@/pages/VideoLibrary';
 import Scanner from '@/pages/Scanner';
 import NoAccess from '@/pages/NoAccess';
@@ -48,7 +47,6 @@ export default function App() {
           <Route path="/payments" element={<Payments />} />
           <Route path="/plans" element={<Plans />} />
           <Route path="/reports" element={<Reports />} />
-          <Route path="/settings" element={<Settings />} />
           <Route path="/video-library" element={<VideoLibrary />} />
         </Route>
 

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useApiClient } from '@/lib/api';
 import { GraduationCap, Calendar } from 'lucide-react';
@@ -41,6 +41,13 @@ export function TeachersClient({ teachers, activeCount }: TeachersClientProps) {
 
   const totalTeachers = teachers.length;
   const emptyState = totalTeachers === 0;
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handler = () => setMenuOpen(null);
+    document.addEventListener('click', handler);
+    return () => document.removeEventListener('click', handler);
+  }, [menuOpen]);
 
   function closeMenus() {
     setMenuOpen(null);

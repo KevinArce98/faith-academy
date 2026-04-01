@@ -1,5 +1,7 @@
+import { Navigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useApiClient } from '@/lib/api';
+import studioConfig from '@/lib/config/studio.config';
 import { VideoLibraryClient } from '@/components/dashboard/VideoLibraryClient';
 
 type Content = {
@@ -15,6 +17,8 @@ type Content = {
 type ContentResponse = { contents: Content[]; classes: { id: string; name: string }[] } | Content[];
 
 export default function VideoLibrary() {
+  if (!studioConfig.features.lms) return <Navigate to="/no-access" replace />;
+
   const apiClient = useApiClient();
 
   const { data, isLoading, isError } = useQuery<ContentResponse>({

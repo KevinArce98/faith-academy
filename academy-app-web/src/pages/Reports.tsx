@@ -1,9 +1,14 @@
+import { Navigate, useOutletContext } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useApiClient } from '@/lib/api';
+import { isAdmin, type Role } from '@/lib/roles';
 import { ReportsClient } from '@/components/dashboard/ReportsClient';
 import type { ReportsClientProps } from '@/components/dashboard/reports/reports.types';
 
 export default function Reports() {
+  const { role } = useOutletContext<{ role: Role }>();
+  if (!isAdmin(role)) return <Navigate to="/no-access" replace />;
+
   const apiClient = useApiClient();
 
   const { data, isLoading, isError } = useQuery<ReportsClientProps>({

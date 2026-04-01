@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import { authMiddleware } from '../middleware/auth.js';
-import { requireRole } from '../lib/auth.js';
+import { getCurrentUser } from '../lib/auth.js';
+import { features } from '../lib/features.js';
 import { db } from '../lib/db.js';
 import type { AuthVariables } from '../types/auth.js';
 
@@ -8,11 +9,13 @@ const contentRoutes = new Hono<{ Variables: AuthVariables }>();
 
 // GET /content — list all content / video library
 contentRoutes.get('/', authMiddleware, async (c) => {
-  try {
-    await requireRole(c, ['ADMIN', 'TEACHER', 'STUDENT']);
-  } catch (error) {
-    const status = error instanceof Error && error.message === 'UNAUTHENTICATED' ? 401 : 403;
-    return c.json({ error: 'No autorizado' }, status);
+  if (!features.lms) {
+    return c.json({ error: 'Módulo no disponible' }, 403);
+  }
+
+  const user = await getCurrentUser(c);
+  if (!user) {
+    return c.json({ error: 'UNAUTHENTICATED' }, 401);
   }
 
   const [contents, classes] = await Promise.all([
