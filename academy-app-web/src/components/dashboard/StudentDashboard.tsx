@@ -187,12 +187,12 @@ export function StudentDashboard({
                   key={cls.id}
                   className="flex items-center gap-3 rounded-xl bg-gray-50 p-3"
                 >
-                  <div className="flex flex-col items-center justify-center rounded-lg bg-white px-2.5 py-1.5 shadow-sm">
-                    <span className="text-dark text-sm font-bold">
-                      {formatShortDate(cls.startsAt).split(' ')[0]}
+                  <div className="flex w-12 shrink-0 flex-col items-center justify-center rounded-lg bg-white px-1 py-1.5 shadow-sm">
+                    <span className="text-dark text-[11px] font-bold uppercase leading-none">
+                      {new Intl.DateTimeFormat('es-CR', { weekday: 'short' }).format(new Date(cls.startsAt)).replace('.', '')}
                     </span>
-                    <span className="text-[10px] text-gray-400 uppercase">
-                      {formatShortDate(cls.startsAt).split(' ')[1]}
+                    <span className="mt-0.5 text-[10px] text-gray-400">
+                      {formatTime(new Date(cls.startsAt))}
                     </span>
                   </div>
                   <div className="min-w-0 flex-1">
@@ -201,8 +201,7 @@ export function StudentDashboard({
                     </p>
                     <div className="flex items-center gap-2 text-xs text-gray-400">
                       <Clock className="h-3 w-3" />
-                      {formatTime(new Date(cls.startsAt))} -{' '}
-                      {formatTime(new Date(cls.endsAt))}
+                      {formatTime(new Date(cls.startsAt))} — {formatTime(new Date(cls.endsAt))}
                     </div>
                   </div>
                   <span className="shrink-0 rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-500">

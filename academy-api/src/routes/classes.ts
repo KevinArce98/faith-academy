@@ -280,6 +280,131 @@ classesRoutes.post('/:id/reserve', authMiddleware, async (c) => {
   }
 });
 
+// DELETE /classes/:id/reserve — student cancels their own reservation
+classesRoutes.delete('/:id/reserve', authMiddleware, async (c) => {
+  let user;
+  try {
+    user = await requireRole(c, 'STUDENT');
+  } catch (error) {
+    const status = error instanceof Error && error.message === 'UNAUTHENTICATED' ? 401 : 403;
+    return c.json({ error: 'No autorizado' }, status);
+  }
+
+  const classId = c.req.param('id');
+  const cls = await db.class.findFirst({ where: { id: classId, isActive: true } });
+  if (!cls) return c.json({ error: 'Clase no encontrada' }, 404);
+
+  const now = new Date();
+  if (cls.cancelWindowHours) {
+    const hoursUntil = (new Date(cls.startsAt).getTime() - now.getTime()) / (1000 * 60 * 60);
+    if (hoursUntil < cls.cancelWindowHours) {
+      return c.json(
+        { error: `No se puede cancelar con menos de ${cls.cancelWindowHours} horas de anticipación` },
+        409,
+      );
+    }
+  }
+
+  const attendance = await db.attendance.findFirst({
+    where: { classId, studentId: user.id, status: 'RESERVED' },
+  });
+  if (!attendance) return c.json({ error: 'Reserva no encontrada' }, 404);
+
+  const creditCost = cls.creditCost ?? 1;
+  const latestLedger = await db.creditLedger.findFirst({
+    where: { studentId: user.id },
+    orderBy: { createdAt: 'desc' },
+  });
+  const currentBalance = latestLedger?.balance ?? 0;
+
+  await db.$transaction([
+    db.attendance.update({ where: { id: attendance.id }, data: { status: 'CANCELLED' } }),
+    db.creditLedger.create({
+      data: {
+        studentId: user.id,
+        attendanceId: attendance.id,
+        type: 'CREDIT_REFUND',
+        amount: creditCost,
+        balance: currentBalance + creditCost,
+        note: `Cancelación reserva: ${cls.name}`,
+      },
+    }),
+  ]);
+
+  return c.json({ success: true });
+});
+
+// GET /classes/:id/attendances — list enrolled students (teacher/admin)
+classesRoutes.get('/:id/attendances', authMiddleware, async (c) => {
+  const user = await getCurrentUser(c);
+  if (!user || user.role === 'STUDENT') {
+    return c.json({ error: 'No autorizado' }, 403);
+  }
+
+  const classId = c.req.param('id');
+  const cls = await db.class.findUnique({ where: { id: classId } });
+  if (!cls) return c.json({ error: 'Clase no encontrada' }, 404);
+
+  if (user.role === 'TEACHER' && cls.teacherId !== user.id) {
+    return c.json({ error: 'No autorizado' }, 403);
+  }
+
+  const attendances = await db.attendance.findMany({
+    where: { classId, status: { in: ['RESERVED', 'ATTENDED'] } },
+    include: { student: { select: { id: true, name: true, email: true } } },
+    orderBy: { createdAt: 'asc' },
+  });
+
+  return c.json({ attendances });
+});
+
+// DELETE /classes/:id/attendances/:attendanceId — remove a student (teacher/admin)
+classesRoutes.delete('/:id/attendances/:attendanceId', authMiddleware, async (c) => {
+  const user = await getCurrentUser(c);
+  if (!user || user.role === 'STUDENT') {
+    return c.json({ error: 'No autorizado' }, 403);
+  }
+
+  const classId = c.req.param('id');
+  const attendanceId = c.req.param('attendanceId');
+
+  const cls = await db.class.findUnique({ where: { id: classId } });
+  if (!cls) return c.json({ error: 'Clase no encontrada' }, 404);
+
+  if (user.role === 'TEACHER' && cls.teacherId !== user.id) {
+    return c.json({ error: 'No autorizado' }, 403);
+  }
+
+  const attendance = await db.attendance.findFirst({ where: { id: attendanceId, classId } });
+  if (!attendance) return c.json({ error: 'Inscripción no encontrada' }, 404);
+  if (attendance.status !== 'RESERVED') {
+    return c.json({ error: 'Solo se pueden eliminar reservas activas' }, 409);
+  }
+
+  const creditCost = cls.creditCost ?? 1;
+  const latestLedger = await db.creditLedger.findFirst({
+    where: { studentId: attendance.studentId },
+    orderBy: { createdAt: 'desc' },
+  });
+  const currentBalance = latestLedger?.balance ?? 0;
+
+  await db.$transaction([
+    db.attendance.update({ where: { id: attendanceId }, data: { status: 'CANCELLED' } }),
+    db.creditLedger.create({
+      data: {
+        studentId: attendance.studentId,
+        attendanceId,
+        type: 'CREDIT_REFUND',
+        amount: creditCost,
+        balance: currentBalance + creditCost,
+        note: `Removido de clase por instructor: ${cls.name}`,
+      },
+    }),
+  ]);
+
+  return c.json({ success: true });
+});
+
 classesRoutes.post('/:id/waitlist', authMiddleware, async (c) => {
   const user = await getCurrentUser(c);
   if (!user || user.role !== 'STUDENT') {

@@ -1,6 +1,9 @@
 import type { Role } from '@/lib/roles';
 
 export type MeResponse = {
-  name: string;
+  id: string;
+  name: string | null;
   role: Role;
+  email: string;
+  isActive: boolean;
 };

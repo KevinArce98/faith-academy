@@ -18,8 +18,6 @@ dashboardRoutes.get('/student', authMiddleware, async (c) => {
   }
 
   const now = new Date();
-  const todayStart = new Date(now);
-  todayStart.setHours(0, 0, 0, 0);
 
   const [latestLedger, activeOrderData, upcomingAttendances, recentOrders] = await Promise.all([
     db.creditLedger.findFirst({
@@ -31,11 +29,12 @@ dashboardRoutes.get('/student', authMiddleware, async (c) => {
       include: { plan: true },
       orderBy: { expiresAt: 'desc' },
     }),
+    // No date filter — classes repeat weekly; filter by status only
     db.attendance.findMany({
       where: {
         studentId: user.id,
         status: 'RESERVED',
-        class: { startsAt: { gte: todayStart } },
+        class: { isActive: true },
       },
       include: {
         class: {
@@ -89,6 +88,63 @@ dashboardRoutes.get('/student', authMiddleware, async (c) => {
     activeOrder,
     upcomingClasses,
     recentPayments,
+  });
+});
+
+// GET /dashboard/teacher — teacher-specific dashboard data
+dashboardRoutes.get('/teacher', authMiddleware, async (c) => {
+  const user = await getCurrentUser(c);
+  if (!user || user.role !== 'TEACHER') {
+    return c.json({ error: 'No autorizado' }, 403);
+  }
+
+  const now = new Date();
+  const todayDOW = now.getDay(); // 0=Sun … 6=Sat
+
+  // Fetch all at once — no date filter since classes repeat weekly
+  const [allClasses, totalEnrolled] = await Promise.all([
+    db.class.findMany({
+      where: { teacherId: user.id, isActive: true },
+      include: {
+        _count: {
+          select: { attendances: { where: { status: { in: ['RESERVED', 'ATTENDED'] } } } },
+        },
+      },
+      orderBy: { startsAt: 'asc' },
+    }),
+    db.attendance.count({
+      where: {
+        class: { teacherId: user.id, isActive: true },
+        status: { in: ['RESERVED', 'ATTENDED'] },
+      },
+    }),
+  ]);
+
+  // Split by day-of-week from the stored startsAt timestamp
+  const todayClasses = allClasses.filter((cls) => cls.startsAt.getDay() === todayDOW);
+  const upcomingClasses = allClasses.filter((cls) => cls.startsAt.getDay() !== todayDOW).slice(0, 5);
+
+  return c.json({
+    userName: user.name ?? '',
+    todayClasses: todayClasses.map((cls) => ({
+      id: cls.id,
+      name: cls.name,
+      startsAt: cls.startsAt.toISOString(),
+      endsAt: cls.endsAt.toISOString(),
+      attendanceCount: cls._count.attendances,
+      maxCapacity: cls.maxCapacity,
+    })),
+    upcomingClasses: upcomingClasses.map((cls) => ({
+      id: cls.id,
+      name: cls.name,
+      startsAt: cls.startsAt.toISOString(),
+      endsAt: cls.endsAt.toISOString(),
+      attendanceCount: cls._count.attendances,
+      maxCapacity: cls.maxCapacity,
+      skillLevel: cls.skillLevel,
+    })),
+    totalEnrolled,
+    totalClasses: todayClasses.length + upcomingClasses.length,
   });
 });
 

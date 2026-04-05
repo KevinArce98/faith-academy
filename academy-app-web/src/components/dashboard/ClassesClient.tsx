@@ -7,6 +7,7 @@ import {
   Edit,
   Trash2,
   BookCheck,
+  Users,
 } from 'lucide-react';
 import { AnimatePresence } from 'framer-motion';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
@@ -36,6 +37,7 @@ import { NewClassModal } from '@/components/dashboard/classes/NewClassModal';
 import { EditClassModal } from '@/components/dashboard/classes/EditClassModal';
 import { DeleteClassModal } from '@/components/dashboard/classes/DeleteClassModal';
 import { StudentClassModal } from '@/components/dashboard/classes/StudentClassModal';
+import { ClassStudentsModal } from '@/components/dashboard/classes/ClassStudentsModal';
 import { useApiClient } from '@/lib/api';
 
 const LEVEL_COLORS: Record<string, string> = {
@@ -59,9 +61,13 @@ export function ClassesClient({
   teachers,
   weekStart,
   role,
+  userId,
 }: ClassesClientProps) {
   const isStudent = role === 'STUDENT';
-  const canManage = role === 'ADMIN' || role === 'TEACHER';
+  const isAdmin = role === 'ADMIN';
+  const isTeacher = role === 'TEACHER';
+  // Teachers can view/manage student enrollment for their own classes only
+  const canViewStudents = (cls: Cls) => isAdmin || (isTeacher && cls.teacherId === userId);
 
   const apiClient = useApiClient();
   const queryClient = useQueryClient();
@@ -78,7 +84,9 @@ export function ClassesClient({
   const listPagination = usePagination(classes, { pageSize: 10 });
 
   const [reserveState, setReserveState] = useState<ReserveState>(null);
+  const [cancelState, setCancelState] = useState<{ classId: string; status: 'loading' | 'error'; message?: string } | null>(null);
   const [studentModalClass, setStudentModalClass] = useState<Cls | null>(null);
+  const [studentsModalClass, setStudentsModalClass] = useState<Cls | null>(null);
 
   useEffect(() => {
     const check = () => {
@@ -131,6 +139,21 @@ export function ClassesClient({
     }
   }
 
+  async function handleCancel(cls: Cls) {
+    setCancelState({ classId: cls.id, status: 'loading' });
+    try {
+      await apiClient(`/api/v1/classes/${cls.id}/reserve`, { method: 'DELETE' });
+      setCancelState(null);
+      setStudentModalClass(null);
+      queryClient.invalidateQueries({ queryKey: ['classes'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'No se pudo cancelar la reserva';
+      setCancelState({ classId: cls.id, status: 'error', message });
+      setTimeout(() => setCancelState(null), 4000);
+    }
+  }
+
   const weekLabel = `${weekDays[0].getDate()} — ${weekDays[6].getDate()} ${new Intl.DateTimeFormat('es-CR', { month: 'long', year: 'numeric' }).format(weekDays[6])}`;
 
   const fcEvents: EventInput[] = classes.map((cls) => {
@@ -178,9 +201,11 @@ export function ClassesClient({
 
   function handleEventClick(arg: EventClickArg) {
     const cls = arg.event.extendedProps as Cls;
-    if (canManage) {
+    if (isAdmin) {
       setSelectedClass(cls);
       setEditModalOpen(true);
+    } else if (isTeacher && canViewStudents(cls)) {
+      setStudentsModalClass(cls);
     } else if (isStudent) {
       setStudentModalClass(cls);
     }
@@ -199,6 +224,12 @@ export function ClassesClient({
     </div>
   );
 
+  const cancelToast = cancelState && cancelState.status === 'error' && (
+    <div className="rounded-xl border border-danger/20 bg-danger/10 px-4 py-3 text-sm font-medium text-danger">
+      {cancelState.message}
+    </div>
+  );
+
   return (
     <div className="space-y-5">
       {/* Header */}
@@ -208,6 +239,11 @@ export function ClassesClient({
           {isStudent && (
             <p className="mt-1 text-sm text-gray-400">
               Toca una clase para ver los detalles y reservar tu lugar.
+            </p>
+          )}
+          {isTeacher && (
+            <p className="mt-1 text-sm text-gray-400">
+              Toca una clase para ver los estudiantes inscritos y gestionar asistencia.
             </p>
           )}
         </div>
@@ -244,7 +280,7 @@ export function ClassesClient({
               </span>
             </Button>
           </div>
-          {canManage && (
+          {isAdmin && (
             <Button
               variant="contained"
               onClick={() => setModal(true)}
@@ -256,8 +292,9 @@ export function ClassesClient({
         </div>
       </div>
 
-      {/* Reserve toast */}
+      {/* Toasts */}
       {reserveToast}
+      {cancelToast}
 
       {/* Week nav */}
       <div className="flex items-center gap-3">
@@ -284,6 +321,11 @@ export function ClassesClient({
           {isStudent && (
             <p className="border-b border-gray-50 px-4 py-2 text-xs text-gray-400">
               Haz clic en una clase para ver detalles y reservar.
+            </p>
+          )}
+          {isTeacher && (
+            <p className="border-b border-gray-50 px-4 py-2 text-xs text-gray-400">
+              Haz clic en una de tus clases para ver los estudiantes inscritos.
             </p>
           )}
           <FullCalendar
@@ -355,28 +397,42 @@ export function ClassesClient({
                             {isFull && ' · Llena'}
                           </TableCell>
                           <TableCell>
-                            {canManage ? (
+                            {canViewStudents(cls) ? (
                               <div className="flex gap-1">
                                 <Button
                                   variant="text"
                                   size="sm"
-                                  onClick={() => { setSelectedClass(cls); setEditModalOpen(true); }}
+                                  onClick={() => setStudentsModalClass(cls)}
                                   className="h-8 w-8 p-0"
                                   color="neutral"
-                                  title="Editar clase"
+                                  title="Ver inscritos"
                                 >
-                                  <Edit className="h-4 w-4" />
+                                  <Users className="h-4 w-4" />
                                 </Button>
-                                <Button
-                                  variant="text"
-                                  size="sm"
-                                  onClick={() => { setSelectedClass(cls); setDeleteModalOpen(true); }}
-                                  color="neutral"
-                                  className="h-8 w-8 p-0"
-                                  title="Eliminar clase"
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
+                                {isAdmin && (
+                                  <>
+                                    <Button
+                                      variant="text"
+                                      size="sm"
+                                      onClick={() => { setSelectedClass(cls); setEditModalOpen(true); }}
+                                      className="h-8 w-8 p-0"
+                                      color="neutral"
+                                      title="Editar clase"
+                                    >
+                                      <Edit className="h-4 w-4" />
+                                    </Button>
+                                    <Button
+                                      variant="text"
+                                      size="sm"
+                                      onClick={() => { setSelectedClass(cls); setDeleteModalOpen(true); }}
+                                      color="neutral"
+                                      className="h-8 w-8 p-0"
+                                      title="Eliminar clase"
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  </>
+                                )}
                               </div>
                             ) : cls.isEnrolled ? (
                               <div className="flex items-center gap-1.5 text-xs font-semibold text-success">
@@ -479,29 +535,52 @@ export function ClassesClient({
                                 Cupos: {cls._count.attendances}/{cls.maxCapacity}
                                 {isFull ? ' · Llena' : ''}
                               </p>
-                              {canManage ? (
-                                <div className="flex gap-2">
+                              {canViewStudents(cls) ? (
+                                <div className="flex flex-col gap-2">
                                   <Button
                                     variant="text"
-                                    onClick={() => { setSelectedClass(cls); setEditModalOpen(true); }}
-                                    className="h-auto flex-1 justify-center rounded-lg border border-gray-100 py-2 text-xs font-semibold"
+                                    onClick={() => setStudentsModalClass(cls)}
+                                    className="h-auto w-full justify-center rounded-lg border border-gray-100 py-2 text-xs font-semibold"
                                   >
-                                    <Edit className="mr-1 h-3 w-3" />
-                                    Editar
+                                    <Users className="mr-1 h-3 w-3" />
+                                    Ver inscritos ({cls._count.attendances})
                                   </Button>
-                                  <Button
-                                    variant="text"
-                                    onClick={() => { setSelectedClass(cls); setDeleteModalOpen(true); }}
-                                    className="h-auto flex-1 justify-center rounded-lg border border-gray-100 py-2 text-xs font-semibold"
-                                  >
-                                    <Trash2 className="mr-1 h-3 w-3" />
-                                    Eliminar
-                                  </Button>
+                                  {isAdmin && (
+                                    <div className="flex gap-2">
+                                      <Button
+                                        variant="text"
+                                        onClick={() => { setSelectedClass(cls); setEditModalOpen(true); }}
+                                        className="h-auto flex-1 justify-center rounded-lg border border-gray-100 py-2 text-xs font-semibold"
+                                      >
+                                        <Edit className="mr-1 h-3 w-3" />
+                                        Editar
+                                      </Button>
+                                      <Button
+                                        variant="text"
+                                        onClick={() => { setSelectedClass(cls); setDeleteModalOpen(true); }}
+                                        className="h-auto flex-1 justify-center rounded-lg border border-gray-100 py-2 text-xs font-semibold"
+                                      >
+                                        <Trash2 className="mr-1 h-3 w-3" />
+                                        Eliminar
+                                      </Button>
+                                    </div>
+                                  )}
                                 </div>
                               ) : cls.isEnrolled ? (
-                                <div className="flex items-center justify-center gap-2 rounded-xl bg-success/10 px-4 py-2.5 text-sm font-semibold text-success">
-                                  <BookCheck className="h-4 w-4" />
-                                  Ya estás inscrito
+                                <div className="space-y-2">
+                                  <div className="flex items-center justify-center gap-2 rounded-xl bg-success/10 px-4 py-2.5 text-sm font-semibold text-success">
+                                    <BookCheck className="h-4 w-4" />
+                                    Ya estás inscrito
+                                  </div>
+                                  <Button
+                                    variant="outlined"
+                                    color="danger"
+                                    onClick={() => handleCancel(cls)}
+                                    disabled={cancelState?.classId === cls.id && cancelState.status === 'loading'}
+                                    className="w-full text-xs"
+                                  >
+                                    Cancelar inscripción
+                                  </Button>
                                 </div>
                               ) : (
                                 <Button
@@ -546,23 +625,26 @@ export function ClassesClient({
       )}
 
       <AnimatePresence>
-        {modalOpen && canManage && (
+        {modalOpen && isAdmin && (
           <NewClassModal
             key="new-class-modal"
             teachers={teachers}
             weekStart={currentWeek}
+            role={role}
+            userId={userId}
             onClose={() => setModal(false)}
           />
         )}
-        {editModalOpen && selectedClass && canManage && (
+        {editModalOpen && selectedClass && isAdmin && (
           <EditClassModal
             key="edit-class-modal"
             classData={selectedClass}
             teachers={teachers}
+            role={role}
             onClose={() => { setEditModalOpen(false); setSelectedClass(null); }}
           />
         )}
-        {deleteModalOpen && selectedClass && canManage && (
+        {deleteModalOpen && selectedClass && isAdmin && (
           <DeleteClassModal
             key="delete-class-modal"
             classData={selectedClass}
@@ -574,8 +656,17 @@ export function ClassesClient({
             key="student-class-modal"
             cls={studentModalClass}
             isReserving={reserveState?.classId === studentModalClass.id && reserveState.status === 'loading'}
+            isCancelling={cancelState?.classId === studentModalClass.id && cancelState.status === 'loading'}
             onReserve={() => handleReserve(studentModalClass)}
+            onCancel={() => handleCancel(studentModalClass)}
             onClose={() => setStudentModalClass(null)}
+          />
+        )}
+        {studentsModalClass && (
+          <ClassStudentsModal
+            key="class-students-modal"
+            cls={studentsModalClass}
+            onClose={() => setStudentsModalClass(null)}
           />
         )}
       </AnimatePresence>

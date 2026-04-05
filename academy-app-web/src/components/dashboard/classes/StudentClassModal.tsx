@@ -23,11 +23,13 @@ const LEVEL_TRANSLATIONS: Record<string, string> = {
 type Props = {
   cls: Cls;
   isReserving: boolean;
+  isCancelling: boolean;
   onReserve: () => void;
+  onCancel: () => void;
   onClose: () => void;
 };
 
-export function StudentClassModal({ cls, isReserving, onReserve, onClose }: Props) {
+export function StudentClassModal({ cls, isReserving, isCancelling, onReserve, onCancel, onClose }: Props) {
   const start = new Date(cls.startsAt);
   const end = new Date(cls.endsAt);
   const isFull = cls._count.attendances >= cls.maxCapacity;
@@ -102,9 +104,23 @@ export function StudentClassModal({ cls, isReserving, onReserve, onClose }: Prop
 
         {/* Action */}
         {isEnrolled ? (
-          <div className="flex items-center justify-center gap-2 rounded-xl bg-success/10 px-4 py-3 text-sm font-semibold text-success">
-            <BookCheck className="h-4 w-4" />
-            Ya estás inscrito en esta clase
+          <div className="space-y-2">
+            <div className="flex items-center justify-center gap-2 rounded-xl bg-success/10 px-4 py-3 text-sm font-semibold text-success">
+              <BookCheck className="h-4 w-4" />
+              Ya estás inscrito en esta clase
+            </div>
+            <Button
+              variant="outlined"
+              color="danger"
+              onClick={onCancel}
+              disabled={isCancelling}
+              className="w-full gap-2"
+            >
+              {isCancelling ? (
+                <Spinner size="xs" className="border-danger/30 border-t-danger" />
+              ) : null}
+              Cancelar inscripción
+            </Button>
           </div>
         ) : (
           <Button

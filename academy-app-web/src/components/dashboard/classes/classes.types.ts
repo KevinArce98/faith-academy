@@ -21,4 +21,5 @@ export type ClassesClientProps = {
   teachers: Teacher[];
   weekStart: string;
   role: 'ADMIN' | 'TEACHER' | 'STUDENT';
+  userId: string;
 };

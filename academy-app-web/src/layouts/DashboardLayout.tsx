@@ -9,6 +9,7 @@ import { FullPageSpinner } from '@/components/ui/Spinner';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 type UserProfile = {
+  id: string;
   name: string;
   role: Role;
 };
@@ -63,7 +64,7 @@ export default function DashboardLayout() {
   return (
     <DashboardShell user={{ name: displayName, role: profile.role, initials }}>
       <ErrorBoundary>
-        <Outlet context={{ role: profile.role }} />
+        <Outlet context={{ role: profile.role, userId: profile.id }} />
       </ErrorBoundary>
     </DashboardShell>
   );

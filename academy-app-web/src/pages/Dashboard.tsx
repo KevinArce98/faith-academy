@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { Users, DollarSign, AlertTriangle, FileText } from 'lucide-react';
+import { Users, DollarSign, AlertTriangle, FileText, Calendar, GraduationCap } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { StudentDashboard } from '@/components/dashboard/StudentDashboard';
 import { useApiClient } from '@/lib/api';
@@ -437,6 +437,143 @@ function AdminDashboard({ data }: { data: AdminDashboardData }) {
   );
 }
 
+// ─── Teacher dashboard ───────────────────────────────────────────────────────
+
+type TeacherClassItem = {
+  id: string;
+  name: string;
+  startsAt: string;
+  endsAt: string;
+  attendanceCount: number;
+  maxCapacity: number;
+  skillLevel?: string;
+};
+
+type TeacherDashboardData = {
+  userName: string;
+  todayClasses: TeacherClassItem[];
+  upcomingClasses: TeacherClassItem[];
+  totalEnrolled: number;
+  totalClasses: number;
+};
+
+function TeacherDashboard({ data }: { data: TeacherDashboardData }) {
+  const now = new Date();
+
+  return (
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="flex flex-col gap-1 md:flex-row md:items-center md:justify-between">
+        <h1 className="text-dark text-2xl font-bold md:text-[28px]">
+          {greeting()}, {data.userName?.split(' ')[0]} 👋
+        </h1>
+        <p className="text-sm text-gray-400 capitalize">{formatDate(now)}</p>
+      </div>
+
+      {/* KPI cards */}
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-5">
+        <div className="rounded-2xl border border-gray-50 bg-white p-4 shadow-sm md:p-5">
+          <div className="mb-2 flex items-start justify-between md:mb-3">
+            <p className="text-xs text-gray-400 md:text-sm">Clases Hoy</p>
+            <Calendar className="h-4 w-4 text-gray-300 md:h-5 md:w-5" />
+          </div>
+          <p className="text-dark mb-1 text-2xl font-bold md:text-4xl">{data.todayClasses.length}</p>
+          <p className="text-xs font-medium text-gray-400">programadas para hoy</p>
+        </div>
+        <div className="rounded-2xl border border-gray-50 bg-white p-4 shadow-sm md:p-5">
+          <div className="mb-2 flex items-start justify-between md:mb-3">
+            <p className="text-xs text-gray-400 md:text-sm">Alumnos Inscritos</p>
+            <Users className="h-4 w-4 text-gray-300 md:h-5 md:w-5" />
+          </div>
+          <p className="text-dark mb-1 text-2xl font-bold md:text-4xl">{data.totalEnrolled}</p>
+          <p className="text-xs font-medium text-gray-400">en tus clases activas</p>
+        </div>
+        <div className="col-span-2 rounded-2xl border border-gray-50 bg-white p-4 shadow-sm md:col-span-1 md:p-5">
+          <div className="mb-2 flex items-start justify-between md:mb-3">
+            <p className="text-xs text-gray-400 md:text-sm">Próximas Clases</p>
+            <GraduationCap className="h-4 w-4 text-gray-300 md:h-5 md:w-5" />
+          </div>
+          <p className="text-dark mb-1 text-2xl font-bold md:text-4xl">{data.upcomingClasses.length}</p>
+          <Link to="/classes" className="text-primary text-xs font-semibold hover:underline">
+            Ver calendario →
+          </Link>
+        </div>
+      </div>
+
+      {/* Main content */}
+      <div className="flex flex-col gap-4 lg:grid lg:grid-cols-2 lg:gap-6">
+        {/* Today's classes */}
+        <div className="rounded-2xl border border-gray-50 bg-white p-5 shadow-sm">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-dark text-base font-bold">Mis Clases de Hoy</h2>
+            <span className="text-xs text-gray-400">
+              {new Intl.DateTimeFormat('es-CR', { day: 'numeric', month: 'long' }).format(now)}
+            </span>
+          </div>
+          {data.todayClasses.length === 0 ? (
+            <p className="py-6 text-center text-sm text-gray-400">Sin clases programadas hoy</p>
+          ) : (
+            <div className="space-y-3">
+              {data.todayClasses.map((cls) => (
+                <div key={cls.id} className="flex items-center gap-3">
+                  <span className="w-14 shrink-0 font-mono text-xs text-gray-400">
+                    {formatTime(new Date(cls.startsAt))}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-dark truncate text-sm font-medium">{cls.name}</p>
+                  </div>
+                  <span className={`shrink-0 text-xs font-medium ${cls.attendanceCount >= cls.maxCapacity ? 'text-danger' : 'text-gray-400'}`}>
+                    {cls.attendanceCount}/{cls.maxCapacity}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Upcoming classes this week */}
+        <div className="rounded-2xl border border-gray-50 bg-white p-5 shadow-sm">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-dark text-base font-bold">Próximas Clases</h2>
+            <Link to="/classes" className="text-primary text-sm font-semibold hover:underline">
+              Ver todas →
+            </Link>
+          </div>
+          {data.upcomingClasses.length === 0 ? (
+            <p className="py-6 text-center text-sm text-gray-400">Sin clases próximas esta semana</p>
+          ) : (
+            <div className="space-y-3">
+              {data.upcomingClasses.map((cls) => {
+                const start = new Date(cls.startsAt);
+                const dayShort = new Intl.DateTimeFormat('es-CR', { weekday: 'short' }).format(start).replace('.', '');
+                return (
+                  <div key={cls.id} className="flex items-center gap-3">
+                    <div className="flex w-12 shrink-0 flex-col items-center justify-center rounded-lg bg-gray-50 px-1 py-1.5">
+                      <span className="text-dark text-[11px] font-bold uppercase leading-none">
+                        {dayShort}
+                      </span>
+                      <span className="mt-0.5 text-[10px] text-gray-400">
+                        {formatTime(start)}
+                      </span>
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-dark truncate text-sm font-medium">{cls.name}</p>
+                      <p className="text-xs text-gray-400">{formatTime(start)} — {formatTime(new Date(cls.endsAt))}</p>
+                    </div>
+                    <span className={`shrink-0 text-xs font-medium ${cls.attendanceCount >= cls.maxCapacity ? 'text-danger' : 'text-gray-400'}`}>
+                      {cls.attendanceCount}/{cls.maxCapacity}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Page ────────────────────────────────────────────────────────────────────
 
 export default function Dashboard() {
@@ -449,16 +586,20 @@ export default function Dashboard() {
 
   const role = me?.role;
   const isStudentRole = role ? isStudent(role) : false;
+  const isTeacherRole = role === 'TEACHER';
+
   const dashboardEndpoint = isStudentRole
     ? '/api/v1/dashboard/student'
-    : '/api/v1/dashboard/admin';
+    : isTeacherRole
+      ? '/api/v1/dashboard/teacher'
+      : '/api/v1/dashboard/admin';
 
   const { data: dashboardData, isLoading: dashboardLoading, isError } = useQuery<
-    AdminDashboardData | StudentDashboardData
+    AdminDashboardData | TeacherDashboardData | StudentDashboardData
   >({
-    queryKey: ['dashboard'],
+    queryKey: ['dashboard', role ?? ''],
     queryFn: () =>
-      apiClient<AdminDashboardData | StudentDashboardData>(dashboardEndpoint),
+      apiClient<AdminDashboardData | TeacherDashboardData | StudentDashboardData>(dashboardEndpoint),
     enabled: !!role,
   });
 
@@ -478,6 +619,10 @@ export default function Dashboard() {
 
   if (isStudentRole) {
     return <StudentDashboard {...(dashboardData as StudentDashboardData)} />;
+  }
+
+  if (isTeacherRole) {
+    return <TeacherDashboard data={dashboardData as TeacherDashboardData} />;
   }
 
   return <AdminDashboard data={dashboardData as AdminDashboardData} />;

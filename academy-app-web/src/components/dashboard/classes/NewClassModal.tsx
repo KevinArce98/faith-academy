@@ -17,14 +17,19 @@ const DAYS_ABBR = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
 type NewClassModalProps = {
   teachers: Teacher[];
   weekStart: Date;
+  role: 'ADMIN' | 'TEACHER' | 'STUDENT';
+  userId: string;
   onClose: () => void;
 };
 
 export function NewClassModal({
   teachers,
   weekStart,
+  role,
+  userId,
   onClose,
 }: NewClassModalProps) {
+  const isTeacher = role === 'TEACHER';
   const apiClient = useApiClient();
   const queryClient = useQueryClient();
   const [selectedDays, setSelectedDays] = useState<number[]>([]);
@@ -72,7 +77,7 @@ export function NewClassModal({
         body: JSON.stringify({
           name: data.get('name') as string,
           skillLevel: data.get('skillLevel') as string,
-          teacherId: data.get('teacherId') as string,
+          teacherId: isTeacher ? userId : (data.get('teacherId') as string),
           maxCapacity: parseInt(data.get('capacity') as string),
           cancelWindowHours: parseInt(data.get('cancelWindow') as string),
           description: (data.get('description') as string) || undefined,
@@ -189,14 +194,22 @@ export function NewClassModal({
             />
           </div>
 
-          <Select name="teacherId" label="Profesor asignado">
-            <option value="">Seleccionar profesor</option>
-            {teachers.map((t) => (
-              <option key={t.id} value={t.id}>
-                Prof. {t.name || 'Sin nombre'}
-              </option>
-            ))}
-          </Select>
+          {isTeacher ? (
+            <div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-500">
+              Profesor: <span className="font-medium text-dark">
+                {teachers.find((t) => t.id === userId)?.name ?? 'Tú'}
+              </span>
+            </div>
+          ) : (
+            <Select name="teacherId" label="Profesor asignado">
+              <option value="">Seleccionar profesor</option>
+              {teachers.map((t) => (
+                <option key={t.id} value={t.id}>
+                  Prof. {t.name || 'Sin nombre'}
+                </option>
+              ))}
+            </Select>
+          )}
 
           <Textarea
             name="description"
