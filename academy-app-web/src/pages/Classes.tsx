@@ -1,7 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
+import { useOutletContext } from 'react-router-dom';
 import { useApiClient } from '@/lib/api';
 import { ClassesClient } from '@/components/dashboard/ClassesClient';
 import type { TeacherProfile } from '@/lib/interfaces/teachers';
+import type { Role } from '@/lib/roles';
 import { InlineSpinner } from '@/components/ui/Spinner';
 
 function getMondayISO(date: Date): string {
@@ -14,6 +16,7 @@ function getMondayISO(date: Date): string {
 }
 
 export default function Classes() {
+  const { role } = useOutletContext<{ role: Role }>();
   const apiClient = useApiClient();
   const weekStart = getMondayISO(new Date());
 
@@ -47,6 +50,7 @@ export default function Classes() {
       classes={classesData.classes as never}
       teachers={teachers}
       weekStart={weekStart}
+      role={role}
     />
   );
 }

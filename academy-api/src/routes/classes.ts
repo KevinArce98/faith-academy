@@ -31,6 +31,7 @@ const updateClassSchema = z.object({
 const classesRoutes = new Hono<{ Variables: AuthVariables }>();
 
 classesRoutes.get('/', authMiddleware, async (c) => {
+  const user = await getCurrentUser(c);
   const week = c.req.query('week');
   const where: { startsAt?: { gte: Date; lt: Date } } = {};
 
@@ -49,12 +50,28 @@ classesRoutes.get('/', authMiddleware, async (c) => {
     include: {
       _count: {
         select: {
-          attendances: true,
+          attendances: {
+            where: { status: { in: ['RESERVED', 'ATTENDED'] } },
+          },
           waitlist: true,
         },
       },
     },
   });
+
+  if (user?.role === 'STUDENT') {
+    const classIds = classes.map((cls) => cls.id);
+    const enrollments = await db.attendance.findMany({
+      where: {
+        studentId: user.id,
+        classId: { in: classIds },
+        status: { in: ['RESERVED', 'ATTENDED'] },
+      },
+      select: { classId: true },
+    });
+    const enrolledSet = new Set(enrollments.map((e) => e.classId));
+    return c.json({ classes: classes.map((cls) => ({ ...cls, isEnrolled: enrolledSet.has(cls.id) })) });
+  }
 
   return c.json({ classes });
 });

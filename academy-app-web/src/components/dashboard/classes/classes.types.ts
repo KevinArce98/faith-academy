@@ -11,6 +11,7 @@ export type Cls = {
   description?: string | null;
   cancelWindowHours?: number;
   _count: ClsCount;
+  isEnrolled?: boolean;
 };
 
 export type Teacher = { id: string; name: string | null };
@@ -19,4 +20,5 @@ export type ClassesClientProps = {
   classes: Cls[];
   teachers: Teacher[];
   weekStart: string;
+  role: 'ADMIN' | 'TEACHER' | 'STUDENT';
 };

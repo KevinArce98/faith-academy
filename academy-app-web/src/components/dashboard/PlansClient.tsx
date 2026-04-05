@@ -21,7 +21,7 @@ const STATUS_TABS: { key: StatusFilter; label: string }[] = [
 export function PlansClient({ plans, isAdmin = false }: PlansClientProps) {
   const [planList, setPlanList] = useState<Plan[]>(plans);
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>(isAdmin ? 'all' : 'active');
   const [modalPlan, setModalPlan] = useState<Plan | null | undefined>(undefined);
   const [deletingPlan, setDeletingPlan] = useState<Plan | null>(null);
   const [toastError, setToastError] = useState<string | null>(null);
@@ -88,42 +88,44 @@ export function PlansClient({ plans, isAdmin = false }: PlansClientProps) {
           />
         </div>
 
-        {/* Status tabs */}
-        <div className="flex items-center gap-0 rounded-xl border border-gray-200 bg-gray-50 p-1">
-          {STATUS_TABS.map((tab) => {
-            const count =
-              tab.key === 'all'
-                ? planList.length
-                : tab.key === 'active'
-                  ? planList.filter((p) => p.isActive).length
-                  : planList.filter((p) => !p.isActive).length;
-            return (
-              <button
-                key={tab.key}
-                type="button"
-                onClick={() => setStatusFilter(tab.key)}
-                className={cn(
-                  'flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-all',
-                  statusFilter === tab.key
-                    ? 'bg-white text-dark shadow-sm'
-                    : 'text-gray-400 hover:text-gray-600'
-                )}
-              >
-                {tab.label}
-                <span
+        {/* Status tabs — admin only */}
+        {isAdmin && (
+          <div className="flex items-center gap-0 rounded-xl border border-gray-200 bg-gray-50 p-1">
+            {STATUS_TABS.map((tab) => {
+              const count =
+                tab.key === 'all'
+                  ? planList.length
+                  : tab.key === 'active'
+                    ? planList.filter((p) => p.isActive).length
+                    : planList.filter((p) => !p.isActive).length;
+              return (
+                <button
+                  key={tab.key}
+                  type="button"
+                  onClick={() => setStatusFilter(tab.key)}
                   className={cn(
-                    'rounded-full px-1.5 py-0.5 text-[11px] font-bold leading-none',
+                    'flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-all',
                     statusFilter === tab.key
-                      ? 'bg-primary/10 text-primary'
-                      : 'bg-gray-200 text-gray-400'
+                      ? 'bg-white text-dark shadow-sm'
+                      : 'text-gray-400 hover:text-gray-600'
                   )}
                 >
-                  {count}
-                </span>
-              </button>
-            );
-          })}
-        </div>
+                  {tab.label}
+                  <span
+                    className={cn(
+                      'rounded-full px-1.5 py-0.5 text-[11px] font-bold leading-none',
+                      statusFilter === tab.key
+                        ? 'bg-primary/10 text-primary'
+                        : 'bg-gray-200 text-gray-400'
+                    )}
+                  >
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {toastError && (

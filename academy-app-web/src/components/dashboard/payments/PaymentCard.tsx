@@ -56,15 +56,19 @@ export function PaymentCard({ order, isAdmin = false }: PaymentCardProps) {
       >
         <div className="mb-3 flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <div className="bg-dark flex h-10 w-10 shrink-0 items-center justify-center rounded-full">
-              <span className="text-sm font-bold text-white">
-                {getInitials(order.student.name)}
-              </span>
-            </div>
+            {order.student && (
+              <div className="bg-dark flex h-10 w-10 shrink-0 items-center justify-center rounded-full">
+                <span className="text-sm font-bold text-white">
+                  {getInitials(order.student.name)}
+                </span>
+              </div>
+            )}
             <div>
-              <p className="text-dark text-sm font-semibold">
-                {order.student.name}
-              </p>
+              {order.student && (
+                <p className="text-dark text-sm font-semibold">
+                  {order.student.name}
+                </p>
+              )}
               <span
                 className={cn(
                   'rounded-full px-2 py-0.5 text-xs font-medium',

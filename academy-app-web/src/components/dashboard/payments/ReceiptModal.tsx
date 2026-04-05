@@ -8,7 +8,7 @@ import type { Plan, Student } from './payments.types';
 
 type ReceiptModalProps = {
   url: string;
-  student: Student;
+  student?: Student;
   plan: Plan;
   price: number | string;
   status: string;
@@ -49,7 +49,7 @@ export function ReceiptModal({
       >
         <div className="bg-dark flex items-center justify-between px-5 py-4">
           <h2 className="text-base font-bold text-white">
-            Comprobante — {student.name}
+            {student ? `Comprobante — ${student.name}` : 'Comprobante de Pago'}
           </h2>
           <Button
             variant="text"
@@ -93,13 +93,17 @@ export function ReceiptModal({
         </div>
         <div className="flex items-center justify-between border-t border-gray-100 px-5 py-4">
           <div className="flex items-center gap-3">
-            <div className="bg-primary flex h-8 w-8 shrink-0 items-center justify-center rounded-full">
-              <span className="text-xs font-bold text-white">
-                {getInitials(student.name)}
-              </span>
-            </div>
+            {student && (
+              <div className="bg-primary flex h-8 w-8 shrink-0 items-center justify-center rounded-full">
+                <span className="text-xs font-bold text-white">
+                  {getInitials(student.name)}
+                </span>
+              </div>
+            )}
             <div>
-              <p className="text-dark text-sm font-semibold">{student.name}</p>
+              {student && (
+                <p className="text-dark text-sm font-semibold">{student.name}</p>
+              )}
               <p className="text-xs text-gray-400">
                 {plan.name} · {formatPrice(price)}
               </p>
