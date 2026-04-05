@@ -1,36 +1,15 @@
-import { createClerkClient } from '@clerk/backend';
 import { Hono } from 'hono';
 import { z } from 'zod';
 import { authMiddleware } from '../middleware/auth.js';
 import { requireRole, createUserProfile } from '../lib/auth.js';
+import { getClerkClient } from '../lib/clerk.js';
+import { generateTempPassword } from '../lib/utils/password.js';
 import { getTeachersWithClasses } from '../lib/teachers.js';
 import { db } from '../lib/db.js';
 import type { AuthVariables } from '../types/auth.js';
 import type { Role } from '../lib/roles.js';
 
 const teachersRoutes = new Hono<{ Variables: AuthVariables }>();
-
-function getClerkClient() {
-  const secretKey = process.env.CLERK_SECRET_KEY;
-  if (!secretKey) throw new Error('CLERK_SECRET_KEY is required');
-  return createClerkClient({ secretKey });
-}
-
-function generateTempPassword(): string {
-  const upper = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
-  const lower = 'abcdefghjkmnpqrstuvwxyz';
-  const numbers = '23456789';
-  const special = '@#$%&*';
-  const all = upper + lower + numbers + special;
-  const required = [
-    upper[Math.floor(Math.random() * upper.length)],
-    lower[Math.floor(Math.random() * lower.length)],
-    numbers[Math.floor(Math.random() * numbers.length)],
-    special[Math.floor(Math.random() * special.length)],
-  ];
-  const rest = Array.from({ length: 8 }, () => all[Math.floor(Math.random() * all.length)]);
-  return [...required, ...rest].sort(() => Math.random() - 0.5).join('');
-}
 
 const createTeacherSchema = z.object({
   name: z.string().min(1, 'El nombre es requerido'),

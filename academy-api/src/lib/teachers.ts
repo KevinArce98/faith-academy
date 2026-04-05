@@ -1,5 +1,4 @@
 import { db } from './db.js';
-import type { UserProfile } from '../lib/generated/prisma/client.js';
 import type { TeacherProfile } from './interfaces/teachers.js';
 
 const dayFormatter = new Intl.DateTimeFormat('es-CR', { weekday: 'short' });
@@ -20,54 +19,58 @@ function formatTime(date: Date): string {
 }
 
 export async function getTeachersWithClasses(): Promise<TeacherProfile[]> {
-  const teachers = await db.userProfile.findMany({
-    where: { role: 'TEACHER' },
-    orderBy: { name: 'asc' },
-  });
-
-  return Promise.all(
-    teachers.map(async (teacher: UserProfile) => {
-      const clases = await db.class.findMany({
-        where: { teacherId: teacher.id, isActive: true },
-        select: {
-          id: true,
-          name: true,
-          startsAt: true,
-          endsAt: true,
-          maxCapacity: true,
-          _count: {
-            select: {
-              attendances: {
-                where: { status: { in: ['RESERVED', 'ATTENDED'] } },
-              },
+  // 2 queries instead of N+1: fetch all teachers, then batch-fetch all their classes
+  const [teachers, allClasses] = await Promise.all([
+    db.userProfile.findMany({
+      where: { role: 'TEACHER' },
+      orderBy: { name: 'asc' },
+    }),
+    db.class.findMany({
+      where: { isActive: true },
+      select: {
+        id: true,
+        name: true,
+        teacherId: true,
+        startsAt: true,
+        endsAt: true,
+        maxCapacity: true,
+        _count: {
+          select: {
+            attendances: {
+              where: { status: { in: ['RESERVED', 'ATTENDED'] } },
             },
           },
         },
-        orderBy: { startsAt: 'asc' },
-      });
-
-      type ClsWithCount = (typeof clases)[number];
-      const formattedClasses = clases.map((cls: ClsWithCount) => ({
-        id: cls.id,
-        name: cls.name,
-        dayOfWeek: formatDay(new Date(cls.startsAt)),
-        startTime: formatTime(new Date(cls.startsAt)),
-        endTime: formatTime(new Date(cls.endsAt)),
-        capacity: cls.maxCapacity,
-        attendanceCount: cls._count.attendances,
-      }));
-
-      return {
-        id: teacher.id,
-        clerkId: teacher.clerkId,
-        email: teacher.email,
-        name: teacher.name,
-        avatarUrl: teacher.avatarUrl,
-        role: 'TEACHER',
-        isActive: teacher.isActive,
-        createdAt: teacher.createdAt.toISOString(),
-        clases: formattedClasses,
-      } satisfies TeacherProfile;
+      },
+      orderBy: { startsAt: 'asc' },
     }),
-  );
+  ]);
+
+  // Group classes by teacherId in memory
+  const classesByTeacher = new Map<string, typeof allClasses>();
+  for (const cls of allClasses) {
+    const list = classesByTeacher.get(cls.teacherId) ?? [];
+    list.push(cls);
+    classesByTeacher.set(cls.teacherId, list);
+  }
+
+  return teachers.map((teacher) => ({
+    id: teacher.id,
+    clerkId: teacher.clerkId,
+    email: teacher.email,
+    name: teacher.name,
+    avatarUrl: teacher.avatarUrl,
+    role: 'TEACHER',
+    isActive: teacher.isActive,
+    createdAt: teacher.createdAt.toISOString(),
+    clases: (classesByTeacher.get(teacher.id) ?? []).map((cls) => ({
+      id: cls.id,
+      name: cls.name,
+      dayOfWeek: formatDay(new Date(cls.startsAt)),
+      startTime: formatTime(new Date(cls.startsAt)),
+      endTime: formatTime(new Date(cls.endsAt)),
+      capacity: cls.maxCapacity,
+      attendanceCount: cls._count.attendances,
+    })),
+  } satisfies TeacherProfile));
 }

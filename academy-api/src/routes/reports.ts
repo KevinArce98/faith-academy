@@ -100,18 +100,19 @@ reportsRoutes.get('/', authMiddleware, async (c) => {
   const totalRevenue = sumPrice(currentMonthOrders);
   const prevRevenue = sumPrice(prevMonthOrders);
 
+  type PlanCountRow = { planId: string; _count: { planId: number } };
+
   const planDetails = await db.membershipPlan.findMany({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    where: { id: { in: planCounts.map((p: any) => p.planId as string) } },
+    where: { id: { in: (planCounts as PlanCountRow[]).map((p) => p.planId) } },
     select: { id: true, name: true },
   });
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const planData = planCounts.map((p: any) => ({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    name: planDetails.find((d: any) => d.id === p.planId)?.name ?? (p.planId as string),
-    count: p._count.planId as number,
+  const planData = (planCounts as PlanCountRow[]).map((p) => ({
+    name: planDetails.find((d) => d.id === p.planId)?.name ?? p.planId,
+    count: p._count.planId,
   }));
+
+  type HistoricalOrder = { startsAt: Date | null; plan: { price: unknown } };
 
   // Build monthly revenue for last 12 months
   const monthlyRevenue: { month: string; revenue: number }[] = [];
@@ -119,13 +120,12 @@ reportsRoutes.get('/', authMiddleware, async (c) => {
     const mStart = new Date(now.getFullYear(), now.getMonth() - i, 1);
     const mEnd = new Date(now.getFullYear(), now.getMonth() - i + 1, 0);
     const label = new Intl.DateTimeFormat('es-CR', { month: 'short' }).format(mStart);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const rev = (historicalOrders as any[])
-      .filter((o: any) => {
-        const d = o.startsAt ? new Date(o.startsAt as Date) : null;
+    const rev = (historicalOrders as HistoricalOrder[])
+      .filter((o) => {
+        const d = o.startsAt ? new Date(o.startsAt) : null;
         return d && d >= mStart && d <= mEnd;
       })
-      .reduce((sum: number, o: any) => sum + Number(o.plan.price), 0);
+      .reduce((sum, o) => sum + Number(o.plan.price), 0);
     monthlyRevenue.push({ month: label, revenue: rev });
   }
 
@@ -136,6 +136,12 @@ reportsRoutes.get('/', authMiddleware, async (c) => {
       ? Math.round(((newStudentsCount - prevStudentsCount) / prevStudentsCount) * 100)
       : 0;
   const avgWeeklyClasses = weeklyClasses > 0 ? Number((weeklyClasses / 4).toFixed(1)) : 0;
+
+  type PopularClassRow = {
+    name: string;
+    maxCapacity: number;
+    _count: { attendances: number };
+  };
 
   return c.json({
     stats: {
@@ -148,11 +154,10 @@ reportsRoutes.get('/', authMiddleware, async (c) => {
       avgWeeklyClasses,
     },
     monthlyRevenue,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    popularClasses: (popularClasses as any[]).map((cls: any) => ({
-      name: cls.name as string,
-      attended: cls._count.attendances as number,
-      capacity: cls.maxCapacity as number,
+    popularClasses: (popularClasses as PopularClassRow[]).map((cls) => ({
+      name: cls.name,
+      attended: cls._count.attendances,
+      capacity: cls.maxCapacity,
     })),
     planData,
   });

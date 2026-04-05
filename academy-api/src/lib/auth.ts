@@ -1,23 +1,9 @@
-import { createClerkClient } from '@clerk/backend';
 import type { Role } from './roles.js';
 import type { AuthContext } from '../types/auth.js';
+import { getClerkClient } from './clerk.js';
 import { db } from './db.js';
 
 type RoleInput = Role | Role[];
-
-function getClerkSecretKey(): string {
-  const secretKey = process.env.CLERK_SECRET_KEY;
-  if (!secretKey) {
-    throw new Error('CLERK_SECRET_KEY is required');
-  }
-  return secretKey;
-}
-
-function getClerkClient() {
-  return createClerkClient({
-    secretKey: getClerkSecretKey(),
-  });
-}
 
 export async function createUserProfile({
   clerkId,

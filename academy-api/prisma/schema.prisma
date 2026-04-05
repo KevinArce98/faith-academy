@@ -72,6 +72,9 @@ model UserProfile {
   familyMember FamilyMember?
   streak       Streak?
   waitlists    ClassWaitlist[]
+
+  @@index([role])
+  @@index([role, isActive])
 }
 
 model Family {
@@ -122,6 +125,11 @@ model MembershipOrder {
   student       UserProfile    @relation(fields: [studentId], references: [id])
   plan          MembershipPlan @relation(fields: [planId], references: [id])
   ledgerEntries CreditLedger[]
+
+  @@index([studentId])
+  @@index([status])
+  @@index([expiresAt])
+  @@index([studentId, status])
 }
 
 model CreditLedger {
@@ -136,6 +144,8 @@ model CreditLedger {
   createdAt    DateTime   @default(now())
 
   order MembershipOrder? @relation(fields: [orderId], references: [id])
+
+  @@index([studentId, createdAt(sort: Desc)])
 }
 
 model Class {
@@ -170,6 +180,10 @@ model Attendance {
 
   class   Class       @relation(fields: [classId], references: [id])
   student UserProfile @relation(fields: [studentId], references: [id])
+
+  @@index([classId])
+  @@index([studentId])
+  @@index([classId, status])
 }
 
 model ClassWaitlist {
@@ -184,6 +198,7 @@ model ClassWaitlist {
   student UserProfile @relation(fields: [studentId], references: [id])
 
   @@unique([classId, studentId])
+  @@index([classId, position])
 }
 
 model UserSkill {
