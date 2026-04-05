@@ -2,10 +2,9 @@ import { useQuery } from '@tanstack/react-query';
 import { useApiClient } from '@/lib/api';
 import { PaymentsClient } from '@/components/dashboard/PaymentsClient';
 import { isAdminOrTeacher } from '@/lib/roles';
-import type { Role } from '@/lib/roles';
 import type { Order } from '@/components/dashboard/payments/payments.types';
-
-type MeResponse = { name: string; role: Role };
+import { InlineSpinner } from '@/components/ui/Spinner';
+import type { MeResponse } from '@/lib/interfaces/auth';
 type PlanOption = { id: string; name: string; price: number };
 type PlansResponse = { plans: PlanOption[] } | PlanOption[];
 type OrdersResponse = { orders: Order[] } | Order[];
@@ -32,11 +31,7 @@ export default function Payments() {
   });
 
   if (meLoading || ordersLoading || plansLoading) {
-    return (
-      <div className="flex items-center justify-center p-16">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-      </div>
-    );
+    return <InlineSpinner />;
   }
 
   if (isError || !ordersData || !me) {

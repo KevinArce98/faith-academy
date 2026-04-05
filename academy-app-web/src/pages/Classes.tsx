@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useApiClient } from '@/lib/api';
 import { ClassesClient } from '@/components/dashboard/ClassesClient';
 import type { TeacherProfile } from '@/lib/interfaces/teachers';
+import { InlineSpinner } from '@/components/ui/Spinner';
 
 function getMondayISO(date: Date): string {
   const d = new Date(date);
@@ -28,11 +29,7 @@ export default function Classes() {
   });
 
   if (classesLoading || teachersLoading) {
-    return (
-      <div className="flex items-center justify-center p-16">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-      </div>
-    );
+    return <InlineSpinner />;
   }
 
   if (classesError || !classesData) {

@@ -1,29 +1,32 @@
+import { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import AuthLayout from '@/layouts/AuthLayout';
-import { StudioCssVars } from '@/components/layout/StudioCssVars';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { FullPageSpinner } from '@/components/ui/Spinner';
 
-// Auth pages
+// Auth pages (eager — son el entry point)
 import SignIn from '@/pages/auth/SignIn';
 import SignUp from '@/pages/auth/SignUp';
 import ForgotPassword from '@/pages/auth/ForgotPassword';
-
-// Dashboard pages (Fase 4)
-import Dashboard from '@/pages/Dashboard';
-import Students from '@/pages/Students';
-import Teachers from '@/pages/Teachers';
-import Classes from '@/pages/Classes';
-import Payments from '@/pages/Payments';
-import Plans from '@/pages/Plans';
-import Reports from '@/pages/Reports';
-import VideoLibrary from '@/pages/VideoLibrary';
-import Scanner from '@/pages/Scanner';
 import NoAccess from '@/pages/NoAccess';
+
+// Dashboard pages (lazy — carga bajo demanda)
+const Dashboard = lazy(() => import('@/pages/Dashboard'));
+const Students = lazy(() => import('@/pages/Students'));
+const Teachers = lazy(() => import('@/pages/Teachers'));
+const Classes = lazy(() => import('@/pages/Classes'));
+const Payments = lazy(() => import('@/pages/Payments'));
+const Plans = lazy(() => import('@/pages/Plans'));
+const Reports = lazy(() => import('@/pages/Reports'));
+const VideoLibrary = lazy(() => import('@/pages/VideoLibrary'));
+const Scanner = lazy(() => import('@/pages/Scanner'));
+const Settings = lazy(() => import('@/pages/Settings'));
 
 export default function App() {
   return (
-    <>
-      <StudioCssVars />
+    <ErrorBoundary>
+    <Suspense fallback={<FullPageSpinner />}>
       <Routes>
         {/* ── Auth ─────────────────────────────────────────── */}
         <Route element={<AuthLayout />}>
@@ -48,11 +51,13 @@ export default function App() {
           <Route path="/plans" element={<Plans />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/video-library" element={<VideoLibrary />} />
+          <Route path="/settings" element={<Settings />} />
         </Route>
 
         {/* ── Fallback ─────────────────────────────────────── */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-    </>
+    </Suspense>
+    </ErrorBoundary>
   );
 }

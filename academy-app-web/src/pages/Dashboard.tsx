@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/Button';
 import { StudentDashboard } from '@/components/dashboard/StudentDashboard';
 import { useApiClient } from '@/lib/api';
 import { isStudent } from '@/lib/roles';
-import type { Role } from '@/lib/roles';
+import { InlineSpinner } from '@/components/ui/Spinner';
+import type { MeResponse } from '@/lib/interfaces/auth';
 import {
   formatDate,
   formatPrice,
@@ -16,11 +17,6 @@ import {
 } from '@/utils/general';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
-
-type MeResponse = {
-  name: string;
-  role: Role;
-};
 
 type PendingOrder = {
   id: string;
@@ -467,11 +463,7 @@ export default function Dashboard() {
   });
 
   if (meLoading || dashboardLoading) {
-    return (
-      <div className="flex items-center justify-center p-12">
-        <div className="border-primary h-8 w-8 animate-spin rounded-full border-4 border-t-transparent" />
-      </div>
-    );
+    return <InlineSpinner />;
   }
 
   if (isError || !dashboardData) {

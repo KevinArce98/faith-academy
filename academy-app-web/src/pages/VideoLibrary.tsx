@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useApiClient } from '@/lib/api';
 import studioConfig from '@/lib/config/studio.config';
 import { VideoLibraryClient } from '@/components/dashboard/VideoLibraryClient';
+import { InlineSpinner } from '@/components/ui/Spinner';
 
 type Content = {
   id: string;
@@ -17,21 +18,18 @@ type Content = {
 type ContentResponse = { contents: Content[]; classes: { id: string; name: string }[] } | Content[];
 
 export default function VideoLibrary() {
-  if (!studioConfig.features.lms) return <Navigate to="/no-access" replace />;
-
   const apiClient = useApiClient();
 
   const { data, isLoading, isError } = useQuery<ContentResponse>({
     queryKey: ['content'],
     queryFn: () => apiClient<ContentResponse>('/api/v1/content'),
+    enabled: studioConfig.features.lms,
   });
 
+  if (!studioConfig.features.lms) return <Navigate to="/no-access" replace />;
+
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center p-16">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-      </div>
-    );
+    return <InlineSpinner />;
   }
 
   if (isError || !data) {

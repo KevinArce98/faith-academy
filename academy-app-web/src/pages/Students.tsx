@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useApiClient } from '@/lib/api';
 import type { Plan, Student } from '@/lib/interfaces/students';
 import { StudentsClient } from '@/components/dashboard/students/StudentsClient';
+import { InlineSpinner } from '@/components/ui/Spinner';
 
 type StudentsResponse = { students: Student[]; total: number };
 type PlansResponse = { plans: Plan[] } | Plan[];
@@ -28,11 +29,7 @@ export default function Students() {
   });
 
   if (studentsLoading || plansLoading) {
-    return (
-      <div className="flex items-center justify-center p-12">
-        <div className="border-primary h-8 w-8 animate-spin rounded-full border-4 border-t-transparent" />
-      </div>
-    );
+    return <InlineSpinner />;
   }
 
   if (studentsError || plansError || !studentsData) {

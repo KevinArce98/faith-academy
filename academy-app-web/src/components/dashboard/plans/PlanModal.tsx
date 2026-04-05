@@ -1,4 +1,5 @@
-import { useState, useEffect, useTransition } from 'react';
+import { useState, useTransition } from 'react';
+import { useScrollLock } from '@/hooks/useScrollLock';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -25,10 +26,7 @@ export function PlanModal({ plan, onClose, onSuccess }: PlanModalProps) {
   const apiClient = useApiClient();
   const queryClient = useQueryClient();
 
-  useEffect(() => {
-    document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = 'unset'; };
-  }, []);
+  useScrollLock(true);
 
   const {
     register,

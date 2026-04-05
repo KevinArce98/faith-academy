@@ -4,25 +4,23 @@ import { useApiClient } from '@/lib/api';
 import { isAdmin, type Role } from '@/lib/roles';
 import { ReportsClient } from '@/components/dashboard/ReportsClient';
 import type { ReportsClientProps } from '@/components/dashboard/reports/reports.types';
+import { InlineSpinner } from '@/components/ui/Spinner';
 
 export default function Reports() {
   const { role } = useOutletContext<{ role: Role }>();
-  if (!isAdmin(role)) return <Navigate to="/no-access" replace />;
-
   const apiClient = useApiClient();
 
   const { data, isLoading, isError } = useQuery<ReportsClientProps>({
     queryKey: ['reports'],
     queryFn: () => apiClient<ReportsClientProps>('/api/v1/reports'),
     staleTime: 5 * 60 * 1000,
+    enabled: isAdmin(role),
   });
 
+  if (!isAdmin(role)) return <Navigate to="/no-access" replace />;
+
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center p-16">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-      </div>
-    );
+    return <InlineSpinner />;
   }
 
   if (isError || !data) {

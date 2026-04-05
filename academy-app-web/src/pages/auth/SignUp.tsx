@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom';
 import { useApiClient } from '@/lib/api';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
+import { Spinner } from '@/components/ui/Spinner';
 import { VerificationCodeForm } from '@/components/auth/VerificationCodeForm';
 import { handleClerkErrors } from '@/utils/clerk-localization';
 import {
@@ -119,7 +120,7 @@ export default function SignUp() {
   if (!signUpLoaded || !signUp) {
     return (
       <div className="flex items-center justify-center p-12">
-        <div className="h-6 w-6 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+        <Spinner size="sm" />
       </div>
     );
   }
@@ -237,10 +238,7 @@ export default function SignUp() {
         >
           {isPending ? (
             <>
-              <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-              </svg>
+              <Spinner size="xs" className="border-white/40 border-t-white" />
               Creando cuenta...
             </>
           ) : (

@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Outlet, Navigate } from 'react-router-dom';
+import { Outlet, Navigate, useLocation } from 'react-router-dom';
 import { useAuth, useUser } from "@clerk/react";
 import { DashboardShell } from '@/components/layout/DashboardShell';
 import { useApiClient } from '@/lib/api';
 import { getInitials } from '@/utils/general';
-import type { Role } from '@/lib/roles';
+import { canAccessRoute, type Role } from '@/lib/roles';
+import { FullPageSpinner } from '@/components/ui/Spinner';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 type UserProfile = {
   name: string;
@@ -14,6 +16,7 @@ type UserProfile = {
 export default function DashboardLayout() {
   const { isSignedIn, isLoaded } = useAuth();
   const { user: clerkUser } = useUser();
+  const { pathname } = useLocation();
   const apiClient = useApiClient();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [profileLoading, setProfileLoading] = useState(true);
@@ -32,14 +35,10 @@ export default function DashboardLayout() {
       .finally(() => {
         setProfileLoading(false);
       });
-  }, [isLoaded, isSignedIn]);
+  }, [isLoaded, isSignedIn, apiClient]);
 
   if (!isLoaded) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-      </div>
-    );
+    return <FullPageSpinner />;
   }
 
   if (!isSignedIn) {
@@ -47,14 +46,14 @@ export default function DashboardLayout() {
   }
 
   if (profileLoading) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-      </div>
-    );
+    return <FullPageSpinner />;
   }
 
   if (noAccess || !profile) {
+    return <Navigate to="/no-access" replace />;
+  }
+
+  if (!canAccessRoute(profile.role, pathname)) {
     return <Navigate to="/no-access" replace />;
   }
 
@@ -63,7 +62,9 @@ export default function DashboardLayout() {
 
   return (
     <DashboardShell user={{ name: displayName, role: profile.role, initials }}>
-      <Outlet context={{ role: profile.role }} />
+      <ErrorBoundary>
+        <Outlet context={{ role: profile.role }} />
+      </ErrorBoundary>
     </DashboardShell>
   );
 }

@@ -4,6 +4,7 @@ import { PlansClient } from '@/components/dashboard/PlansClient';
 import { isAdminOrTeacher } from '@/lib/roles';
 import type { Role } from '@/lib/roles';
 import type { Plan } from '@/lib/interfaces/plans';
+import { InlineSpinner } from '@/components/ui/Spinner';
 
 type MeResponse = { name: string; role: Role };
 type PlansResponse = { plans: Plan[] } | Plan[];
@@ -23,11 +24,7 @@ export default function Plans() {
   });
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center p-16">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-      </div>
-    );
+    return <InlineSpinner />;
   }
 
   if (isError || !plansData) {

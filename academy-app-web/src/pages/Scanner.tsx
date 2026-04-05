@@ -88,7 +88,7 @@ export default function Scanner() {
       controlsRef.current?.stop();
       setScanning(false);
     };
-  }, [isLoaded, isSignedIn, me]);
+  }, [isLoaded, isSignedIn, me, apiClient]);
 
   if (!isLoaded || meLoading) {
     return (

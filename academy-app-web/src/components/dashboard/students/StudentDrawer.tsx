@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { useScrollLock } from '@/hooks/useScrollLock';
 import { motion } from 'framer-motion';
 import { STATUS_COLORS, STATUS_LABELS } from '@/lib/interfaces/students';
 import type { Student } from '@/lib/interfaces/students';
@@ -21,12 +22,7 @@ export function StudentDrawer({
 
   const activeOrder = student.orders.find((o) => o.status === 'ACTIVE');
 
-  useEffect(() => {
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, []);
+  useScrollLock(true);
 
   return (
     <motion.div

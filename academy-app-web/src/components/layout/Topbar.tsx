@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { Bell, X, Menu } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
+import { Spinner } from '@/components/ui/Spinner';
 import { useQuery } from '@tanstack/react-query';
 import { cn } from '@/lib/cn';
 import { slideInRight, overlayVariants } from '@/lib/animations';
@@ -175,7 +176,7 @@ export function Topbar({ userInitials, onMenuClick }: TopbarProps) {
               <div ref={listRef} className="flex-1 divide-y divide-gray-50 overflow-y-auto">
                 {isLoading ? (
                   <div className="flex items-center justify-center py-12">
-                    <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                    <Spinner size="sm" />
                   </div>
                 ) : notifications.length === 0 ? (
                   <div className="flex flex-col items-center justify-center gap-2 py-16 text-center">

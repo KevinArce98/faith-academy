@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { useDebounce } from '@/hooks/useDebounce';
 import { Eye, Pencil, Users2, Search, Plus, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
@@ -59,10 +60,12 @@ export function StudentsClient({
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [toast, setToast] = useState<ToastState>(null);
 
-  const filtered = students.filter((s) => {
+  const debouncedSearch = useDebounce(search, 300);
+
+  const filtered = useMemo(() => students.filter((s) => {
     const matchesSearch =
-      s.name.toLowerCase().includes(search.toLowerCase()) ||
-      s.email.toLowerCase().includes(search.toLowerCase());
+      s.name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+      s.email.toLowerCase().includes(debouncedSearch.toLowerCase());
 
     const activeOrder = s.orders.find((o) => o.status === 'ACTIVE');
     const status = activeOrder?.status ?? 'EXPIRED';
@@ -83,7 +86,7 @@ export function StudentsClient({
       (familyFilter === 'without' && !s.familyMember);
 
     return matchesSearch && matchesStatus && matchesPlan && matchesFamily;
-  });
+  }), [students, debouncedSearch, statusFilter, planFilter, familyFilter]);
 
   const pagination = usePagination(filtered, { pageSize: 10 });
 
@@ -91,7 +94,7 @@ export function StudentsClient({
   useEffect(() => {
     pagination.reset();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search, statusFilter, planFilter, familyFilter]);
+  }, [debouncedSearch, statusFilter, planFilter, familyFilter]);
 
   async function deleteStudent(student: Student) {
     setLoadingId(student.id);
