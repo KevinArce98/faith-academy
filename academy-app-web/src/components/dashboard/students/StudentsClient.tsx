@@ -308,16 +308,24 @@ export function StudentsClient({
                       </TableCell>
                       <TableCell>
                         {activeOrder ? (
-                          <div>
-                            <span className="text-dark text-sm font-medium">
-                              {activeOrder.creditGranted != null
-                                ? `${activeOrder.creditGranted}/${activeOrder.creditGranted}`
-                                : '∞/∞'}
-                            </span>
-                            <div className="mt-1 h-1 w-16 rounded-full bg-gray-100">
-                              <div className="bg-primary h-1 w-3/4 rounded-full" />
-                            </div>
-                          </div>
+                          (() => {
+                            const total = activeOrder.creditGranted;
+                            const balance = activeOrder.ledgerEntries?.[0]?.balance ?? total;
+                            const pct = total != null && balance != null ? Math.max(0, Math.min(100, (balance / total) * 100)) : null;
+                            const barColor = pct == null ? 'bg-primary' : pct > 50 ? 'bg-primary' : pct > 20 ? 'bg-warning' : 'bg-danger';
+                            return (
+                              <div>
+                                <span className="text-dark text-sm font-medium">
+                                  {total != null ? `${balance ?? total}/${total}` : '∞'}
+                                </span>
+                                {pct != null && (
+                                  <div className="mt-1 h-1 w-16 rounded-full bg-gray-100">
+                                    <div className={cn('h-1 rounded-full', barColor)} style={{ width: `${pct}%` }} />
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })()
                         ) : (
                           <span className="text-xs text-gray-300">—</span>
                         )}
@@ -462,16 +470,24 @@ export function StudentsClient({
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     {activeOrder ? (
-                      <>
-                        <span className="text-dark text-xs font-medium">
-                          {activeOrder.creditGranted != null
-                            ? `${activeOrder.creditGranted}/${activeOrder.creditGranted}`
-                            : '∞/∞'}
-                        </span>
-                        <div className="h-1 w-12 rounded-full bg-gray-100">
-                          <div className="bg-primary h-1 w-3/4 rounded-full" />
-                        </div>
-                      </>
+                      (() => {
+                        const total = activeOrder.creditGranted;
+                        const balance = activeOrder.ledgerEntries?.[0]?.balance ?? total;
+                        const pct = total != null && balance != null ? Math.max(0, Math.min(100, (balance / total) * 100)) : null;
+                        const barColor = pct == null ? 'bg-primary' : pct > 50 ? 'bg-primary' : pct > 20 ? 'bg-warning' : 'bg-danger';
+                        return (
+                          <>
+                            <span className="text-dark text-xs font-medium">
+                              {total != null ? `${balance ?? total}/${total}` : '∞'}
+                            </span>
+                            {pct != null && (
+                              <div className="h-1 w-12 rounded-full bg-gray-100">
+                                <div className={cn('h-1 rounded-full', barColor)} style={{ width: `${pct}%` }} />
+                              </div>
+                            )}
+                          </>
+                        );
+                      })()
                     ) : null}
                     {activeOrder?.expiresAt && (
                       <span className="text-xs text-gray-400">

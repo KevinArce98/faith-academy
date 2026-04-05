@@ -135,3 +135,68 @@ button,
   min-height: 44px;
   min-width: 44px;
 }
+
+/* ── FullCalendar Studio Theme ── */
+.fc-studio {
+  font-family: Inter, system-ui, sans-serif;
+}
+.fc-studio .fc-scrollgrid,
+.fc-studio .fc-scrollgrid td,
+.fc-studio .fc-scrollgrid th {
+  border-color: #F5F8FC;
+}
+.fc-studio .fc-col-header-cell {
+  padding: 10px 0;
+  background: white;
+  border-color: #F5F8FC;
+}
+.fc-studio .fc-col-header-cell-cushion {
+  font-size: 11px;
+  font-weight: 600;
+  color: #94A3B8;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.fc-studio .fc-day-today .fc-col-header-cell-cushion {
+  color: var(--color-primary);
+}
+.fc-studio .fc-day-today {
+  background: color-mix(in srgb, var(--color-primary) 3%, transparent) !important;
+}
+.fc-studio .fc-timegrid-slot {
+  height: 56px;
+  border-color: #F5F8FC;
+}
+.fc-studio .fc-timegrid-slot-minor {
+  border-top-style: none;
+}
+.fc-studio .fc-timegrid-axis {
+  width: 52px;
+  border-color: #F5F8FC;
+}
+.fc-studio .fc-timegrid-axis-cushion {
+  font-size: 11px;
+  color: #94A3B8;
+  padding-right: 10px;
+  max-width: none;
+}
+.fc-studio .fc-timegrid-col {
+  border-color: #F5F8FC;
+}
+.fc-studio .fc-event {
+  cursor: pointer;
+  box-shadow: none !important;
+  border: none !important;
+  background: transparent !important;
+}
+.fc-studio .fc-event-main {
+  padding: 1px 2px;
+  overflow: hidden;
+}
+.fc-studio .fc-now-indicator-line {
+  border-color: var(--color-primary);
+}
+.fc-studio .fc-now-indicator-arrow {
+  border-top-color: var(--color-primary);
+}

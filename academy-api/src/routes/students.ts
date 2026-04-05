@@ -57,6 +57,11 @@ studentsRoutes.get('/', authMiddleware, async (c) => {
         take: 1,
         include: {
           plan: { select: { id: true, name: true } },
+          ledgerEntries: {
+            orderBy: { createdAt: 'desc' },
+            take: 1,
+            select: { balance: true },
+          },
         },
       },
     },

@@ -7,6 +7,7 @@ export type Order = {
   creditGranted: number | null;
   notes?: string | null;
   plan: Plan;
+  ledgerEntries?: { balance: number }[];
 };
 
 export type FamilyMember = { family: { name: string }; position: number };

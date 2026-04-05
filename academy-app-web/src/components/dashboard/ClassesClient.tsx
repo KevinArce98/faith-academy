@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   ChevronLeft,
   ChevronRight,
@@ -9,6 +9,11 @@ import {
 } from 'lucide-react';
 import { AnimatePresence } from 'framer-motion';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
+import FullCalendar from '@fullcalendar/react';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import interactionPlugin from '@fullcalendar/interaction';
+import esLocale from '@fullcalendar/core/locales/es';
+import type { EventInput, EventContentArg, EventClickArg } from '@fullcalendar/core';
 import { cn } from '@/lib/cn';
 import { formatTime } from '@/utils/general';
 import { Button } from '@/components/ui/Button';
@@ -27,9 +32,6 @@ import type { Cls, ClassesClientProps } from '@/components/dashboard/classes/cla
 import { NewClassModal } from '@/components/dashboard/classes/NewClassModal';
 import { EditClassModal } from '@/components/dashboard/classes/EditClassModal';
 import { DeleteClassModal } from '@/components/dashboard/classes/DeleteClassModal';
-
-const DAYS_ES = ['LUN', 'MAR', 'MIE', 'JUE', 'VIE', 'SAB', 'DOM'];
-const HOURS = Array.from({ length: 15 }, (_, i) => i + 7); // 7:00 - 21:00
 
 const LEVEL_COLORS: Record<string, string> = {
   BEGINNER: 'bg-success/20 text-success border-success/30',
@@ -58,6 +60,7 @@ export function ClassesClient({
   const [currentWeek, setWeek] = useState(new Date(weekStart));
   const [listRef] = useAutoAnimate<HTMLTableSectionElement>();
   const [isMobile, setIsMobile] = useState(false);
+  const calendarRef = useRef<FullCalendar>(null);
   const listPagination = usePagination(classes, { pageSize: 10 });
 
   useEffect(() => {
@@ -70,6 +73,10 @@ export function ClassesClient({
     window.addEventListener('resize', check);
     return () => window.removeEventListener('resize', check);
   }, [view]);
+
+  useEffect(() => {
+    calendarRef.current?.getApi().gotoDate(currentWeek);
+  }, [currentWeek]);
 
   const weekDays = Array.from({ length: 7 }, (_, i) => {
     const d = new Date(currentWeek);
@@ -91,17 +98,56 @@ export function ClassesClient({
     setWeek(new Date(weekStart));
   }
 
-  function getClassesForDayHour(dayIndex: number, hour: number) {
-    return classes.filter((cls) => {
-      const d = new Date(cls.startsAt);
-      const dayOfWeek = (d.getDay() + 6) % 7; // Mon=0
-      return dayOfWeek === dayIndex && d.getHours() === hour;
-    });
-  }
-
   const weekLabel = `${weekDays[0].getDate()} — ${weekDays[6].getDate()} ${new Intl.DateTimeFormat('es-CR', { month: 'long', year: 'numeric' }).format(weekDays[6])}`;
 
-  const today = new Date();
+  const fcEvents: EventInput[] = classes.map((cls) => {
+    const start = new Date(cls.startsAt);
+    const end = new Date(cls.endsAt);
+    // Classes are weekly recurring — remap to the displayed week by day-of-week
+    const dayOfWeek = (start.getDay() + 6) % 7; // Mon=0 … Sun=6
+    const weekDate = new Date(currentWeek);
+    weekDate.setDate(weekDate.getDate() + dayOfWeek);
+    const adjStart = new Date(weekDate);
+    adjStart.setHours(start.getHours(), start.getMinutes(), 0, 0);
+    const adjEnd = new Date(weekDate);
+    adjEnd.setHours(end.getHours(), end.getMinutes(), 0, 0);
+    return {
+      id: cls.id,
+      title: cls.name,
+      start: adjStart,
+      end: adjEnd,
+      backgroundColor: 'transparent',
+      borderColor: 'transparent',
+      extendedProps: cls,
+    };
+  });
+
+  function renderEventContent(arg: EventContentArg) {
+    const cls = arg.event.extendedProps as Cls;
+    const colors = LEVEL_COLORS[cls.skillLevel] ?? 'bg-gray-100 text-gray-600 border-gray-200';
+    return (
+      <div
+        className={cn(
+          'h-full w-full overflow-hidden rounded-lg border px-2 py-1 text-xs font-medium cursor-pointer transition-opacity hover:opacity-80',
+          colors
+        )}
+      >
+        <p className="truncate font-semibold leading-tight">{cls.name}</p>
+        <p className="truncate text-[10px] opacity-70">
+          {formatTime(new Date(cls.startsAt))} — {formatTime(new Date(cls.endsAt))}
+        </p>
+        <p className="text-[10px] opacity-60">
+          {cls._count.attendances}/{cls.maxCapacity}
+        </p>
+      </div>
+    );
+  }
+
+  function handleEventClick(arg: EventClickArg) {
+    const cls = arg.event.extendedProps as Cls;
+    setSelectedClass(cls);
+    setEditModalOpen(true);
+  }
 
   return (
     <div className="space-y-5">
@@ -186,73 +232,29 @@ export function ClassesClient({
         </Button>
       </div>
 
-      {/* Weekly calendar grid */}
+      {/* Weekly calendar — FullCalendar */}
       {view === 'week' && (
-        <div className="overflow-auto rounded-2xl border border-gray-50 bg-white shadow-sm">
-          <div className="min-w-175">
-            {/* Day headers */}
-            <div className="grid grid-cols-8 border-b border-gray-50">
-              <div className="px-3 py-3" />
-              {weekDays.map((d, i) => {
-                const isToday = d.toDateString() === today.toDateString();
-                return (
-                  <div
-                    key={i}
-                    className="border-l border-gray-50 py-3 text-center"
-                  >
-                    <p className="text-xs font-medium text-gray-400">
-                      {DAYS_ES[i]}
-                    </p>
-                    <div
-                      className={cn(
-                        'mx-auto mt-1 flex h-7 w-7 items-center justify-center rounded-full text-sm font-bold',
-                        isToday ? 'bg-primary text-white' : 'text-dark'
-                      )}
-                    >
-                      {d.getDate()}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Hour rows */}
-            {HOURS.map((hour) => (
-              <div
-                key={hour}
-                className="grid min-h-13 grid-cols-8 border-b border-gray-50"
-              >
-                <div className="self-start px-3 py-2 pt-1 text-right text-xs text-gray-300">
-                  {hour}:00
-                </div>
-                {weekDays.map((_, dayIndex) => {
-                  const dayClasses = getClassesForDayHour(dayIndex, hour);
-                  return (
-                    <div
-                      key={dayIndex}
-                      className="relative border-l border-gray-50 p-0.5"
-                    >
-                      {dayClasses.map((cls) => (
-                        <div
-                          key={cls.id}
-                          className={cn(
-                            'cursor-pointer rounded-lg border px-2 py-1.5 text-xs font-medium transition-opacity hover:opacity-80',
-                            LEVEL_COLORS[cls.skillLevel] ??
-                              'border-gray-200 bg-gray-100 text-gray-600'
-                          )}
-                        >
-                          <p className="truncate font-semibold">{cls.name}</p>
-                          <p className="text-[10px] opacity-70">
-                            {cls._count.attendances}/{cls.maxCapacity}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  );
-                })}
-              </div>
-            ))}
-          </div>
+        <div className="fc-studio overflow-hidden rounded-2xl border border-gray-50 bg-white shadow-sm">
+          <FullCalendar
+            ref={calendarRef}
+            plugins={[timeGridPlugin, interactionPlugin]}
+            initialView="timeGridWeek"
+            locale={esLocale}
+            headerToolbar={false}
+            allDaySlot={false}
+            slotMinTime="07:00:00"
+            slotMaxTime="22:00:00"
+            slotDuration="01:00:00"
+            slotLabelInterval="01:00:00"
+            nowIndicator={true}
+            slotEventOverlap={false}
+            events={fcEvents}
+            eventContent={renderEventContent}
+            eventClick={handleEventClick}
+            initialDate={currentWeek}
+            height="auto"
+            firstDay={1}
+          />
         </div>
       )}
 
