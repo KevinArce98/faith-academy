@@ -12,6 +12,7 @@ import {
   type UpdateStudentInput,
 } from '@/lib/validations/students';
 import { useApiClient } from '@/lib/api';
+import { getErrorMessage } from '@/lib/errorMessages';
 
 type EditStudentModalProps = {
   student: Student | null;
@@ -89,7 +90,7 @@ export function EditStudentModal({
       onUpdated('Información del alumno actualizada.');
       handleClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al actualizar.');
+      setError(getErrorMessage(err, 'Error al actualizar.'));
     } finally {
       setSubmitting(false);
     }

@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { useQueryClient } from '@tanstack/react-query';
 import { modalVariants, overlayVariants } from '@/lib/animations';
 import { useApiClient } from '@/lib/api';
+import { getErrorMessage } from '@/lib/errorMessages';
 import { formatTime } from '@/utils/general';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -79,7 +80,7 @@ export function EditClassModal({
       await queryClient.invalidateQueries({ queryKey: ['classes'] });
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'No se pudo actualizar la clase');
+      setError(getErrorMessage(err, 'No se pudo actualizar la clase'));
     } finally {
       setLoading(false);
     }

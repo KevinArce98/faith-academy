@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { InlineSpinner } from '@/components/ui/Spinner';
 import { getInitials, formatTime } from '@/utils/general';
 import { useApiClient } from '@/lib/api';
+import { getErrorMessage } from '@/lib/errorMessages';
 import type { Cls } from './classes.types';
 
 type EnrolledStudent = {
@@ -40,7 +41,7 @@ export function ClassStudentsModal({ cls, onClose }: Props) {
       queryClient.invalidateQueries({ queryKey: ['classes'] });
     },
     onError: (err) => {
-      setError(err instanceof Error ? err.message : 'No se pudo eliminar al estudiante');
+      setError(getErrorMessage(err, 'No se pudo eliminar al estudiante'));
     },
   });
 

@@ -11,6 +11,7 @@ import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { Button } from '@/components/ui/Button';
 import { useApiClient } from '@/lib/api';
+import { getErrorMessage } from '@/lib/errorMessages';
 import { INTERVAL_OPTIONS } from '@/lib/interfaces/plans';
 import { planFormSchema } from '@/lib/validations/plans';
 import type { Plan, PlanFormValues } from '@/lib/interfaces/plans';
@@ -94,7 +95,7 @@ export function PlanModal({ plan, onClose, onSuccess }: PlanModalProps) {
 
         onSuccess(updated, !isEditing);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Error al guardar el plan');
+        setError(getErrorMessage(err, 'Error al guardar el plan'));
       }
     });
   }

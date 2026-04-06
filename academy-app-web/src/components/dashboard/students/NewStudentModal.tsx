@@ -13,6 +13,7 @@ import { createStudentSchema, type CreateStudentInput } from '@/lib/validations/
 import { motion } from 'framer-motion';
 import { X, Check, Copy, CircleCheckBig } from 'lucide-react';
 import { useApiClient } from '@/lib/api';
+import { getErrorMessage } from '@/lib/errorMessages';
 
 export function NewStudentModal({
   plans,
@@ -61,9 +62,7 @@ export function NewStudentModal({
       queryClient.invalidateQueries({ queryKey: ['students'] });
       setTempPassword(data.tempPassword);
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : 'Error al crear el alumno.'
-      );
+      setError(getErrorMessage(err, 'Error al crear el alumno.'));
     } finally {
       setSubmitting(false);
     }

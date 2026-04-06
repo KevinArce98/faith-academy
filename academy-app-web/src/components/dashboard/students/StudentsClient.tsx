@@ -29,6 +29,7 @@ import {
   TableRow,
 } from '@/components/ui/Table';
 import { useApiClient } from '@/lib/api';
+import { getErrorMessage } from '@/lib/errorMessages';
 
 type StudentsClientProps = {
   students: Student[];
@@ -108,7 +109,7 @@ export function StudentsClient({
       setToast({
         type: 'error',
         message:
-          err instanceof Error ? err.message : 'Error al eliminar alumno.',
+          getErrorMessage(err, 'Error al eliminar alumno.'),
       });
     } finally {
       setLoadingId(null);

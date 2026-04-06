@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { useQueryClient } from '@tanstack/react-query';
 import { modalVariants, overlayVariants } from '@/lib/animations';
 import { useApiClient } from '@/lib/api';
+import { getErrorMessage } from '@/lib/errorMessages';
 import { Button } from '@/components/ui/Button';
 import type { Cls } from './classes.types';
 
@@ -36,7 +37,7 @@ export function DeleteClassModal({
       await queryClient.invalidateQueries({ queryKey: ['classes'] });
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'No se pudo eliminar la clase');
+      setError(getErrorMessage(err, 'No se pudo eliminar la clase'));
     } finally {
       setLoading(false);
     }

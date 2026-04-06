@@ -1,7 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
-import { ClerkProvider } from "@clerk/react";
+import { ClerkProvider } from '@clerk/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import '@fontsource/inter/400.css';
 import '@fontsource/inter/500.css';
@@ -14,8 +14,14 @@ import studioConfig from '@/lib/config/studio.config';
 // Aplicar CSS vars antes del primer render para evitar FOUC
 const root = document.documentElement;
 root.style.setProperty('--studio-primary', studioConfig.colors.primary);
-root.style.setProperty('--studio-primary-light', studioConfig.colors.primaryLight);
-root.style.setProperty('--studio-primary-dark', studioConfig.colors.primaryDark);
+root.style.setProperty(
+	'--studio-primary-light',
+	studioConfig.colors.primaryLight,
+);
+root.style.setProperty(
+	'--studio-primary-dark',
+	studioConfig.colors.primaryDark,
+);
 root.style.setProperty('--studio-dark', studioConfig.colors.dark);
 root.style.setProperty('--studio-dark-mid', studioConfig.colors.darkMid);
 root.style.setProperty('--studio-dark-light', studioConfig.colors.darkLight);
@@ -29,26 +35,26 @@ root.style.setProperty('--studio-danger', studioConfig.colors.danger);
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
 if (!PUBLISHABLE_KEY) {
-  throw new Error('Missing VITE_CLERK_PUBLISHABLE_KEY');
+	throw new Error('Missing VITE_CLERK_PUBLISHABLE_KEY');
 }
 
 const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 1000 * 60 * 2, // 2 min
-      retry: 1,
-    },
-  },
+	defaultOptions: {
+		queries: {
+			staleTime: 1000 * 60 * 2, // 2 min
+			retry: 1,
+		},
+	},
 });
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
-      <QueryClientProvider client={queryClient}>
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      </QueryClientProvider>
-    </ClerkProvider>
-  </StrictMode>
+	<StrictMode>
+		<ClerkProvider publishableKey={PUBLISHABLE_KEY}>
+			<QueryClientProvider client={queryClient}>
+				<BrowserRouter>
+					<App />
+				</BrowserRouter>
+			</QueryClientProvider>
+		</ClerkProvider>
+	</StrictMode>,
 );

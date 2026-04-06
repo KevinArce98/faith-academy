@@ -24,40 +24,40 @@ const Scanner = lazy(() => import('@/pages/Scanner'));
 const Settings = lazy(() => import('@/pages/Settings'));
 
 export default function App() {
-  return (
-    <ErrorBoundary>
-    <Suspense fallback={<FullPageSpinner />}>
-      <Routes>
-        {/* ── Auth ─────────────────────────────────────────── */}
-        <Route element={<AuthLayout />}>
-          <Route path="/sign-in" element={<SignIn />} />
-          <Route path="/sign-up" element={<SignUp />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-        </Route>
+	return (
+		<ErrorBoundary>
+			<Suspense fallback={<FullPageSpinner />}>
+				<Routes>
+					{/* ── Auth ─────────────────────────────────────────── */}
+					<Route element={<AuthLayout />}>
+						<Route path='/sign-in' element={<SignIn />} />
+						<Route path='/sign-up' element={<SignUp />} />
+						<Route path='/forgot-password' element={<ForgotPassword />} />
+					</Route>
 
-        {/* ── No access ────────────────────────────────────── */}
-        <Route path="/no-access" element={<NoAccess />} />
+					{/* ── No access ────────────────────────────────────── */}
+					<Route path='/no-access' element={<NoAccess />} />
 
-        {/* ── Scanner (layout propio) ───────────────────────── */}
-        <Route path="/teacher/scanner" element={<Scanner />} />
+					{/* ── Scanner (layout propio) ───────────────────────── */}
+					<Route path='/teacher/scanner' element={<Scanner />} />
 
-        {/* ── Dashboard (protegido) ────────────────────────── */}
-        <Route element={<DashboardLayout />}>
-          <Route index element={<Dashboard />} />
-          <Route path="/students" element={<Students />} />
-          <Route path="/teachers" element={<Teachers />} />
-          <Route path="/classes" element={<Classes />} />
-          <Route path="/payments" element={<Payments />} />
-          <Route path="/plans" element={<Plans />} />
-          <Route path="/reports" element={<Reports />} />
-          <Route path="/video-library" element={<VideoLibrary />} />
-          <Route path="/settings" element={<Settings />} />
-        </Route>
+					{/* ── Dashboard (protegido) ────────────────────────── */}
+					<Route element={<DashboardLayout />}>
+						<Route index element={<Dashboard />} />
+						<Route path='/students' element={<Students />} />
+						<Route path='/teachers' element={<Teachers />} />
+						<Route path='/classes' element={<Classes />} />
+						<Route path='/payments' element={<Payments />} />
+						<Route path='/plans' element={<Plans />} />
+						<Route path='/reports' element={<Reports />} />
+						<Route path='/video-library' element={<VideoLibrary />} />
+						<Route path='/settings' element={<Settings />} />
+					</Route>
 
-        {/* ── Fallback ─────────────────────────────────────── */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </Suspense>
-    </ErrorBoundary>
-  );
+					{/* ── Fallback ─────────────────────────────────────── */}
+					<Route path='*' element={<Navigate to='/' replace />} />
+				</Routes>
+			</Suspense>
+		</ErrorBoundary>
+	);
 }

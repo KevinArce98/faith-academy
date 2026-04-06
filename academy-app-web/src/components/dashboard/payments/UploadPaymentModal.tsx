@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { Upload, X, FileText } from 'lucide-react';
 import { useApiClient } from '@/lib/api';
+import { getErrorMessage } from '@/lib/errorMessages';
 import { Button } from '@/components/ui/Button';
 import { Select } from '@/components/ui/Select';
 import { ResponsiveModal } from '@/components/ui/ResponsiveModal';
@@ -92,7 +93,7 @@ export function UploadPaymentModal({
       onSuccess();
       handleClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error inesperado');
+      setError(getErrorMessage(err, 'Error inesperado'));
     } finally {
       setIsSubmitting(false);
     }

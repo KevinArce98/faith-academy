@@ -1,5 +1,5 @@
-import { useAuth } from "@clerk/react";
-import { useSignIn } from "@clerk/react/legacy";
+import { useAuth } from '@clerk/react';
+import { useSignIn } from '@clerk/react/legacy';
 import { isClerkAPIResponseError } from '@clerk/react/errors';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
@@ -120,7 +120,7 @@ export default function SignIn() {
 	if (!signInLoaded || !signIn) {
 		return (
 			<div className='flex items-center justify-center p-12'>
-				<Spinner size="sm" />
+				<Spinner size='sm' />
 			</div>
 		);
 	}
@@ -243,7 +243,7 @@ export default function SignIn() {
 				>
 					{isPending ? (
 						<>
-							<Spinner size="xs" className="border-white/40 border-t-white" />
+							<Spinner size='xs' className='border-white/40 border-t-white' />
 							Iniciando sesión...
 						</>
 					) : (

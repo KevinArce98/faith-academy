@@ -4,6 +4,7 @@ import { AlertTriangle, X } from 'lucide-react';
 import { modalVariants, overlayVariants } from '@/lib/animations';
 import { Button } from '@/components/ui/Button';
 import { useApiClient } from '@/lib/api';
+import { getErrorMessage } from '@/lib/errorMessages';
 import type { Plan } from '@/lib/interfaces/plans';
 
 interface DeletePlanConfirmProps {
@@ -36,7 +37,7 @@ export function DeletePlanConfirm({
       }
       onSuccess(plan.id);
     } catch (err) {
-      onError(err instanceof Error ? err.message : 'Error al eliminar el plan');
+      onError(getErrorMessage(err, 'Error al eliminar el plan'));
       onClose();
     } finally {
       setIsPending(false);
