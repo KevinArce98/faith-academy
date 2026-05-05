@@ -1,10 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
-import { useApiClient } from '@/lib/api';
+
 import { PaymentsClient } from '@/components/dashboard/PaymentsClient';
-import { isAdminOrTeacher } from '@/lib/roles';
 import type { Order } from '@/components/dashboard/payments/payments.types';
 import { InlineSpinner } from '@/components/ui/Spinner';
+import { useApiClient } from '@/lib/api';
 import type { MeResponse } from '@/lib/interfaces/auth';
+import { isAdminOrTeacher } from '@/lib/roles';
+
 type PlanOption = { id: string; name: string; price: number };
 type PlansResponse = { plans: PlanOption[] } | PlanOption[];
 type OrdersResponse = { orders: Order[] } | Order[];
@@ -40,7 +42,7 @@ export default function Payments() {
 
 	if (isError || !ordersData || !me) {
 		return (
-			<div className='p-6 text-center text-sm text-danger'>
+			<div className="p-6 text-center text-sm text-danger">
 				Error al cargar los pagos. Intenta de nuevo.
 			</div>
 		);

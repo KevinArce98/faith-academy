@@ -7,10 +7,10 @@
 		"dev": "vite",
 		"build": "tsc -b && vite build",
 		"lint": "eslint .",
-		"preview": "vite preview"
+		"preview": "vite preview",
+		"format": "prettier --write ."
 	},
 	"dependencies": {
-		"@clerk/react": "^6.5.0",
 		"@fontsource/inter": "^5.2.8",
 		"@formkit/auto-animate": "^0.9.0",
 		"@fullcalendar/core": "^6.1.20",
@@ -19,7 +19,7 @@
 		"@fullcalendar/timegrid": "^6.1.20",
 		"@hookform/resolvers": "^5.2.2",
 		"@tailwindcss/vite": "^4.2.4",
-		"@tanstack/react-query": "^5.100.8",
+		"@tanstack/react-query": "^5.100.9",
 		"@zxing/browser": "^0.2.0",
 		"@zxing/library": "^0.23.0",
 		"clsx": "^2.1.1",
@@ -28,14 +28,16 @@
 		"react": "^19.2.5",
 		"react-dom": "^19.2.5",
 		"react-hook-form": "^7.75.0",
-		"react-router-dom": "^7.14.2",
+		"react-router-dom": "^7.15.0",
 		"recharts": "^3.8.1",
 		"tailwind-merge": "^3.5.0",
 		"tailwindcss": "^4.2.4",
-		"zod": "^4.4.2"
+		"zod": "^4.4.3"
 	},
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",
+		"@trivago/prettier-plugin-sort-imports": "^6.0.2",
+		"prettier": "^3.8.3",
 		"@types/node": "^25.6.0",
 		"@types/react": "^19.2.14",
 		"@types/react-dom": "^19.2.3",
@@ -45,7 +47,7 @@
 		"eslint-plugin-react-refresh": "^0.5.2",
 		"globals": "^17.6.0",
 		"typescript": "6.0.3",
-		"typescript-eslint": "^8.59.1",
+		"typescript-eslint": "^8.59.2",
 		"vite": "^8.0.10"
 	}
 }

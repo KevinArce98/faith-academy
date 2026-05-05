@@ -23,7 +23,9 @@ export const forgotPasswordSchema = z.object({
 export const resetPasswordSchema = z
 	.object({
 		code: z.string().min(1, 'El código es requerido'),
-		password: z.string().min(8, 'La contraseña debe tener al menos 8 caracteres'),
+		password: z
+			.string()
+			.min(8, 'La contraseña debe tener al menos 8 caracteres'),
 		confirmPassword: z.string().min(1, 'Confirma la contraseña'),
 	})
 	.refine((data) => data.password === data.confirmPassword, {

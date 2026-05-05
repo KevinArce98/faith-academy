@@ -1,31 +1,38 @@
-import { useState, useEffect, useRef } from 'react';
-import {
-	ChevronLeft,
-	ChevronRight,
-	List,
-	Calendar,
-	Edit,
-	Trash2,
-	BookCheck,
-	Users,
-} from 'lucide-react';
-import { AnimatePresence } from 'framer-motion';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
-import { useQueryClient } from '@tanstack/react-query';
+import type {
+	EventClickArg,
+	EventContentArg,
+	EventInput,
+} from '@fullcalendar/core';
+import esLocale from '@fullcalendar/core/locales/es';
+import interactionPlugin from '@fullcalendar/interaction';
 import FullCalendar from '@fullcalendar/react';
 import timeGridPlugin from '@fullcalendar/timegrid';
-import interactionPlugin from '@fullcalendar/interaction';
-import esLocale from '@fullcalendar/core/locales/es';
+import { useQueryClient } from '@tanstack/react-query';
+import { AnimatePresence } from 'framer-motion';
+import {
+	BookCheck,
+	Calendar,
+	ChevronLeft,
+	ChevronRight,
+	Edit,
+	List,
+	Trash2,
+	Users,
+} from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+
+import { ClassStudentsModal } from '@/components/dashboard/classes/ClassStudentsModal';
+import { DeleteClassModal } from '@/components/dashboard/classes/DeleteClassModal';
+import { EditClassModal } from '@/components/dashboard/classes/EditClassModal';
+import { NewClassModal } from '@/components/dashboard/classes/NewClassModal';
+import { StudentClassModal } from '@/components/dashboard/classes/StudentClassModal';
 import type {
-	EventInput,
-	EventContentArg,
-	EventClickArg,
-} from '@fullcalendar/core';
-import { cn } from '@/lib/cn';
-import { formatTime } from '@/utils/general';
+	ClassesClientProps,
+	Cls,
+} from '@/components/dashboard/classes/classes.types';
 import { Button } from '@/components/ui/Button';
 import { Pagination } from '@/components/ui/Pagination';
-import { usePagination } from '@/hooks/usePagination';
 import { Spinner } from '@/components/ui/Spinner';
 import {
 	Table,
@@ -36,17 +43,11 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/Table';
-import type {
-	Cls,
-	ClassesClientProps,
-} from '@/components/dashboard/classes/classes.types';
-import { NewClassModal } from '@/components/dashboard/classes/NewClassModal';
-import { EditClassModal } from '@/components/dashboard/classes/EditClassModal';
-import { DeleteClassModal } from '@/components/dashboard/classes/DeleteClassModal';
-import { StudentClassModal } from '@/components/dashboard/classes/StudentClassModal';
-import { ClassStudentsModal } from '@/components/dashboard/classes/ClassStudentsModal';
+import { usePagination } from '@/hooks/usePagination';
 import { useApiClient } from '@/lib/api';
+import { cn } from '@/lib/cn';
 import { getErrorMessage } from '@/lib/errorMessages';
+import { formatTime } from '@/utils/general';
 
 const LEVEL_COLORS: Record<string, string> = {
 	BEGINNER: 'bg-success/20 text-success border-success/30',
@@ -103,7 +104,9 @@ export function ClassesClient({
 		message?: string;
 	} | null>(null);
 	const [studentModalClass, setStudentModalClass] = useState<Cls | null>(null);
-	const [studentsModalClass, setStudentsModalClass] = useState<Cls | null>(null);
+	const [studentsModalClass, setStudentsModalClass] = useState<Cls | null>(
+		null,
+	);
 
 	useEffect(() => {
 		const check = () => {
@@ -163,7 +166,9 @@ export function ClassesClient({
 	async function handleCancel(cls: Cls) {
 		setCancelState({ classId: cls.id, status: 'loading' });
 		try {
-			await apiClient(`/api/v1/classes/${cls.id}/reserve`, { method: 'DELETE' });
+			await apiClient(`/api/v1/classes/${cls.id}/reserve`, {
+				method: 'DELETE',
+			});
 			setCancelState(null);
 			setStudentModalClass(null);
 			queryClient.invalidateQueries({ queryKey: ['classes'] });
@@ -201,7 +206,8 @@ export function ClassesClient({
 	function renderEventContent(arg: EventContentArg) {
 		const cls = arg.event.extendedProps as Cls;
 		const colors =
-			LEVEL_COLORS[cls.skillLevel] ?? 'bg-gray-100 text-gray-600 border-gray-200';
+			LEVEL_COLORS[cls.skillLevel] ??
+			'bg-gray-100 text-gray-600 border-gray-200';
 		const isFull = cls._count.attendances >= cls.maxCapacity;
 		return (
 			<div
@@ -210,9 +216,10 @@ export function ClassesClient({
 					colors,
 				)}
 			>
-				<p className='truncate font-semibold leading-tight'>{cls.name}</p>
-				<p className='truncate text-[10px] opacity-70'>
-					{formatTime(new Date(cls.startsAt))} — {formatTime(new Date(cls.endsAt))}
+				<p className="truncate font-semibold leading-tight">{cls.name}</p>
+				<p className="truncate text-[10px] opacity-70">
+					{formatTime(new Date(cls.startsAt))} —{' '}
+					{formatTime(new Date(cls.endsAt))}
 				</p>
 				<p
 					className={cn(
@@ -253,30 +260,31 @@ export function ClassesClient({
 	);
 
 	const cancelToast = cancelState && cancelState.status === 'error' && (
-		<div className='rounded-xl border border-danger/20 bg-danger/10 px-4 py-3 text-sm font-medium text-danger'>
+		<div className="rounded-xl border border-danger/20 bg-danger/10 px-4 py-3 text-sm font-medium text-danger">
 			{cancelState.message}
 		</div>
 	);
 
 	return (
-		<div className='space-y-5'>
+		<div className="space-y-5">
 			{/* Header */}
-			<div className='flex flex-col gap-3 md:flex-row md:items-center md:justify-between'>
+			<div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
 				<div>
-					<h1 className='text-dark text-2xl font-bold md:text-3xl'>Clases</h1>
+					<h1 className="text-dark text-2xl font-bold md:text-3xl">Clases</h1>
 					{isStudent && (
-						<p className='mt-1 text-sm text-gray-400'>
+						<p className="mt-1 text-sm text-gray-400">
 							Toca una clase para ver los detalles y reservar tu lugar.
 						</p>
 					)}
 					{isTeacher && (
-						<p className='mt-1 text-sm text-gray-400'>
-							Toca una clase para ver los estudiantes inscritos y gestionar asistencia.
+						<p className="mt-1 text-sm text-gray-400">
+							Toca una clase para ver los estudiantes inscritos y gestionar
+							asistencia.
 						</p>
 					)}
 				</div>
-				<div className='flex items-center gap-3'>
-					<div className='flex overflow-hidden rounded-xl border border-gray-200'>
+				<div className="flex items-center gap-3">
+					<div className="flex overflow-hidden rounded-xl border border-gray-200">
 						<Button
 							onClick={() => {
 								if (!isMobile) setView('week');
@@ -286,12 +294,15 @@ export function ClassesClient({
 							className={cn(
 								'rounded-none px-4 py-2',
 								isMobile && 'cursor-not-allowed opacity-40',
-								view !== 'week' && 'border-transparent text-gray-500 hover:bg-gray-50',
+								view !== 'week' &&
+									'border-transparent text-gray-500 hover:bg-gray-50',
 							)}
-							title={isMobile ? 'Vista de semana disponible en desktop' : undefined}
+							title={
+								isMobile ? 'Vista de semana disponible en desktop' : undefined
+							}
 						>
-							<span className='flex items-center gap-1.5'>
-								<Calendar className='h-4 w-4' /> Semana
+							<span className="flex items-center gap-1.5">
+								<Calendar className="h-4 w-4" /> Semana
 							</span>
 						</Button>
 						<Button
@@ -300,19 +311,20 @@ export function ClassesClient({
 							color={view === 'list' ? 'dark' : 'neutral'}
 							className={cn(
 								'rounded-none border-l border-gray-200 px-4 py-2',
-								view !== 'list' && 'border-transparent text-gray-500 hover:bg-gray-50',
+								view !== 'list' &&
+									'border-transparent text-gray-500 hover:bg-gray-50',
 							)}
 						>
-							<span className='flex items-center gap-1.5'>
-								<List className='h-4 w-4' /> Lista
+							<span className="flex items-center gap-1.5">
+								<List className="h-4 w-4" /> Lista
 							</span>
 						</Button>
 					</div>
 					{isAdmin && (
 						<Button
-							variant='contained'
+							variant="contained"
 							onClick={() => setModal(true)}
-							className='rounded-xl px-4'
+							className="rounded-xl px-4"
 						>
 							+ Nueva Clase
 						</Button>
@@ -325,29 +337,31 @@ export function ClassesClient({
 			{cancelToast}
 
 			{/* Week nav */}
-			<div className='flex items-center gap-3'>
+			<div className="flex items-center gap-3">
 				<Button
-					variant='text'
-					color='neutral'
+					variant="text"
+					color="neutral"
 					onClick={prevWeek}
-					className='h-auto p-1.5'
+					className="h-auto p-1.5"
 				>
-					<ChevronLeft className='h-4 w-4 text-gray-500' />
+					<ChevronLeft className="h-4 w-4 text-gray-500" />
 				</Button>
-				<p className='text-dark text-sm font-semibold capitalize'>{weekLabel}</p>
+				<p className="text-dark text-sm font-semibold capitalize">
+					{weekLabel}
+				</p>
 				<Button
-					variant='text'
-					color='neutral'
+					variant="text"
+					color="neutral"
 					onClick={nextWeek}
-					className='h-auto p-1.5'
+					className="h-auto p-1.5"
 				>
-					<ChevronRight className='h-4 w-4 text-gray-500' />
+					<ChevronRight className="h-4 w-4 text-gray-500" />
 				</Button>
 				<Button
-					variant='text'
-					color='neutral'
+					variant="text"
+					color="neutral"
 					onClick={goToday}
-					className='h-auto border border-gray-200 px-3 py-1.5 text-xs hover:bg-gray-50'
+					className="h-auto border border-gray-200 px-3 py-1.5 text-xs hover:bg-gray-50"
 				>
 					Hoy
 				</Button>
@@ -355,35 +369,35 @@ export function ClassesClient({
 
 			{/* Weekly calendar */}
 			{view === 'week' && (
-				<div className='fc-studio overflow-hidden rounded-2xl border border-gray-50 bg-white shadow-sm'>
+				<div className="fc-studio overflow-hidden rounded-2xl border border-gray-50 bg-white shadow-sm">
 					{isStudent && (
-						<p className='border-b border-gray-50 px-4 py-2 text-xs text-gray-400'>
+						<p className="border-b border-gray-50 px-4 py-2 text-xs text-gray-400">
 							Haz clic en una clase para ver detalles y reservar.
 						</p>
 					)}
 					{isTeacher && (
-						<p className='border-b border-gray-50 px-4 py-2 text-xs text-gray-400'>
+						<p className="border-b border-gray-50 px-4 py-2 text-xs text-gray-400">
 							Haz clic en una de tus clases para ver los estudiantes inscritos.
 						</p>
 					)}
 					<FullCalendar
 						ref={calendarRef}
 						plugins={[timeGridPlugin, interactionPlugin]}
-						initialView='timeGridWeek'
+						initialView="timeGridWeek"
 						locale={esLocale}
 						headerToolbar={false}
 						allDaySlot={false}
-						slotMinTime='07:00:00'
-						slotMaxTime='22:00:00'
-						slotDuration='01:00:00'
-						slotLabelInterval='01:00:00'
+						slotMinTime="07:00:00"
+						slotMaxTime="22:00:00"
+						slotDuration="01:00:00"
+						slotLabelInterval="01:00:00"
 						nowIndicator={true}
 						slotEventOverlap={false}
 						events={fcEvents}
 						eventContent={renderEventContent}
 						eventClick={handleEventClick}
 						initialDate={currentWeek}
-						height='auto'
+						height="auto"
 						firstDay={1}
 					/>
 				</div>
@@ -393,16 +407,16 @@ export function ClassesClient({
 			{view === 'list' && (
 				<>
 					{/* Desktop table */}
-					<div className='hidden md:block'>
+					<div className="hidden md:block">
 						<TableContainer>
 							{classes.length === 0 ? (
-								<p className='py-12 text-center text-sm text-gray-400'>
+								<p className="py-12 text-center text-sm text-gray-400">
 									Sin clases esta semana
 								</p>
 							) : (
 								<Table>
 									<TableHead>
-										<TableHeader className='pl-5'>Clase</TableHeader>
+										<TableHeader className="pl-5">Clase</TableHeader>
 										<TableHeader>Dia</TableHeader>
 										<TableHeader>Horario</TableHeader>
 										<TableHeader>Nivel</TableHeader>
@@ -423,13 +437,13 @@ export function ClassesClient({
 												reserveState.status === 'loading';
 											return (
 												<TableRow key={cls.id}>
-													<TableCell className='text-dark pl-5 font-medium'>
+													<TableCell className="text-dark pl-5 font-medium">
 														{cls.name}
 													</TableCell>
-													<TableCell className='text-gray-600 capitalize'>
+													<TableCell className="text-gray-600 capitalize">
 														{dayName}
 													</TableCell>
-													<TableCell className='font-mono text-xs text-gray-600'>
+													<TableCell className="font-mono text-xs text-gray-600">
 														{timeStr}
 													</TableCell>
 													<TableCell>
@@ -440,7 +454,8 @@ export function ClassesClient({
 																	'border-transparent bg-gray-100 text-gray-600',
 															)}
 														>
-															{LEVEL_TRANSLATIONS[cls.skillLevel] || cls.skillLevel}
+															{LEVEL_TRANSLATIONS[cls.skillLevel] ||
+																cls.skillLevel}
 														</span>
 													</TableCell>
 													<TableCell
@@ -454,68 +469,68 @@ export function ClassesClient({
 													</TableCell>
 													<TableCell>
 														{canViewStudents(cls) ? (
-															<div className='flex gap-1'>
+															<div className="flex gap-1">
 																<Button
-																	variant='text'
-																	size='sm'
+																	variant="text"
+																	size="sm"
 																	onClick={() => setStudentsModalClass(cls)}
-																	className='h-8 w-8 p-0'
-																	color='neutral'
-																	title='Ver inscritos'
+																	className="h-8 w-8 p-0"
+																	color="neutral"
+																	title="Ver inscritos"
 																>
-																	<Users className='h-4 w-4' />
+																	<Users className="h-4 w-4" />
 																</Button>
 																{isAdmin && (
 																	<>
 																		<Button
-																			variant='text'
-																			size='sm'
+																			variant="text"
+																			size="sm"
 																			onClick={() => {
 																				setSelectedClass(cls);
 																				setEditModalOpen(true);
 																			}}
-																			className='h-8 w-8 p-0'
-																			color='neutral'
-																			title='Editar clase'
+																			className="h-8 w-8 p-0"
+																			color="neutral"
+																			title="Editar clase"
 																		>
-																			<Edit className='h-4 w-4' />
+																			<Edit className="h-4 w-4" />
 																		</Button>
 																		<Button
-																			variant='text'
-																			size='sm'
+																			variant="text"
+																			size="sm"
 																			onClick={() => {
 																				setSelectedClass(cls);
 																				setDeleteModalOpen(true);
 																			}}
-																			color='neutral'
-																			className='h-8 w-8 p-0'
-																			title='Eliminar clase'
+																			color="neutral"
+																			className="h-8 w-8 p-0"
+																			title="Eliminar clase"
 																		>
-																			<Trash2 className='h-4 w-4' />
+																			<Trash2 className="h-4 w-4" />
 																		</Button>
 																	</>
 																)}
 															</div>
 														) : cls.isEnrolled ? (
-															<div className='flex items-center gap-1.5 text-xs font-semibold text-success'>
-																<BookCheck className='h-3.5 w-3.5' />
+															<div className="flex items-center gap-1.5 text-xs font-semibold text-success">
+																<BookCheck className="h-3.5 w-3.5" />
 																Inscrito
 															</div>
 														) : (
 															<Button
-																variant='contained'
-																size='sm'
+																variant="contained"
+																size="sm"
 																onClick={() => handleReserve(cls)}
 																disabled={isFull || isReserving}
-																className='gap-1.5 px-3'
+																className="gap-1.5 px-3"
 															>
 																{isReserving ? (
 																	<Spinner
-																		size='xs'
-																		className='border-white/40 border-t-white'
+																		size="xs"
+																		className="border-white/40 border-t-white"
 																	/>
 																) : (
-																	<BookCheck className='h-3.5 w-3.5' />
+																	<BookCheck className="h-3.5 w-3.5" />
 																)}
 																{isFull ? 'Llena' : 'Reservar'}
 															</Button>
@@ -527,7 +542,7 @@ export function ClassesClient({
 									</TableBody>
 								</Table>
 							)}
-							<div className='border-t border-gray-50'>
+							<div className="border-t border-gray-50">
 								<Pagination
 									page={listPagination.page}
 									totalPages={listPagination.totalPages}
@@ -538,16 +553,16 @@ export function ClassesClient({
 									onNext={listPagination.next}
 									onPrev={listPagination.prev}
 									onGoTo={listPagination.goTo}
-									label='clases'
+									label="clases"
 								/>
 							</div>
 						</TableContainer>
 					</div>
 
 					{/* Mobile cards grouped by day */}
-					<div className='space-y-4 md:hidden'>
+					<div className="space-y-4 md:hidden">
 						{classes.length === 0 ? (
-							<p className='py-12 text-center text-sm text-gray-400'>
+							<p className="py-12 text-center text-sm text-gray-400">
 								Sin clases esta semana
 							</p>
 						) : (
@@ -568,10 +583,10 @@ export function ClassesClient({
 									const label = `${isToday ? 'HOY — ' : ''}${new Intl.DateTimeFormat('es-CR', { weekday: 'long', day: 'numeric', month: 'short' }).format(d)}`;
 									return (
 										<div key={dateStr}>
-											<p className='mb-2 text-xs font-bold tracking-wide text-gray-400 uppercase'>
+											<p className="mb-2 text-xs font-bold tracking-wide text-gray-400 uppercase">
 												{label}
 											</p>
-											<div className='space-y-2'>
+											<div className="space-y-2">
 												{dayClasses.map((cls) => {
 													const start = new Date(cls.startsAt);
 													const end = new Date(cls.endsAt);
@@ -584,7 +599,8 @@ export function ClassesClient({
 															: levelColor?.includes('warning')
 																? 'border-l-amber-500'
 																: 'border-l-gray-400';
-													const isFull = cls._count.attendances >= cls.maxCapacity;
+													const isFull =
+														cls._count.attendances >= cls.maxCapacity;
 													const isReserving =
 														reserveState?.classId === cls.id &&
 														reserveState.status === 'loading';
@@ -596,91 +612,96 @@ export function ClassesClient({
 																borderColor,
 															)}
 														>
-															<div className='mb-1 flex items-center gap-2'>
-																<span className='rounded-full bg-gray-100 px-2 py-0.5 font-mono text-xs text-gray-500'>
+															<div className="mb-1 flex items-center gap-2">
+																<span className="rounded-full bg-gray-100 px-2 py-0.5 font-mono text-xs text-gray-500">
 																	{timeStr}
 																</span>
-																<span className='text-dark text-sm font-bold'>{cls.name}</span>
+																<span className="text-dark text-sm font-bold">
+																	{cls.name}
+																</span>
 															</div>
 															<p
 																className={cn(
 																	'mb-3 text-xs',
-																	isFull ? 'text-danger font-semibold' : 'text-gray-400',
+																	isFull
+																		? 'text-danger font-semibold'
+																		: 'text-gray-400',
 																)}
 															>
-																Cupos: {cls._count.attendances}/{cls.maxCapacity}
+																Cupos: {cls._count.attendances}/
+																{cls.maxCapacity}
 																{isFull ? ' · Llena' : ''}
 															</p>
 															{canViewStudents(cls) ? (
-																<div className='flex flex-col gap-2'>
+																<div className="flex flex-col gap-2">
 																	<Button
-																		variant='text'
+																		variant="text"
 																		onClick={() => setStudentsModalClass(cls)}
-																		className='h-auto w-full justify-center rounded-lg border border-gray-100 py-2 text-xs font-semibold'
+																		className="h-auto w-full justify-center rounded-lg border border-gray-100 py-2 text-xs font-semibold"
 																	>
-																		<Users className='mr-1 h-3 w-3' />
+																		<Users className="mr-1 h-3 w-3" />
 																		Ver inscritos ({cls._count.attendances})
 																	</Button>
 																	{isAdmin && (
-																		<div className='flex gap-2'>
+																		<div className="flex gap-2">
 																			<Button
-																				variant='text'
+																				variant="text"
 																				onClick={() => {
 																					setSelectedClass(cls);
 																					setEditModalOpen(true);
 																				}}
-																				className='h-auto flex-1 justify-center rounded-lg border border-gray-100 py-2 text-xs font-semibold'
+																				className="h-auto flex-1 justify-center rounded-lg border border-gray-100 py-2 text-xs font-semibold"
 																			>
-																				<Edit className='mr-1 h-3 w-3' />
+																				<Edit className="mr-1 h-3 w-3" />
 																				Editar
 																			</Button>
 																			<Button
-																				variant='text'
+																				variant="text"
 																				onClick={() => {
 																					setSelectedClass(cls);
 																					setDeleteModalOpen(true);
 																				}}
-																				className='h-auto flex-1 justify-center rounded-lg border border-gray-100 py-2 text-xs font-semibold'
+																				className="h-auto flex-1 justify-center rounded-lg border border-gray-100 py-2 text-xs font-semibold"
 																			>
-																				<Trash2 className='mr-1 h-3 w-3' />
+																				<Trash2 className="mr-1 h-3 w-3" />
 																				Eliminar
 																			</Button>
 																		</div>
 																	)}
 																</div>
 															) : cls.isEnrolled ? (
-																<div className='space-y-2'>
-																	<div className='flex items-center justify-center gap-2 rounded-xl bg-success/10 px-4 py-2.5 text-sm font-semibold text-success'>
-																		<BookCheck className='h-4 w-4' />
+																<div className="space-y-2">
+																	<div className="flex items-center justify-center gap-2 rounded-xl bg-success/10 px-4 py-2.5 text-sm font-semibold text-success">
+																		<BookCheck className="h-4 w-4" />
 																		Ya estás inscrito
 																	</div>
 																	<Button
-																		variant='outlined'
-																		color='danger'
+																		variant="outlined"
+																		color="danger"
 																		onClick={() => handleCancel(cls)}
 																		disabled={
 																			cancelState?.classId === cls.id &&
 																			cancelState.status === 'loading'
 																		}
-																		className='w-full text-xs'
+																		className="w-full text-xs"
 																	>
 																		Cancelar inscripción
 																	</Button>
 																</div>
 															) : (
 																<Button
-																	variant='contained'
+																	variant="contained"
 																	onClick={() => handleReserve(cls)}
 																	disabled={isFull || isReserving}
-																	className='w-full gap-1.5'
+																	className="w-full gap-1.5"
 																>
 																	{isReserving ? (
 																		<Spinner
-																			size='xs'
-																			className='border-white/40 border-t-white'
+																			size="xs"
+																			className="border-white/40 border-t-white"
 																		/>
 																	) : (
-																		<BookCheck className='h-4 w-4' />
+																		<BookCheck className="h-4 w-4" />
 																	)}
 																	{isFull ? 'Clase llena' : 'Reservar lugar'}
 																</Button>
@@ -694,7 +715,7 @@ export function ClassesClient({
 								});
 							})()
 						)}
-						<div className='mt-4 rounded-xl bg-white shadow-sm'>
+						<div className="mt-4 rounded-xl bg-white shadow-sm">
 							<Pagination
 								page={listPagination.page}
 								totalPages={listPagination.totalPages}
@@ -705,7 +726,7 @@ export function ClassesClient({
 								onNext={listPagination.next}
 								onPrev={listPagination.prev}
 								onGoTo={listPagination.goTo}
-								label='clases'
+								label="clases"
 							/>
 						</div>
 					</div>
@@ -715,7 +736,7 @@ export function ClassesClient({
 			<AnimatePresence>
 				{modalOpen && isAdmin && (
 					<NewClassModal
-						key='new-class-modal'
+						key="new-class-modal"
 						teachers={teachers}
 						weekStart={currentWeek}
 						role={role}
@@ -725,7 +746,7 @@ export function ClassesClient({
 				)}
 				{editModalOpen && selectedClass && isAdmin && (
 					<EditClassModal
-						key='edit-class-modal'
+						key="edit-class-modal"
 						classData={selectedClass}
 						teachers={teachers}
 						role={role}
@@ -737,7 +758,7 @@ export function ClassesClient({
 				)}
 				{deleteModalOpen && selectedClass && isAdmin && (
 					<DeleteClassModal
-						key='delete-class-modal'
+						key="delete-class-modal"
 						classData={selectedClass}
 						onClose={() => {
 							setDeleteModalOpen(false);
@@ -747,7 +768,7 @@ export function ClassesClient({
 				)}
 				{studentModalClass && isStudent && (
 					<StudentClassModal
-						key='student-class-modal'
+						key="student-class-modal"
 						cls={studentModalClass}
 						isReserving={
 							reserveState?.classId === studentModalClass.id &&
@@ -764,7 +785,7 @@ export function ClassesClient({
 				)}
 				{studentsModalClass && (
 					<ClassStudentsModal
-						key='class-students-modal'
+						key="class-students-modal"
 						cls={studentsModalClass}
 						onClose={() => setStudentsModalClass(null)}
 					/>

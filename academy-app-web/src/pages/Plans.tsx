@@ -1,10 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
-import { useApiClient } from '@/lib/api';
+
 import { PlansClient } from '@/components/dashboard/PlansClient';
+import { InlineSpinner } from '@/components/ui/Spinner';
+import { useApiClient } from '@/lib/api';
+import type { Plan } from '@/lib/interfaces/plans';
 import { isAdminOrTeacher } from '@/lib/roles';
 import type { Role } from '@/lib/roles';
-import type { Plan } from '@/lib/interfaces/plans';
-import { InlineSpinner } from '@/components/ui/Spinner';
 
 type MeResponse = { name: string; role: Role };
 type PlansResponse = { plans: Plan[] } | Plan[];
@@ -33,7 +34,7 @@ export default function Plans() {
 
 	if (isError || !plansData) {
 		return (
-			<div className='p-6 text-center text-sm text-danger'>
+			<div className="p-6 text-center text-sm text-danger">
 				Error al cargar los planes. Intenta de nuevo.
 			</div>
 		);

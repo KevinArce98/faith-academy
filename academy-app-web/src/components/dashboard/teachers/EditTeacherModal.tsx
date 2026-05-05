@@ -1,9 +1,10 @@
-import { useState, type SubmitEvent } from 'react';
+import { type SubmitEvent, useState } from 'react';
+
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { ResponsiveModal } from '@/components/ui/ResponsiveModal';
 import { useApiClient } from '@/lib/api';
 import { getErrorMessage } from '@/lib/errorMessages';
-import { ResponsiveModal } from '@/components/ui/ResponsiveModal';
-import { Input } from '@/components/ui/Input';
-import { Button } from '@/components/ui/Button';
 import type { TeacherProfile } from '@/lib/interfaces/teachers';
 
 type EditTeacherModalProps = {
@@ -62,36 +63,36 @@ export function EditTeacherModal({
 		<ResponsiveModal
 			isOpen={!!teacher}
 			onClose={handleClose}
-			title='Editar Profesor'
+			title="Editar Profesor"
 		>
 			{teacher && (
-				<form className='space-y-4 px-6 py-6' onSubmit={handleSubmit}>
+				<form className="space-y-4 px-6 py-6" onSubmit={handleSubmit}>
 					<Input
-						label='Nombre completo'
+						label="Nombre completo"
 						value={displayedName}
 						onChange={(e) => setName(e.target.value)}
-						placeholder='Nombre del profesor'
+						placeholder="Nombre del profesor"
 						disabled={isPending}
 					/>
 					<Input
-						label='Email'
+						label="Email"
 						value={teacher.email}
 						disabled
-						className='bg-gray-50'
+						className="bg-gray-50"
 					/>
-					{error && <p className='text-danger text-sm'>{error}</p>}
-					<div className='flex gap-3 pt-2'>
+					{error && <p className="text-danger text-sm">{error}</p>}
+					<div className="flex gap-3 pt-2">
 						<Button
-							type='button'
-							variant='outlined'
-							color='neutral'
-							className='flex-1'
+							type="button"
+							variant="outlined"
+							color="neutral"
+							className="flex-1"
 							onClick={handleClose}
 							disabled={isPending}
 						>
 							Cancelar
 						</Button>
-						<Button type='submit' className='flex-1' disabled={isPending}>
+						<Button type="submit" className="flex-1" disabled={isPending}>
 							{isPending ? 'Guardando...' : 'Guardar cambios'}
 						</Button>
 					</div>

@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
-import { useApiClient } from '@/lib/api';
-import type { Plan, Student } from '@/lib/interfaces/students';
+
 import { StudentsClient } from '@/components/dashboard/students/StudentsClient';
 import { InlineSpinner } from '@/components/ui/Spinner';
+import { useApiClient } from '@/lib/api';
+import type { Plan, Student } from '@/lib/interfaces/students';
 
 type StudentsResponse = { students: Student[]; total: number };
 type PlansResponse = { plans: Plan[] } | Plan[];
@@ -34,8 +35,8 @@ export default function Students() {
 
 	if (studentsError || plansError || !studentsData) {
 		return (
-			<div className='p-6'>
-				<p className='text-danger text-sm'>
+			<div className="p-6">
+				<p className="text-danger text-sm">
 					Error al cargar los datos. Por favor, intenta de nuevo.
 				</p>
 			</div>

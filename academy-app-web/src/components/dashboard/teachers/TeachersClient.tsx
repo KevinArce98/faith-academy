@@ -1,16 +1,18 @@
-import { useEffect, useMemo, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { useApiClient } from '@/lib/api';
-import { getErrorMessage } from '@/lib/errorMessages';
-import { GraduationCap, Calendar } from 'lucide-react';
-import type { TeacherProfile } from '@/lib/interfaces/teachers';
-import { Button } from '@/components/ui/Button';
+import { Calendar, GraduationCap } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+
 import { Badge } from '@/components/ui/Badge';
-import { NewTeacherModal } from './NewTeacherModal';
-import { cn } from '@/lib/cn';
-import { getInitials } from '@/utils/general';
+import { Button } from '@/components/ui/Button';
 import { ResponsiveModal } from '@/components/ui/ResponsiveModal';
+import { useApiClient } from '@/lib/api';
+import { cn } from '@/lib/cn';
+import { getErrorMessage } from '@/lib/errorMessages';
+import type { TeacherProfile } from '@/lib/interfaces/teachers';
+import { getInitials } from '@/utils/general';
+
 import { EditTeacherModal } from './EditTeacherModal';
+import { NewTeacherModal } from './NewTeacherModal';
 import { TeacherMenu } from './TeacherMenu';
 
 const DATE_FORMAT = new Intl.DateTimeFormat('es-CR', {
@@ -126,14 +128,16 @@ export function TeachersClient({ teachers, activeCount }: TeachersClientProps) {
 
 	function renderClasses(teacher: TeacherProfile) {
 		if (!teacher.clases.length) {
-			return <p className='text-gray-400 text-sm italic'>Sin clases asignadas</p>;
+			return (
+				<p className="text-gray-400 text-sm italic">Sin clases asignadas</p>
+			);
 		}
 		return (
-			<div className='flex flex-wrap gap-2'>
+			<div className="flex flex-wrap gap-2">
 				{teacher.clases.map((cls) => (
 					<span
 						key={cls.id}
-						className='bg-primary/10 text-primary rounded-full px-3 py-1 text-xs font-semibold'
+						className="bg-primary/10 text-primary rounded-full px-3 py-1 text-xs font-semibold"
 					>
 						{cls.name} · {cls.dayOfWeek} {cls.startTime}-{cls.endTime}
 					</span>
@@ -150,16 +154,16 @@ export function TeachersClient({ teachers, activeCount }: TeachersClientProps) {
 	}, [toast]);
 
 	return (
-		<div className='space-y-6'>
-			<div className='flex flex-col gap-3 md:flex-row md:items-center md:justify-between'>
-				<div className='flex items-center gap-3'>
-					<h1 className='text-dark text-3xl font-bold'>Profesores</h1>
-					<span className='text-gray-400 text-sm'>
+		<div className="space-y-6">
+			<div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+				<div className="flex items-center gap-3">
+					<h1 className="text-dark text-3xl font-bold">Profesores</h1>
+					<span className="text-gray-400 text-sm">
 						{activeCount} profesores activos
 					</span>
 				</div>
 				<Button
-					className='h-11 rounded-xl px-5'
+					className="h-11 rounded-xl px-5"
 					onClick={() => setNewModalOpen(true)}
 				>
 					+ Nuevo Profesor
@@ -178,45 +182,48 @@ export function TeachersClient({ teachers, activeCount }: TeachersClientProps) {
 			)}
 
 			{emptyState ? (
-				<div className='bg-white flex flex-col items-center gap-4 rounded-3xl border border-dashed border-gray-200 px-8 py-16 text-center shadow-sm'>
-					<GraduationCap className='h-16 w-16 text-gray-200' />
+				<div className="bg-white flex flex-col items-center gap-4 rounded-3xl border border-dashed border-gray-200 px-8 py-16 text-center shadow-sm">
+					<GraduationCap className="h-16 w-16 text-gray-200" />
 					<div>
-						<p className='text-dark text-2xl font-bold'>
+						<p className="text-dark text-2xl font-bold">
 							No hay profesores registrados
 						</p>
-						<p className='text-gray-500 mt-2'>
-							Crea el primer profesor para asignar clases y monitorear su calendario.
+						<p className="text-gray-500 mt-2">
+							Crea el primer profesor para asignar clases y monitorear su
+							calendario.
 						</p>
 					</div>
 					<Button
-						className='h-11 rounded-xl px-5'
+						className="h-11 rounded-xl px-5"
 						onClick={() => setNewModalOpen(true)}
 					>
 						+ Crear Primer Profesor
 					</Button>
 				</div>
 			) : (
-				<div className='grid grid-cols-1 gap-5 md:grid-cols-2'>
+				<div className="grid grid-cols-1 gap-5 md:grid-cols-2">
 					{teachers.map((teacher) => {
 						const badgeVariant = teacher.isActive ? 'success' : 'default';
 						const badgeLabel = teacher.isActive ? 'Activo' : 'Inactivo';
-						const createdAtLabel = DATE_FORMAT.format(new Date(teacher.createdAt));
+						const createdAtLabel = DATE_FORMAT.format(
+							new Date(teacher.createdAt),
+						);
 						return (
 							<div
 								key={teacher.id}
-								className='relative rounded-3xl border border-gray-100 bg-white p-5 shadow-sm'
+								className="relative rounded-3xl border border-gray-100 bg-white p-5 shadow-sm"
 							>
-								<div className='flex items-start gap-4'>
-									<div className='bg-dark flex h-12 w-12 items-center justify-center rounded-full text-lg font-bold text-white'>
+								<div className="flex items-start gap-4">
+									<div className="bg-dark flex h-12 w-12 items-center justify-center rounded-full text-lg font-bold text-white">
 										{getInitials(teacher.name ?? '')}
 									</div>
-									<div className='flex-1'>
-										<p className='text-dark text-lg font-semibold'>
+									<div className="flex-1">
+										<p className="text-dark text-lg font-semibold">
 											{teacher.name ?? 'Sin nombre'}
 										</p>
-										<p className='text-gray-400 text-sm'>{teacher.email}</p>
+										<p className="text-gray-400 text-sm">{teacher.email}</p>
 									</div>
-									<div className='flex flex-col items-end gap-2'>
+									<div className="flex flex-col items-end gap-2">
 										<Badge variant={badgeVariant as never}>{badgeLabel}</Badge>
 										<TeacherMenu
 											teacher={teacher}
@@ -242,24 +249,24 @@ export function TeachersClient({ teachers, activeCount }: TeachersClientProps) {
 									</div>
 								</div>
 
-								<div className='mt-5'>
-									<p className='text-xs font-semibold uppercase tracking-wide text-gray-400'>
+								<div className="mt-5">
+									<p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
 										Clases asignadas
 									</p>
-									<div className='mt-3'>{renderClasses(teacher)}</div>
+									<div className="mt-3">{renderClasses(teacher)}</div>
 								</div>
 
-								<div className='mt-6 flex items-center justify-between text-sm text-gray-500'>
-									<div className='flex items-center gap-2'>
-										<Calendar className='h-4 w-4' />
+								<div className="mt-6 flex items-center justify-between text-sm text-gray-500">
+									<div className="flex items-center gap-2">
+										<Calendar className="h-4 w-4" />
 										{teacher.clases.length} clases activas
 									</div>
-									<p className='text-xs'>Desde {createdAtLabel}</p>
+									<p className="text-xs">Desde {createdAtLabel}</p>
 								</div>
 
 								{loadingId === teacher.id && (
 									<div
-										className='absolute inset-0 rounded-3xl bg-white/60'
+										className="absolute inset-0 rounded-3xl bg-white/60"
 										aria-hidden
 									/>
 								)}
@@ -293,26 +300,26 @@ export function TeachersClient({ teachers, activeCount }: TeachersClientProps) {
 				}
 			>
 				{confirm && (
-					<div className='space-y-4 p-6'>
-						<p className='text-gray-600 text-sm'>
+					<div className="space-y-4 p-6">
+						<p className="text-gray-600 text-sm">
 							{confirm.type === 'delete'
 								? `¿Eliminar a ${confirm.teacher.name ?? 'este profesor'}? Esta acción no se puede deshacer.`
 								: `¿Promover a ${confirm.teacher.name ?? 'este profesor'} como Alumno? Se moverá a la sección de alumnos.`}
 						</p>
-						<div className='flex gap-3'>
+						<div className="flex gap-3">
 							<Button
-								type='button'
-								variant='outlined'
-								color='neutral'
-								className='flex-1'
+								type="button"
+								variant="outlined"
+								color="neutral"
+								className="flex-1"
 								onClick={() => setConfirm(null)}
 							>
 								Cancelar
 							</Button>
 							<Button
-								type='button'
+								type="button"
 								color={confirm.type === 'delete' ? 'danger' : 'primary'}
-								className='flex-1'
+								className="flex-1"
 								onClick={() =>
 									confirm.type === 'delete'
 										? deleteTeacher(confirm.teacher)

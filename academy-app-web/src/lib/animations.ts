@@ -1,4 +1,4 @@
-import type { Variants, Transition } from 'framer-motion';
+import type { Transition, Variants } from 'framer-motion';
 
 // Transicion base — spring suave para la mayoria de elementos
 export const spring: Transition = {
@@ -24,7 +24,11 @@ export const ease: Transition = {
 export const slideInRight: Variants = {
 	hidden: { x: '100%', opacity: 0 },
 	visible: { x: 0, opacity: 1, transition: spring },
-	exit: { x: '100%', opacity: 0, transition: { duration: 0.2, ease: 'easeIn' } },
+	exit: {
+		x: '100%',
+		opacity: 0,
+		transition: { duration: 0.2, ease: 'easeIn' },
+	},
 };
 
 // Modal que aparece desde abajo con escala (modales centrales)

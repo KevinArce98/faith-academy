@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
-import { Outlet, Navigate, useLocation } from 'react-router-dom';
-import { useAuth, useUser } from '@clerk/react';
-import { DashboardShell } from '@/components/layout/DashboardShell';
-import { useApiClient } from '@/lib/api';
-import { getInitials } from '@/utils/general';
-import { canAccessRoute, type Role } from '@/lib/roles';
-import { FullPageSpinner } from '@/components/ui/Spinner';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
+
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { DashboardShell } from '@/components/layout/DashboardShell';
+import { FullPageSpinner } from '@/components/ui/Spinner';
+import { useApiClient } from '@/lib/api';
+import { useAuth } from '@/lib/auth/AuthContext';
+import { type Role, canAccessRoute } from '@/lib/roles';
+import { getInitials } from '@/utils/general';
 
 type UserProfile = {
 	id: string;
@@ -16,7 +17,6 @@ type UserProfile = {
 
 export default function DashboardLayout() {
 	const { isSignedIn, isLoaded } = useAuth();
-	const { user: clerkUser } = useUser();
 	const { pathname } = useLocation();
 	const apiClient = useApiClient();
 	const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -43,7 +43,7 @@ export default function DashboardLayout() {
 	}
 
 	if (!isSignedIn) {
-		return <Navigate to='/sign-in' replace />;
+		return <Navigate to="/sign-in" replace />;
 	}
 
 	if (profileLoading) {
@@ -51,18 +51,14 @@ export default function DashboardLayout() {
 	}
 
 	if (noAccess || !profile) {
-		return <Navigate to='/no-access' replace />;
+		return <Navigate to="/no-access" replace />;
 	}
 
 	if (!canAccessRoute(profile.role, pathname)) {
-		return <Navigate to='/no-access' replace />;
+		return <Navigate to="/no-access" replace />;
 	}
 
-	const displayName =
-		profile.name ||
-		clerkUser?.fullName ||
-		clerkUser?.primaryEmailAddress?.emailAddress ||
-		'';
+	const displayName = profile.name || '';
 	const initials = getInitials(displayName);
 
 	return (

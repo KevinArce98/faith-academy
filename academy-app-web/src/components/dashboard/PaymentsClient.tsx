@@ -1,19 +1,20 @@
-import { useState, useEffect, useRef } from 'react';
-import { ChevronDown, SlidersHorizontal, Plus, X } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
-import { cn } from '@/lib/cn';
-import { Button } from '@/components/ui/Button';
-import { Pagination } from '@/components/ui/Pagination';
-import { usePagination } from '@/hooks/usePagination';
-import {
-	UploadPaymentModal,
-	type PlanOption,
-} from '@/components/dashboard/payments/UploadPaymentModal';
+import { ChevronDown, Plus, SlidersHorizontal, X } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+
 import { PaymentCard } from '@/components/dashboard/payments/PaymentCard';
+import {
+	type PlanOption,
+	UploadPaymentModal,
+} from '@/components/dashboard/payments/UploadPaymentModal';
 import type {
 	Order,
 	TabKey,
 } from '@/components/dashboard/payments/payments.types';
+import { Button } from '@/components/ui/Button';
+import { Pagination } from '@/components/ui/Pagination';
+import { usePagination } from '@/hooks/usePagination';
+import { cn } from '@/lib/cn';
 
 type PaymentsClientProps = {
 	orders: Order[];
@@ -90,9 +91,9 @@ function FilterDropdown({
 	dropdownRef,
 }: FilterDropdownProps) {
 	return (
-		<div className='relative' ref={dropdownRef}>
+		<div className="relative" ref={dropdownRef}>
 			<button
-				type='button'
+				type="button"
 				onClick={onToggle}
 				className={cn(
 					'flex h-9 items-center gap-1.5 rounded-lg border px-3 text-sm font-medium transition-colors',
@@ -104,25 +105,28 @@ function FilterDropdown({
 				{label}
 				{active && onClear ? (
 					<span
-						role='button'
+						role="button"
 						onClick={(e) => {
 							e.stopPropagation();
 							onClear();
 						}}
-						className='hover:text-danger ml-0.5 flex items-center'
-						aria-label='Limpiar filtro'
+						className="hover:text-danger ml-0.5 flex items-center"
+						aria-label="Limpiar filtro"
 					>
-						<X className='h-3 w-3' />
+						<X className="h-3 w-3" />
 					</span>
 				) : (
 					<ChevronDown
-						className={cn('h-3.5 w-3.5 transition-transform', isOpen && 'rotate-180')}
+						className={cn(
+							'h-3.5 w-3.5 transition-transform',
+							isOpen && 'rotate-180',
+						)}
 					/>
 				)}
 			</button>
 
 			{isOpen && (
-				<div className='absolute top-full left-0 z-20 mt-1.5 min-w-44 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-lg'>
+				<div className="absolute top-full left-0 z-20 mt-1.5 min-w-44 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-lg">
 					{children}
 				</div>
 			)}
@@ -215,33 +219,33 @@ export function PaymentsClient({
 	const hasActiveFilters = dateRange !== 'all' || planFilter !== 'all';
 
 	return (
-		<div className='space-y-6'>
+		<div className="space-y-6">
 			{/* Header */}
-			<div className='flex flex-wrap items-center gap-2 md:gap-3'>
-				<h1 className='text-dark text-2xl font-bold md:text-3xl'>
+			<div className="flex flex-wrap items-center gap-2 md:gap-3">
+				<h1 className="text-dark text-2xl font-bold md:text-3xl">
 					{isAdmin ? 'Pagos' : 'Mis Pagos'}
 				</h1>
-				<span className='bg-danger/10 text-danger rounded-full px-3 py-1 text-sm font-semibold'>
+				<span className="bg-danger/10 text-danger rounded-full px-3 py-1 text-sm font-semibold">
 					{pendingCount} pendientes
 				</span>
-				<span className='rounded-full bg-gray-100 px-3 py-1 text-sm font-semibold text-gray-600'>
+				<span className="rounded-full bg-gray-100 px-3 py-1 text-sm font-semibold text-gray-600">
 					{monthCount} este mes
 				</span>
 				{!isAdmin && (
 					<Button
-						variant='contained'
-						color='primary'
-						className='ml-auto h-9 gap-1.5 rounded-xl px-4'
+						variant="contained"
+						color="primary"
+						className="ml-auto h-9 gap-1.5 rounded-xl px-4"
 						onClick={() => setUploadOpen(true)}
 					>
-						<Plus className='h-4 w-4' /> Subir pago
+						<Plus className="h-4 w-4" /> Subir pago
 					</Button>
 				)}
 			</div>
 
 			{/* Tabs */}
 			<div
-				className='flex items-center gap-0 overflow-x-auto border-b border-gray-200'
+				className="flex items-center gap-0 overflow-x-auto border-b border-gray-200"
 				style={{ WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
 			>
 				{TABS.map((tab) => {
@@ -250,8 +254,8 @@ export function PaymentsClient({
 						<Button
 							key={tab.key}
 							onClick={() => setActiveTab(tab.key)}
-							variant='text'
-							color='neutral'
+							variant="text"
+							color="neutral"
 							className={cn(
 								'h-auto rounded-none border-b-2 px-5 py-2.5 text-sm font-medium',
 								activeTab === tab.key
@@ -261,7 +265,7 @@ export function PaymentsClient({
 						>
 							{tab.label}
 							{count > 0 && tab.key === 'PENDING_REVIEW' && (
-								<span className='bg-primary flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold text-white'>
+								<span className="bg-primary flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold text-white">
 									{count}
 								</span>
 							)}
@@ -274,10 +278,10 @@ export function PaymentsClient({
 			{isAdmin && (
 				<div>
 					{/* Mobile toggle */}
-					<div className='flex items-center gap-2 md:hidden'>
+					<div className="flex items-center gap-2 md:hidden">
 						<Button
-							variant='text'
-							color='neutral'
+							variant="text"
+							color="neutral"
 							onClick={() => setFiltersOpen((v) => !v)}
 							className={cn(
 								'h-9 gap-1.5 border px-3 text-sm hover:bg-gray-50',
@@ -286,21 +290,22 @@ export function PaymentsClient({
 									: 'border-gray-200',
 							)}
 						>
-							<SlidersHorizontal className='h-4 w-4' /> Filtros
+							<SlidersHorizontal className="h-4 w-4" /> Filtros
 							{hasActiveFilters && (
-								<span className='bg-primary flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold text-white'>
-									{(dateRange !== 'all' ? 1 : 0) + (planFilter !== 'all' ? 1 : 0)}
+								<span className="bg-primary flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold text-white">
+									{(dateRange !== 'all' ? 1 : 0) +
+										(planFilter !== 'all' ? 1 : 0)}
 								</span>
 							)}
 						</Button>
 						{hasActiveFilters && (
 							<button
-								type='button'
+								type="button"
 								onClick={() => {
 									setDateRange('all');
 									setPlanFilter('all');
 								}}
-								className='text-xs text-gray-400 hover:text-gray-600 underline'
+								className="text-xs text-gray-400 hover:text-gray-600 underline"
 							>
 								Limpiar
 							</button>
@@ -329,7 +334,7 @@ export function PaymentsClient({
 							{DATE_RANGE_OPTIONS.map((opt) => (
 								<button
 									key={opt.key}
-									type='button'
+									type="button"
 									onClick={() => {
 										setDateRange(opt.key);
 										setDateDropOpen(false);
@@ -343,7 +348,7 @@ export function PaymentsClient({
 								>
 									{opt.label}
 									{dateRange === opt.key && (
-										<span className='bg-primary h-1.5 w-1.5 rounded-full' />
+										<span className="bg-primary h-1.5 w-1.5 rounded-full" />
 									)}
 								</button>
 							))}
@@ -362,25 +367,27 @@ export function PaymentsClient({
 							dropdownRef={planDropRef}
 						>
 							<button
-								type='button'
+								type="button"
 								onClick={() => {
 									setPlanFilter('all');
 									setPlanDropOpen(false);
 								}}
 								className={cn(
 									'flex w-full items-center justify-between px-4 py-2.5 text-left text-sm transition-colors hover:bg-gray-50',
-									planFilter === 'all' ? 'text-primary font-semibold' : 'text-gray-700',
+									planFilter === 'all'
+										? 'text-primary font-semibold'
+										: 'text-gray-700',
 								)}
 							>
 								Todos los planes
 								{planFilter === 'all' && (
-									<span className='bg-primary h-1.5 w-1.5 rounded-full' />
+									<span className="bg-primary h-1.5 w-1.5 rounded-full" />
 								)}
 							</button>
 							{uniquePlans.map((plan) => (
 								<button
 									key={plan.id}
-									type='button'
+									type="button"
 									onClick={() => {
 										setPlanFilter(plan.id);
 										setPlanDropOpen(false);
@@ -394,7 +401,7 @@ export function PaymentsClient({
 								>
 									{plan.name}
 									{planFilter === plan.id && (
-										<span className='bg-primary h-1.5 w-1.5 rounded-full' />
+										<span className="bg-primary h-1.5 w-1.5 rounded-full" />
 									)}
 								</button>
 							))}
@@ -403,12 +410,12 @@ export function PaymentsClient({
 						{/* Clear all (desktop) */}
 						{hasActiveFilters && (
 							<button
-								type='button'
+								type="button"
 								onClick={() => {
 									setDateRange('all');
 									setPlanFilter('all');
 								}}
-								className='text-xs text-gray-400 hover:text-gray-600 underline'
+								className="text-xs text-gray-400 hover:text-gray-600 underline"
 							>
 								Limpiar filtros
 							</button>
@@ -419,13 +426,13 @@ export function PaymentsClient({
 
 			{/* Cards grid */}
 			{filtered.length === 0 ? (
-				<div className='py-16 text-center text-sm text-gray-400'>
+				<div className="py-16 text-center text-sm text-gray-400">
 					{hasActiveFilters
 						? 'Sin pagos con los filtros aplicados.'
 						: 'Sin pagos en esta categoría.'}
 				</div>
 			) : (
-				<div className='grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5'>
+				<div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5">
 					{pagination.paginated.map((order) => (
 						<PaymentCard key={order.id} order={order} isAdmin={isAdmin} />
 					))}
@@ -433,7 +440,7 @@ export function PaymentsClient({
 			)}
 
 			{/* Pagination */}
-			<div className='rounded-xl bg-white shadow-sm'>
+			<div className="rounded-xl bg-white shadow-sm">
 				<Pagination
 					page={pagination.page}
 					totalPages={pagination.totalPages}
@@ -444,7 +451,7 @@ export function PaymentsClient({
 					onNext={pagination.next}
 					onPrev={pagination.prev}
 					onGoTo={pagination.goTo}
-					label='pagos'
+					label="pagos"
 				/>
 			</div>
 
@@ -454,7 +461,9 @@ export function PaymentsClient({
 					isOpen={uploadOpen}
 					onClose={() => setUploadOpen(false)}
 					plans={plans}
-					onSuccess={() => queryClient.invalidateQueries({ queryKey: ['payments'] })}
+					onSuccess={() =>
+						queryClient.invalidateQueries({ queryKey: ['payments'] })
+					}
 				/>
 			)}
 		</div>

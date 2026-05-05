@@ -1,11 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import { useOutletContext } from 'react-router-dom';
-import { useApiClient } from '@/lib/api';
+
 import { ClassesClient } from '@/components/dashboard/ClassesClient';
+import { InlineSpinner } from '@/components/ui/Spinner';
+import { useApiClient } from '@/lib/api';
+import type { MeResponse } from '@/lib/interfaces/auth';
 import type { TeacherProfile } from '@/lib/interfaces/teachers';
 import type { Role } from '@/lib/roles';
-import { InlineSpinner } from '@/components/ui/Spinner';
-import type { MeResponse } from '@/lib/interfaces/auth';
 
 function getMondayISO(date: Date): string {
 	const d = new Date(date);
@@ -28,7 +29,9 @@ export default function Classes() {
 	} = useQuery({
 		queryKey: ['classes', weekStart],
 		queryFn: () =>
-			apiClient<{ classes: unknown[] }>(`/api/v1/classes?weekStart=${weekStart}`),
+			apiClient<{ classes: unknown[] }>(
+				`/api/v1/classes?weekStart=${weekStart}`,
+			),
 	});
 
 	// Only admins can fetch the full teachers list; teachers get their own profile from /me (cached)
@@ -52,7 +55,7 @@ export default function Classes() {
 
 	if (classesError || !classesData) {
 		return (
-			<div className='p-6 text-center text-sm text-danger'>
+			<div className="p-6 text-center text-sm text-danger">
 				Error al cargar las clases. Intenta de nuevo.
 			</div>
 		);

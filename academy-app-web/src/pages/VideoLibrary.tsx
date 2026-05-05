@@ -1,9 +1,10 @@
-import { Navigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { useApiClient } from '@/lib/api';
-import studioConfig from '@/lib/config/studio.config';
+import { Navigate } from 'react-router-dom';
+
 import { VideoLibraryClient } from '@/components/dashboard/VideoLibraryClient';
 import { InlineSpinner } from '@/components/ui/Spinner';
+import { useApiClient } from '@/lib/api';
+import studioConfig from '@/lib/config/studio.config';
 
 type Content = {
 	id: string;
@@ -28,7 +29,7 @@ export default function VideoLibrary() {
 		enabled: studioConfig.features.lms,
 	});
 
-	if (!studioConfig.features.lms) return <Navigate to='/no-access' replace />;
+	if (!studioConfig.features.lms) return <Navigate to="/no-access" replace />;
 
 	if (isLoading) {
 		return <InlineSpinner />;
@@ -36,7 +37,7 @@ export default function VideoLibrary() {
 
 	if (isError || !data) {
 		return (
-			<div className='p-6 text-center text-sm text-danger'>
+			<div className="p-6 text-center text-sm text-danger">
 				Error al cargar el contenido. Intenta de nuevo.
 			</div>
 		);

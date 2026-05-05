@@ -1,12 +1,13 @@
-import { useEffect, useRef, useState } from 'react';
-import { Navigate } from 'react-router-dom';
-import { useAuth } from '@clerk/react';
 import { useQuery } from '@tanstack/react-query';
 import { BrowserMultiFormatReader } from '@zxing/browser';
 import { NotFoundException } from '@zxing/library';
+import { useEffect, useRef, useState } from 'react';
+import { Navigate } from 'react-router-dom';
+
 import { useApiClient } from '@/lib/api';
-import { isAdminOrTeacher, type Role } from '@/lib/roles';
+import { useAuth } from '@/lib/auth/AuthContext';
 import studioConfig from '@/lib/config/studio.config';
+import { type Role, isAdminOrTeacher } from '@/lib/roles';
 
 interface ScanResult {
 	ok: boolean;
@@ -72,10 +73,10 @@ export default function Scanner() {
 						);
 					} catch {
 						setHistory((prev) =>
-							[{ ok: false, reason: 'ERROR', scannedAt: new Date() }, ...prev].slice(
-								0,
-								20,
-							),
+							[
+								{ ok: false, reason: 'ERROR', scannedAt: new Date() },
+								...prev,
+							].slice(0, 20),
 						);
 					} finally {
 						setLoading(false);
@@ -95,18 +96,18 @@ export default function Scanner() {
 
 	if (!isLoaded || meLoading) {
 		return (
-			<div className='flex h-screen items-center justify-center'>
-				<div className='h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent' />
+			<div className="flex h-screen items-center justify-center">
+				<div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
 			</div>
 		);
 	}
 
 	if (!isSignedIn) {
-		return <Navigate to='/sign-in' replace />;
+		return <Navigate to="/sign-in" replace />;
 	}
 
 	if (!me || !isAdminOrTeacher(me.role)) {
-		return <Navigate to='/no-access' replace />;
+		return <Navigate to="/no-access" replace />;
 	}
 
 	function getCardStyle(entry: ScanResult): React.CSSProperties {
@@ -139,34 +140,39 @@ export default function Scanner() {
 
 	return (
 		<div
-			className='flex min-h-screen flex-col'
+			className="flex min-h-screen flex-col"
 			style={{ backgroundColor: studioConfig.colors.background }}
 		>
 			{/* Header */}
 			<header
-				className='flex items-center gap-3 px-6 py-4 shadow-sm'
+				className="flex items-center gap-3 px-6 py-4 shadow-sm"
 				style={{ backgroundColor: NAVY }}
 			>
 				<div
-					className='h-8 w-3 rounded-full'
+					className="h-8 w-3 rounded-full"
 					style={{ backgroundColor: PRIMARY }}
 				/>
-				<h1 className='text-xl font-semibold tracking-tight text-white'>
+				<h1 className="text-xl font-semibold tracking-tight text-white">
 					Scanner de Asistencia
 				</h1>
 			</header>
 
-			<div className='flex flex-1 flex-col gap-6 p-6 lg:flex-row'>
+			<div className="flex flex-1 flex-col gap-6 p-6 lg:flex-row">
 				{/* Camera */}
-				<div className='flex flex-1 flex-col items-center gap-4'>
+				<div className="flex flex-1 flex-col items-center gap-4">
 					<div
-						className='relative w-full max-w-md overflow-hidden rounded-2xl border-4 shadow-lg'
-						style={{ borderColor: scanning ? PRIMARY : 'var(--color-gray-400)' }}
+						className="relative w-full max-w-md overflow-hidden rounded-2xl border-4 shadow-lg"
+						style={{
+							borderColor: scanning ? PRIMARY : 'var(--color-gray-400)',
+						}}
 					>
-						<video ref={videoRef} className='aspect-square w-full object-cover' />
-						<div className='pointer-events-none absolute inset-0 flex items-center justify-center'>
+						<video
+							ref={videoRef}
+							className="aspect-square w-full object-cover"
+						/>
+						<div className="pointer-events-none absolute inset-0 flex items-center justify-center">
 							<div
-								className='h-48 w-48 rounded-xl border-4'
+								className="h-48 w-48 rounded-xl border-4"
 								style={{
 									borderColor: PRIMARY,
 									boxShadow: `0 0 0 9999px color-mix(in srgb, ${NAVY} 40%, transparent)`,
@@ -174,15 +180,17 @@ export default function Scanner() {
 							/>
 						</div>
 						{loading && (
-							<div className='absolute inset-0 flex items-center justify-center bg-black/60'>
+							<div className="absolute inset-0 flex items-center justify-center bg-black/60">
 								<div
-									className='h-12 w-12 animate-spin rounded-full border-4 border-t-transparent'
-									style={{ borderColor: `${PRIMARY} transparent ${PRIMARY} ${PRIMARY}` }}
+									className="h-12 w-12 animate-spin rounded-full border-4 border-t-transparent"
+									style={{
+										borderColor: `${PRIMARY} transparent ${PRIMARY} ${PRIMARY}`,
+									}}
 								/>
 							</div>
 						)}
 					</div>
-					<p className='text-sm font-medium' style={{ color: NAVY }}>
+					<p className="text-sm font-medium" style={{ color: NAVY }}>
 						{loading
 							? 'Verificando...'
 							: scanning
@@ -192,25 +200,25 @@ export default function Scanner() {
 				</div>
 
 				{/* History */}
-				<div className='flex w-full flex-col gap-3 lg:w-80'>
-					<h2 className='text-base font-semibold' style={{ color: NAVY }}>
+				<div className="flex w-full flex-col gap-3 lg:w-80">
+					<h2 className="text-base font-semibold" style={{ color: NAVY }}>
 						Historial de escaneos
 					</h2>
 					{history.length === 0 && (
-						<p className='text-sm text-slate-400'>Sin escaneos aún.</p>
+						<p className="text-sm text-slate-400">Sin escaneos aún.</p>
 					)}
-					<div className='flex max-h-[70vh] flex-col gap-2 overflow-y-auto pr-1'>
+					<div className="flex max-h-[70vh] flex-col gap-2 overflow-y-auto pr-1">
 						{history.map((entry, i) => (
 							<div
 								key={i}
-								className='flex flex-col gap-1 rounded-xl border p-3 transition-all'
+								className="flex flex-col gap-1 rounded-xl border p-3 transition-all"
 								style={getCardStyle(entry)}
 							>
-								<div className='flex items-center justify-between'>
-									<span className='text-sm font-semibold text-slate-800'>
+								<div className="flex items-center justify-between">
+									<span className="text-sm font-semibold text-slate-800">
 										{entry.ok ? entry.student?.name : getStatusLabel(entry)}
 									</span>
-									<span className='text-xs text-slate-500'>
+									<span className="text-xs text-slate-500">
 										{entry.scannedAt.toLocaleTimeString('es-CR', {
 											hour: '2-digit',
 											minute: '2-digit',
@@ -221,7 +229,7 @@ export default function Scanner() {
 								{entry.ok && (
 									<>
 										<span
-											className='text-xs font-medium'
+											className="text-xs font-medium"
 											style={{
 												color: entry.nearExpiry
 													? studioConfig.colors.warning
@@ -230,19 +238,19 @@ export default function Scanner() {
 										>
 											{getStatusLabel(entry)}
 										</span>
-										<span className='text-xs text-slate-600'>
+										<span className="text-xs text-slate-600">
 											Créditos restantes:{' '}
 											<strong style={{ color: NAVY }}>{entry.balance}</strong>
 										</span>
 										{entry.nearExpiry && (
-											<span className='text-xs font-medium text-amber-700'>
+											<span className="text-xs font-medium text-amber-700">
 												⚠ La membresía vence pronto
 											</span>
 										)}
 									</>
 								)}
 								{!entry.ok && (
-									<span className='text-xs font-medium text-red-600'>
+									<span className="text-xs font-medium text-red-600">
 										{getStatusLabel(entry)}
 									</span>
 								)}
