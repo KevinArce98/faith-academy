@@ -1,17 +1,17 @@
 import { z } from 'zod';
 
 export const uploadUrlSchema = z.object({
-  studentId: z.string().min(1),
-  ext: z.enum(['jpg', 'jpeg', 'png', 'pdf', 'webp']),
+	studentId: z.string().min(1),
+	ext: z.enum(['jpg', 'jpeg', 'png', 'pdf', 'webp']),
 });
 
 export const createOrderSchema = z.object({
-  planId: z.string().min(1),
-  receiptKey: z.string().min(1),
+	planId: z.string().min(1),
+	receiptKey: z.string().min(1),
 });
 
 export const rejectOrderSchema = z.object({
-  notes: z.string().optional().default(''),
+	notes: z.string().optional().default(''),
 });
 
 export type UploadUrlInput = z.infer<typeof uploadUrlSchema>;

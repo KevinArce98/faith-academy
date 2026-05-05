@@ -80,12 +80,12 @@ export type PrismaVersion = {
 }
 
 /**
- * Prisma Client JS version: 7.6.0
- * Query Engine version: 75cbdc1eb7150937890ad5465d861175c6624711
+ * Prisma Client JS version: 7.8.0
+ * Query Engine version: 3c6e192761c0362d496ed980de936e2f3cebcd3a
  */
 export const prismaVersion: PrismaVersion = {
-  client: "7.6.0",
-  engine: "75cbdc1eb7150937890ad5465d861175c6624711"
+  client: "7.8.0",
+  engine: "3c6e192761c0362d496ed980de936e2f3cebcd3a"
 }
 
 /**
@@ -385,6 +385,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   UserProfile: 'UserProfile',
+  EmailToken: 'EmailToken',
   Family: 'Family',
   FamilyMember: 'FamilyMember',
   MembershipPlan: 'MembershipPlan',
@@ -411,7 +412,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "userProfile" | "family" | "familyMember" | "membershipPlan" | "membershipOrder" | "creditLedger" | "class" | "attendance" | "classWaitlist" | "userSkill" | "streak" | "content"
+    modelProps: "userProfile" | "emailToken" | "family" | "familyMember" | "membershipPlan" | "membershipOrder" | "creditLedger" | "class" | "attendance" | "classWaitlist" | "userSkill" | "streak" | "content"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -486,6 +487,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.UserProfileCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.UserProfileCountAggregateOutputType> | number
+        }
+      }
+    }
+    EmailToken: {
+      payload: Prisma.$EmailTokenPayload<ExtArgs>
+      fields: Prisma.EmailTokenFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.EmailTokenFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmailTokenPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.EmailTokenFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmailTokenPayload>
+        }
+        findFirst: {
+          args: Prisma.EmailTokenFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmailTokenPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.EmailTokenFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmailTokenPayload>
+        }
+        findMany: {
+          args: Prisma.EmailTokenFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmailTokenPayload>[]
+        }
+        create: {
+          args: Prisma.EmailTokenCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmailTokenPayload>
+        }
+        createMany: {
+          args: Prisma.EmailTokenCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.EmailTokenCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmailTokenPayload>[]
+        }
+        delete: {
+          args: Prisma.EmailTokenDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmailTokenPayload>
+        }
+        update: {
+          args: Prisma.EmailTokenUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmailTokenPayload>
+        }
+        deleteMany: {
+          args: Prisma.EmailTokenDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.EmailTokenUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.EmailTokenUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmailTokenPayload>[]
+        }
+        upsert: {
+          args: Prisma.EmailTokenUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmailTokenPayload>
+        }
+        aggregate: {
+          args: Prisma.EmailTokenAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateEmailToken>
+        }
+        groupBy: {
+          args: Prisma.EmailTokenGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EmailTokenGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.EmailTokenCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EmailTokenCountAggregateOutputType> | number
         }
       }
     }
@@ -1344,17 +1419,31 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 
 export const UserProfileScalarFieldEnum = {
   id: 'id',
-  clerkId: 'clerkId',
   email: 'email',
   phone: 'phone',
   name: 'name',
   avatarUrl: 'avatarUrl',
   role: 'role',
   isActive: 'isActive',
+  passwordHash: 'passwordHash',
+  emailVerified: 'emailVerified',
   createdAt: 'createdAt'
 } as const
 
 export type UserProfileScalarFieldEnum = (typeof UserProfileScalarFieldEnum)[keyof typeof UserProfileScalarFieldEnum]
+
+
+export const EmailTokenScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  token: 'token',
+  type: 'type',
+  expiresAt: 'expiresAt',
+  usedAt: 'usedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type EmailTokenScalarFieldEnum = (typeof EmailTokenScalarFieldEnum)[keyof typeof EmailTokenScalarFieldEnum]
 
 
 export const FamilyScalarFieldEnum = {
@@ -1584,6 +1673,20 @@ export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaM
 
 
 /**
+ * Reference to a field of type 'TokenType'
+ */
+export type EnumTokenTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TokenType'>
+    
+
+
+/**
+ * Reference to a field of type 'TokenType[]'
+ */
+export type ListEnumTokenTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TokenType[]'>
+    
+
+
+/**
  * Reference to a field of type 'Int'
  */
 export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
@@ -1801,9 +1904,25 @@ export type PrismaClientOptions = ({
    * ```
    */
   comments?: runtime.SqlCommenterPlugin[]
+  /**
+   * Optional maximum size for the query plan cache. If not provided, a default size will be used.
+   * A value of `0` can be used to disable the cache entirely. A higher cache size can improve
+   * performance for applications that execute a large number of unique queries, while a smaller
+   * cache size can reduce memory usage.
+   * 
+   * @example
+   * ```
+   * const prisma = new PrismaClient({
+   *   adapter,
+   *   queryPlanCacheMaxSize: 100,
+   * })
+   * ```
+   */
+  queryPlanCacheMaxSize?: number
 }
 export type GlobalOmitConfig = {
   userProfile?: Prisma.UserProfileOmit
+  emailToken?: Prisma.EmailTokenOmit
   family?: Prisma.FamilyOmit
   familyMember?: Prisma.FamilyMemberOmit
   membershipPlan?: Prisma.MembershipPlanOmit

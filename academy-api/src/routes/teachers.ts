@@ -1,202 +1,162 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
-import { authMiddleware } from '../middleware/auth.js';
-import { requireRole, createUserProfile } from '../lib/auth.js';
-import { getClerkClient } from '../lib/clerk.js';
-import { generateTempPassword } from '../lib/utils/password.js';
-import { getTeachersWithClasses } from '../lib/teachers.js';
+
+import { createManagedUser } from '../lib/auth.js';
 import { db } from '../lib/db.js';
-import type { AuthVariables } from '../types/auth.js';
+import { parseJsonBody } from '../lib/request.js';
 import type { Role } from '../lib/roles.js';
+import { getTeachersWithClasses } from '../lib/teachers.js';
+import { generateTempPassword } from '../lib/utils/password.js';
+import { authMiddleware } from '../middleware/auth.js';
+import { requireRoleMiddleware } from '../middleware/requireRole.js';
+import type { AuthVariables } from '../types/auth.js';
 
 const teachersRoutes = new Hono<{ Variables: AuthVariables }>();
 
 const createTeacherSchema = z.object({
-  name: z.string().min(1, 'El nombre es requerido'),
-  email: z.email('Email inválido'),
+	name: z.string().min(1, 'El nombre es requerido'),
+	email: z.email('Email inválido'),
 });
 
 const updateTeacherSchema = z.object({
-  isActive: z.boolean().optional(),
-  role: z.enum(['ADMIN', 'TEACHER', 'STUDENT']).optional(),
-  name: z.string().optional(),
+	isActive: z.boolean().optional(),
+	role: z.enum(['ADMIN', 'TEACHER', 'STUDENT']).optional(),
+	name: z.string().optional(),
 });
 
 // GET /teachers
-teachersRoutes.get('/', authMiddleware, async (c) => {
-  try {
-    await requireRole(c, 'ADMIN');
-  } catch (error) {
-    const status = error instanceof Error && error.message === 'UNAUTHENTICATED' ? 401 : 403;
-    return c.json({ error: 'No autorizado' }, status);
-  }
-
-  const teachers = await getTeachersWithClasses();
-  return c.json(teachers);
-});
+teachersRoutes.get(
+	'/',
+	authMiddleware,
+	requireRoleMiddleware('ADMIN'),
+	async (c) => {
+		const teachers = await getTeachersWithClasses();
+		return c.json(teachers);
+	},
+);
 
 // POST /teachers — create a new teacher
-teachersRoutes.post('/', authMiddleware, async (c) => {
-  try {
-    await requireRole(c, 'ADMIN');
-  } catch (error) {
-    const status = error instanceof Error && error.message === 'UNAUTHENTICATED' ? 401 : 403;
-    return c.json({ error: 'No autorizado' }, status);
-  }
+teachersRoutes.post(
+	'/',
+	authMiddleware,
+	requireRoleMiddleware('ADMIN'),
+	async (c) => {
+		const body = await parseJsonBody(c);
+		const parsed = createTeacherSchema.safeParse(body);
+		if (!parsed.success) {
+			return c.json({ error: parsed.error.flatten() }, 422);
+		}
 
-  const body = await c.req.json().catch(() => null);
-  const parsed = createTeacherSchema.safeParse(body);
-  if (!parsed.success) {
-    return c.json({ error: parsed.error.flatten() }, 422);
-  }
+		const { name, email } = parsed.data;
+		const tempPassword = generateTempPassword();
 
-  const { name, email } = parsed.data;
-  const clerk = getClerkClient();
-  const tempPassword = generateTempPassword();
-
-  try {
-    const parts = name.trim().split(/\s+/).filter(Boolean);
-    const firstName = parts[0] ?? name;
-    const lastName = parts.length > 1 ? parts.slice(1).join(' ') : undefined;
-
-    const clerkUser = await clerk.users.createUser({
-      emailAddress: [email],
-      firstName,
-      lastName,
-      password: tempPassword,
-      publicMetadata: { role: 'TEACHER' },
-    });
-
-    const userProfile = await createUserProfile({
-      clerkId: clerkUser.id,
-      email,
-      name,
-      role: 'TEACHER',
-    });
-
-    return c.json({ success: true, userId: userProfile.id, tempPassword }, 201);
-  } catch (err) {
-    let message = 'Error al crear el profesor.';
-    if (typeof err === 'object' && err !== null && 'errors' in err) {
-      const clerkError = err as { errors?: Array<{ longMessage?: string; message?: string }> };
-      message = clerkError.errors?.[0]?.longMessage ?? clerkError.errors?.[0]?.message ?? message;
-    }
-    return c.json({ error: message }, 400);
-  }
-});
+		try {
+			const userProfile = await createManagedUser({
+				email,
+				name,
+				role: 'TEACHER',
+				tempPassword,
+			});
+			return c.json(
+				{ success: true, userId: userProfile.id, tempPassword },
+				201,
+			);
+		} catch (err) {
+			const message =
+				err instanceof Error && err.message.includes('Unique')
+					? 'El correo ya está registrado.'
+					: 'Error al crear el profesor.';
+			return c.json({ error: message }, 400);
+		}
+	},
+);
 
 // PATCH /teachers/:id — update teacher (isActive, role, name)
-teachersRoutes.patch('/:id', authMiddleware, async (c) => {
-  try {
-    await requireRole(c, 'ADMIN');
-  } catch (error) {
-    const status = error instanceof Error && error.message === 'UNAUTHENTICATED' ? 401 : 403;
-    return c.json({ error: 'No autorizado' }, status);
-  }
+teachersRoutes.patch(
+	'/:id',
+	authMiddleware,
+	requireRoleMiddleware('ADMIN'),
+	async (c) => {
+		const id = c.req.param('id');
+		const body = await parseJsonBody(c);
+		const parsed = updateTeacherSchema.safeParse(body);
+		if (!parsed.success) {
+			return c.json({ error: parsed.error.flatten() }, 422);
+		}
 
-  const id = c.req.param('id');
-  const body = await c.req.json().catch(() => null);
-  const parsed = updateTeacherSchema.safeParse(body);
-  if (!parsed.success) {
-    return c.json({ error: parsed.error.flatten() }, 422);
-  }
+		const { isActive, role, name } = parsed.data;
 
-  const { isActive, role, name } = parsed.data;
+		const teacher = await db.userProfile.findFirst({
+			where: { id, role: 'TEACHER' },
+		});
+		if (!teacher) {
+			return c.json({ error: 'Profesor no encontrado.' }, 404);
+		}
 
-  const teacher = await db.userProfile.findUnique({ where: { id } });
-  if (!teacher) {
-    return c.json({ error: 'Profesor no encontrado.' }, 404);
-  }
+		if (isActive === false) {
+			const activeClasses = await db.class.count({
+				where: { teacherId: teacher.id, isActive: true },
+			});
+			if (activeClasses > 0) {
+				return c.json(
+					{
+						error: `No se puede desactivar. El profesor tiene ${activeClasses} clase(s) activa(s). Reasigna las clases primero.`,
+					},
+					400,
+				);
+			}
+		}
 
-  if (isActive === false) {
-    const activeClasses = await db.class.count({
-      where: { teacherId: teacher.id, isActive: true },
-    });
-    if (activeClasses > 0) {
-      return c.json(
-        {
-          error: `No se puede desactivar. El profesor tiene ${activeClasses} clase(s) activa(s). Reasigna las clases primero.`,
-        },
-        400,
-      );
-    }
-  }
+		const data: { isActive?: boolean; role?: Role; name?: string } = {};
+		if (typeof isActive === 'boolean') data.isActive = isActive;
+		if (role) data.role = role as Role;
 
-  const data: { isActive?: boolean; role?: Role; name?: string } = {};
-  if (typeof isActive === 'boolean') data.isActive = isActive;
-  if (role) data.role = role as Role;
+		if (typeof name === 'string') {
+			const trimmed = name.replace(/\s+/g, ' ').trim();
+			if (trimmed && trimmed !== teacher.name) {
+				data.name = trimmed;
+			}
+		}
 
-  let normalizedName: string | undefined;
-  if (typeof name === 'string') {
-    const trimmed = name.replace(/\s+/g, ' ').trim();
-    if (trimmed && trimmed !== teacher.name) {
-      normalizedName = trimmed;
-      data.name = trimmed;
-    }
-  }
+		if (!Object.keys(data).length) {
+			return c.json({ error: 'No hay cambios para aplicar.' }, 400);
+		}
 
-  if (!Object.keys(data).length) {
-    return c.json({ error: 'No hay cambios para aplicar.' }, 400);
-  }
+		const updated = await db.userProfile.update({ where: { id }, data });
 
-  const updated = await db.userProfile.update({ where: { id }, data });
-
-  const clerkPayload: Record<string, unknown> = {};
-  if (role && role !== teacher.role) {
-    clerkPayload.publicMetadata = { role };
-  }
-  if (normalizedName) {
-    const parts = normalizedName.split(' ');
-    clerkPayload.firstName = parts[0] ?? normalizedName;
-    clerkPayload.lastName = parts.slice(1).join(' ') || undefined;
-  }
-
-  if (Object.keys(clerkPayload).length) {
-    try {
-      const clerk = getClerkClient();
-      await clerk.users.updateUser(teacher.clerkId, clerkPayload);
-    } catch {
-      // noop - DB is source of truth
-    }
-  }
-
-  return c.json(updated);
-});
+		return c.json(updated);
+	},
+);
 
 // DELETE /teachers/:id
-teachersRoutes.delete('/:id', authMiddleware, async (c) => {
-  try {
-    await requireRole(c, 'ADMIN');
-  } catch (error) {
-    const status = error instanceof Error && error.message === 'UNAUTHENTICATED' ? 401 : 403;
-    return c.json({ error: 'No autorizado' }, status);
-  }
+teachersRoutes.delete(
+	'/:id',
+	authMiddleware,
+	requireRoleMiddleware('ADMIN'),
+	async (c) => {
+		const id = c.req.param('id');
+		const teacher = await db.userProfile.findFirst({
+			where: { id, role: 'TEACHER' },
+		});
+		if (!teacher) {
+			return c.json({ error: 'Profesor no encontrado.' }, 404);
+		}
 
-  const id = c.req.param('id');
-  const teacher = await db.userProfile.findUnique({ where: { id } });
-  if (!teacher) {
-    return c.json({ error: 'Profesor no encontrado.' }, 404);
-  }
+		const activeClasses = await db.class.count({
+			where: { teacherId: teacher.id, isActive: true },
+		});
+		if (activeClasses > 0) {
+			return c.json(
+				{
+					error: `No se puede eliminar. Tiene ${activeClasses} clase(s) activa(s).`,
+				},
+				400,
+			);
+		}
 
-  const activeClasses = await db.class.count({
-    where: { teacherId: teacher.id, isActive: true },
-  });
-  if (activeClasses > 0) {
-    return c.json(
-      { error: `No se puede eliminar. Tiene ${activeClasses} clase(s) activa(s).` },
-      400,
-    );
-  }
-
-  try {
-    const clerk = getClerkClient();
-    await clerk.users.deleteUser(teacher.clerkId);
-  } catch {
-    // noop
-  }
-
-  await db.userProfile.delete({ where: { id } });
-  return c.json({ success: true });
-});
+		await db.userProfile.delete({ where: { id } });
+		return c.json({ success: true });
+	},
+);
 
 export default teachersRoutes;

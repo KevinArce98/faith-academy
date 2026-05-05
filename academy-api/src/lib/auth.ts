@@ -1,77 +1,83 @@
-import type { Role } from './roles.js';
 import type { AuthContext } from '../types/auth.js';
-import { getClerkClient } from './clerk.js';
 import { db } from './db.js';
+import type { Role } from './roles.js';
+import { hashPassword } from './utils/hash.js';
 
 type RoleInput = Role | Role[];
 
 export async function createUserProfile({
-  clerkId,
-  email,
-  name,
-  role = 'STUDENT',
-  avatarUrl = null,
+	email,
+	name,
+	role = 'STUDENT',
+	avatarUrl = null,
+	passwordHash,
 }: {
-  clerkId: string;
-  email: string;
-  name?: string | null;
-  role?: Role;
-  avatarUrl?: string | null;
+	email: string;
+	name?: string | null;
+	role?: Role;
+	avatarUrl?: string | null;
+	passwordHash: string;
 }) {
-  return db.userProfile.create({
-    data: {
-      clerkId,
-      email,
-      name,
-      role,
-      avatarUrl,
-    },
-  });
+	return db.userProfile.create({
+		data: {
+			email,
+			name,
+			role,
+			avatarUrl,
+			passwordHash,
+		},
+	});
+}
+
+export async function createManagedUser({
+	email,
+	name,
+	role,
+	tempPassword,
+	phone,
+}: {
+	email: string;
+	name?: string | null;
+	role: Role;
+	tempPassword: string;
+	phone?: string | null;
+}) {
+	const passwordHash = await hashPassword(tempPassword);
+	return db.userProfile.create({
+		data: {
+			email,
+			name,
+			role,
+			passwordHash,
+			emailVerified: true,
+			phone: phone ?? null,
+		},
+	});
 }
 
 export async function getCurrentUser(c: AuthContext) {
-  const auth = c.get('auth');
-  if (!auth?.userId) return null;
+	const auth = c.get('auth');
+	if (!auth?.userId) return null;
 
-  let user = await db.userProfile.findUnique({
-    where: { clerkId: auth.userId },
-  });
+	const user = await db.userProfile.findUnique({
+		where: { id: auth.userId },
+	});
 
-  if (!user) {
-    try {
-      const clerk = getClerkClient();
-      const clerkUser = await clerk.users.getUser(auth.userId);
-      user = await createUserProfile({
-        clerkId: auth.userId,
-        email: clerkUser.emailAddresses[0]?.emailAddress ?? '',
-        name: `${clerkUser.firstName ?? ''} ${clerkUser.lastName ?? ''}`.trim(),
-        avatarUrl: clerkUser.imageUrl ?? null,
-        role: 'STUDENT',
-      });
-    } catch {
-      return null;
-    }
-  }
+	if (!user || !user.isActive) return null;
 
-  if (!user.isActive) return null;
-
-  return user;
+	return user;
 }
 
 export async function requireRole(c: AuthContext, role: RoleInput) {
-  const user = await getCurrentUser(c);
-  if (!user) {
-    throw new Error('UNAUTHENTICATED');
-  }
+	const user = await getCurrentUser(c);
+	if (!user) throw new Error('UNAUTHENTICATED');
 
-  const roles = Array.isArray(role) ? role : [role];
-  if (!roles.includes(user.role as Role)) {
-    throw new Error('UNAUTHORIZED');
-  }
+	const roles = Array.isArray(role) ? role : [role];
+	if (!roles.includes(user.role as Role)) throw new Error('UNAUTHORIZED');
 
-  return user;
+	return user;
 }
 
 export function unauthorized() {
-  return { error: 'UNAUTHORIZED' };
+	return { error: 'UNAUTHORIZED' };
 }

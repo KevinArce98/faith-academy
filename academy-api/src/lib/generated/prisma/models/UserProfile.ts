@@ -26,37 +26,40 @@ export type AggregateUserProfile = {
 
 export type UserProfileMinAggregateOutputType = {
   id: string | null
-  clerkId: string | null
   email: string | null
   phone: string | null
   name: string | null
   avatarUrl: string | null
   role: $Enums.Role | null
   isActive: boolean | null
+  passwordHash: string | null
+  emailVerified: boolean | null
   createdAt: Date | null
 }
 
 export type UserProfileMaxAggregateOutputType = {
   id: string | null
-  clerkId: string | null
   email: string | null
   phone: string | null
   name: string | null
   avatarUrl: string | null
   role: $Enums.Role | null
   isActive: boolean | null
+  passwordHash: string | null
+  emailVerified: boolean | null
   createdAt: Date | null
 }
 
 export type UserProfileCountAggregateOutputType = {
   id: number
-  clerkId: number
   email: number
   phone: number
   name: number
   avatarUrl: number
   role: number
   isActive: number
+  passwordHash: number
+  emailVerified: number
   createdAt: number
   _all: number
 }
@@ -64,37 +67,40 @@ export type UserProfileCountAggregateOutputType = {
 
 export type UserProfileMinAggregateInputType = {
   id?: true
-  clerkId?: true
   email?: true
   phone?: true
   name?: true
   avatarUrl?: true
   role?: true
   isActive?: true
+  passwordHash?: true
+  emailVerified?: true
   createdAt?: true
 }
 
 export type UserProfileMaxAggregateInputType = {
   id?: true
-  clerkId?: true
   email?: true
   phone?: true
   name?: true
   avatarUrl?: true
   role?: true
   isActive?: true
+  passwordHash?: true
+  emailVerified?: true
   createdAt?: true
 }
 
 export type UserProfileCountAggregateInputType = {
   id?: true
-  clerkId?: true
   email?: true
   phone?: true
   name?: true
   avatarUrl?: true
   role?: true
   isActive?: true
+  passwordHash?: true
+  emailVerified?: true
   createdAt?: true
   _all?: true
 }
@@ -173,13 +179,14 @@ export type UserProfileGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inte
 
 export type UserProfileGroupByOutputType = {
   id: string
-  clerkId: string
   email: string
   phone: string | null
   name: string | null
   avatarUrl: string | null
   role: $Enums.Role
   isActive: boolean
+  passwordHash: string
+  emailVerified: boolean
   createdAt: Date
   _count: UserProfileCountAggregateOutputType | null
   _min: UserProfileMinAggregateOutputType | null
@@ -206,13 +213,14 @@ export type UserProfileWhereInput = {
   OR?: Prisma.UserProfileWhereInput[]
   NOT?: Prisma.UserProfileWhereInput | Prisma.UserProfileWhereInput[]
   id?: Prisma.StringFilter<"UserProfile"> | string
-  clerkId?: Prisma.StringFilter<"UserProfile"> | string
   email?: Prisma.StringFilter<"UserProfile"> | string
   phone?: Prisma.StringNullableFilter<"UserProfile"> | string | null
   name?: Prisma.StringNullableFilter<"UserProfile"> | string | null
   avatarUrl?: Prisma.StringNullableFilter<"UserProfile"> | string | null
   role?: Prisma.EnumRoleFilter<"UserProfile"> | $Enums.Role
   isActive?: Prisma.BoolFilter<"UserProfile"> | boolean
+  passwordHash?: Prisma.StringFilter<"UserProfile"> | string
+  emailVerified?: Prisma.BoolFilter<"UserProfile"> | boolean
   createdAt?: Prisma.DateTimeFilter<"UserProfile"> | Date | string
   orders?: Prisma.MembershipOrderListRelationFilter
   attendances?: Prisma.AttendanceListRelationFilter
@@ -220,17 +228,19 @@ export type UserProfileWhereInput = {
   familyMember?: Prisma.XOR<Prisma.FamilyMemberNullableScalarRelationFilter, Prisma.FamilyMemberWhereInput> | null
   streak?: Prisma.XOR<Prisma.StreakNullableScalarRelationFilter, Prisma.StreakWhereInput> | null
   waitlists?: Prisma.ClassWaitlistListRelationFilter
+  emailTokens?: Prisma.EmailTokenListRelationFilter
 }
 
 export type UserProfileOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  clerkId?: Prisma.SortOrder
   email?: Prisma.SortOrder
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
   name?: Prisma.SortOrderInput | Prisma.SortOrder
   avatarUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   role?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  passwordHash?: Prisma.SortOrder
+  emailVerified?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   orders?: Prisma.MembershipOrderOrderByRelationAggregateInput
   attendances?: Prisma.AttendanceOrderByRelationAggregateInput
@@ -238,20 +248,22 @@ export type UserProfileOrderByWithRelationInput = {
   familyMember?: Prisma.FamilyMemberOrderByWithRelationInput
   streak?: Prisma.StreakOrderByWithRelationInput
   waitlists?: Prisma.ClassWaitlistOrderByRelationAggregateInput
+  emailTokens?: Prisma.EmailTokenOrderByRelationAggregateInput
 }
 
 export type UserProfileWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  clerkId?: string
+  email?: string
   AND?: Prisma.UserProfileWhereInput | Prisma.UserProfileWhereInput[]
   OR?: Prisma.UserProfileWhereInput[]
   NOT?: Prisma.UserProfileWhereInput | Prisma.UserProfileWhereInput[]
-  email?: Prisma.StringFilter<"UserProfile"> | string
   phone?: Prisma.StringNullableFilter<"UserProfile"> | string | null
   name?: Prisma.StringNullableFilter<"UserProfile"> | string | null
   avatarUrl?: Prisma.StringNullableFilter<"UserProfile"> | string | null
   role?: Prisma.EnumRoleFilter<"UserProfile"> | $Enums.Role
   isActive?: Prisma.BoolFilter<"UserProfile"> | boolean
+  passwordHash?: Prisma.StringFilter<"UserProfile"> | string
+  emailVerified?: Prisma.BoolFilter<"UserProfile"> | boolean
   createdAt?: Prisma.DateTimeFilter<"UserProfile"> | Date | string
   orders?: Prisma.MembershipOrderListRelationFilter
   attendances?: Prisma.AttendanceListRelationFilter
@@ -259,17 +271,19 @@ export type UserProfileWhereUniqueInput = Prisma.AtLeast<{
   familyMember?: Prisma.XOR<Prisma.FamilyMemberNullableScalarRelationFilter, Prisma.FamilyMemberWhereInput> | null
   streak?: Prisma.XOR<Prisma.StreakNullableScalarRelationFilter, Prisma.StreakWhereInput> | null
   waitlists?: Prisma.ClassWaitlistListRelationFilter
-}, "id" | "clerkId">
+  emailTokens?: Prisma.EmailTokenListRelationFilter
+}, "id" | "email">
 
 export type UserProfileOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  clerkId?: Prisma.SortOrder
   email?: Prisma.SortOrder
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
   name?: Prisma.SortOrderInput | Prisma.SortOrder
   avatarUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   role?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  passwordHash?: Prisma.SortOrder
+  emailVerified?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.UserProfileCountOrderByAggregateInput
   _max?: Prisma.UserProfileMaxOrderByAggregateInput
@@ -281,25 +295,27 @@ export type UserProfileScalarWhereWithAggregatesInput = {
   OR?: Prisma.UserProfileScalarWhereWithAggregatesInput[]
   NOT?: Prisma.UserProfileScalarWhereWithAggregatesInput | Prisma.UserProfileScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"UserProfile"> | string
-  clerkId?: Prisma.StringWithAggregatesFilter<"UserProfile"> | string
   email?: Prisma.StringWithAggregatesFilter<"UserProfile"> | string
   phone?: Prisma.StringNullableWithAggregatesFilter<"UserProfile"> | string | null
   name?: Prisma.StringNullableWithAggregatesFilter<"UserProfile"> | string | null
   avatarUrl?: Prisma.StringNullableWithAggregatesFilter<"UserProfile"> | string | null
   role?: Prisma.EnumRoleWithAggregatesFilter<"UserProfile"> | $Enums.Role
   isActive?: Prisma.BoolWithAggregatesFilter<"UserProfile"> | boolean
+  passwordHash?: Prisma.StringWithAggregatesFilter<"UserProfile"> | string
+  emailVerified?: Prisma.BoolWithAggregatesFilter<"UserProfile"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"UserProfile"> | Date | string
 }
 
 export type UserProfileCreateInput = {
   id?: string
-  clerkId: string
   email: string
   phone?: string | null
   name?: string | null
   avatarUrl?: string | null
   role: $Enums.Role
   isActive?: boolean
+  passwordHash: string
+  emailVerified?: boolean
   createdAt?: Date | string
   orders?: Prisma.MembershipOrderCreateNestedManyWithoutStudentInput
   attendances?: Prisma.AttendanceCreateNestedManyWithoutStudentInput
@@ -307,17 +323,19 @@ export type UserProfileCreateInput = {
   familyMember?: Prisma.FamilyMemberCreateNestedOneWithoutStudentInput
   streak?: Prisma.StreakCreateNestedOneWithoutStudentInput
   waitlists?: Prisma.ClassWaitlistCreateNestedManyWithoutStudentInput
+  emailTokens?: Prisma.EmailTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserProfileUncheckedCreateInput = {
   id?: string
-  clerkId: string
   email: string
   phone?: string | null
   name?: string | null
   avatarUrl?: string | null
   role: $Enums.Role
   isActive?: boolean
+  passwordHash: string
+  emailVerified?: boolean
   createdAt?: Date | string
   orders?: Prisma.MembershipOrderUncheckedCreateNestedManyWithoutStudentInput
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutStudentInput
@@ -325,17 +343,19 @@ export type UserProfileUncheckedCreateInput = {
   familyMember?: Prisma.FamilyMemberUncheckedCreateNestedOneWithoutStudentInput
   streak?: Prisma.StreakUncheckedCreateNestedOneWithoutStudentInput
   waitlists?: Prisma.ClassWaitlistUncheckedCreateNestedManyWithoutStudentInput
+  emailTokens?: Prisma.EmailTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserProfileUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   orders?: Prisma.MembershipOrderUpdateManyWithoutStudentNestedInput
   attendances?: Prisma.AttendanceUpdateManyWithoutStudentNestedInput
@@ -343,17 +363,19 @@ export type UserProfileUpdateInput = {
   familyMember?: Prisma.FamilyMemberUpdateOneWithoutStudentNestedInput
   streak?: Prisma.StreakUpdateOneWithoutStudentNestedInput
   waitlists?: Prisma.ClassWaitlistUpdateManyWithoutStudentNestedInput
+  emailTokens?: Prisma.EmailTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserProfileUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   orders?: Prisma.MembershipOrderUncheckedUpdateManyWithoutStudentNestedInput
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutStudentNestedInput
@@ -361,77 +383,84 @@ export type UserProfileUncheckedUpdateInput = {
   familyMember?: Prisma.FamilyMemberUncheckedUpdateOneWithoutStudentNestedInput
   streak?: Prisma.StreakUncheckedUpdateOneWithoutStudentNestedInput
   waitlists?: Prisma.ClassWaitlistUncheckedUpdateManyWithoutStudentNestedInput
+  emailTokens?: Prisma.EmailTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserProfileCreateManyInput = {
   id?: string
-  clerkId: string
   email: string
   phone?: string | null
   name?: string | null
   avatarUrl?: string | null
   role: $Enums.Role
   isActive?: boolean
+  passwordHash: string
+  emailVerified?: boolean
   createdAt?: Date | string
 }
 
 export type UserProfileUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type UserProfileUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type UserProfileCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  clerkId?: Prisma.SortOrder
   email?: Prisma.SortOrder
   phone?: Prisma.SortOrder
   name?: Prisma.SortOrder
   avatarUrl?: Prisma.SortOrder
   role?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  passwordHash?: Prisma.SortOrder
+  emailVerified?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
 export type UserProfileMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  clerkId?: Prisma.SortOrder
   email?: Prisma.SortOrder
   phone?: Prisma.SortOrder
   name?: Prisma.SortOrder
   avatarUrl?: Prisma.SortOrder
   role?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  passwordHash?: Prisma.SortOrder
+  emailVerified?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
 export type UserProfileMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  clerkId?: Prisma.SortOrder
   email?: Prisma.SortOrder
   phone?: Prisma.SortOrder
   name?: Prisma.SortOrder
   avatarUrl?: Prisma.SortOrder
   role?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  passwordHash?: Prisma.SortOrder
+  emailVerified?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -458,6 +487,20 @@ export type BoolFieldUpdateOperationsInput = {
 
 export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
+}
+
+export type UserProfileCreateNestedOneWithoutEmailTokensInput = {
+  create?: Prisma.XOR<Prisma.UserProfileCreateWithoutEmailTokensInput, Prisma.UserProfileUncheckedCreateWithoutEmailTokensInput>
+  connectOrCreate?: Prisma.UserProfileCreateOrConnectWithoutEmailTokensInput
+  connect?: Prisma.UserProfileWhereUniqueInput
+}
+
+export type UserProfileUpdateOneRequiredWithoutEmailTokensNestedInput = {
+  create?: Prisma.XOR<Prisma.UserProfileCreateWithoutEmailTokensInput, Prisma.UserProfileUncheckedCreateWithoutEmailTokensInput>
+  connectOrCreate?: Prisma.UserProfileCreateOrConnectWithoutEmailTokensInput
+  upsert?: Prisma.UserProfileUpsertWithoutEmailTokensInput
+  connect?: Prisma.UserProfileWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserProfileUpdateToOneWithWhereWithoutEmailTokensInput, Prisma.UserProfileUpdateWithoutEmailTokensInput>, Prisma.UserProfileUncheckedUpdateWithoutEmailTokensInput>
 }
 
 export type UserProfileCreateNestedOneWithoutFamilyMemberInput = {
@@ -544,38 +587,134 @@ export type UserProfileUpdateOneRequiredWithoutStreakNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserProfileUpdateToOneWithWhereWithoutStreakInput, Prisma.UserProfileUpdateWithoutStreakInput>, Prisma.UserProfileUncheckedUpdateWithoutStreakInput>
 }
 
-export type UserProfileCreateWithoutFamilyMemberInput = {
+export type UserProfileCreateWithoutEmailTokensInput = {
   id?: string
-  clerkId: string
   email: string
   phone?: string | null
   name?: string | null
   avatarUrl?: string | null
   role: $Enums.Role
   isActive?: boolean
+  passwordHash: string
+  emailVerified?: boolean
+  createdAt?: Date | string
+  orders?: Prisma.MembershipOrderCreateNestedManyWithoutStudentInput
+  attendances?: Prisma.AttendanceCreateNestedManyWithoutStudentInput
+  skills?: Prisma.UserSkillCreateNestedManyWithoutStudentInput
+  familyMember?: Prisma.FamilyMemberCreateNestedOneWithoutStudentInput
+  streak?: Prisma.StreakCreateNestedOneWithoutStudentInput
+  waitlists?: Prisma.ClassWaitlistCreateNestedManyWithoutStudentInput
+}
+
+export type UserProfileUncheckedCreateWithoutEmailTokensInput = {
+  id?: string
+  email: string
+  phone?: string | null
+  name?: string | null
+  avatarUrl?: string | null
+  role: $Enums.Role
+  isActive?: boolean
+  passwordHash: string
+  emailVerified?: boolean
+  createdAt?: Date | string
+  orders?: Prisma.MembershipOrderUncheckedCreateNestedManyWithoutStudentInput
+  attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutStudentInput
+  skills?: Prisma.UserSkillUncheckedCreateNestedManyWithoutStudentInput
+  familyMember?: Prisma.FamilyMemberUncheckedCreateNestedOneWithoutStudentInput
+  streak?: Prisma.StreakUncheckedCreateNestedOneWithoutStudentInput
+  waitlists?: Prisma.ClassWaitlistUncheckedCreateNestedManyWithoutStudentInput
+}
+
+export type UserProfileCreateOrConnectWithoutEmailTokensInput = {
+  where: Prisma.UserProfileWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserProfileCreateWithoutEmailTokensInput, Prisma.UserProfileUncheckedCreateWithoutEmailTokensInput>
+}
+
+export type UserProfileUpsertWithoutEmailTokensInput = {
+  update: Prisma.XOR<Prisma.UserProfileUpdateWithoutEmailTokensInput, Prisma.UserProfileUncheckedUpdateWithoutEmailTokensInput>
+  create: Prisma.XOR<Prisma.UserProfileCreateWithoutEmailTokensInput, Prisma.UserProfileUncheckedCreateWithoutEmailTokensInput>
+  where?: Prisma.UserProfileWhereInput
+}
+
+export type UserProfileUpdateToOneWithWhereWithoutEmailTokensInput = {
+  where?: Prisma.UserProfileWhereInput
+  data: Prisma.XOR<Prisma.UserProfileUpdateWithoutEmailTokensInput, Prisma.UserProfileUncheckedUpdateWithoutEmailTokensInput>
+}
+
+export type UserProfileUpdateWithoutEmailTokensInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  orders?: Prisma.MembershipOrderUpdateManyWithoutStudentNestedInput
+  attendances?: Prisma.AttendanceUpdateManyWithoutStudentNestedInput
+  skills?: Prisma.UserSkillUpdateManyWithoutStudentNestedInput
+  familyMember?: Prisma.FamilyMemberUpdateOneWithoutStudentNestedInput
+  streak?: Prisma.StreakUpdateOneWithoutStudentNestedInput
+  waitlists?: Prisma.ClassWaitlistUpdateManyWithoutStudentNestedInput
+}
+
+export type UserProfileUncheckedUpdateWithoutEmailTokensInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  orders?: Prisma.MembershipOrderUncheckedUpdateManyWithoutStudentNestedInput
+  attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutStudentNestedInput
+  skills?: Prisma.UserSkillUncheckedUpdateManyWithoutStudentNestedInput
+  familyMember?: Prisma.FamilyMemberUncheckedUpdateOneWithoutStudentNestedInput
+  streak?: Prisma.StreakUncheckedUpdateOneWithoutStudentNestedInput
+  waitlists?: Prisma.ClassWaitlistUncheckedUpdateManyWithoutStudentNestedInput
+}
+
+export type UserProfileCreateWithoutFamilyMemberInput = {
+  id?: string
+  email: string
+  phone?: string | null
+  name?: string | null
+  avatarUrl?: string | null
+  role: $Enums.Role
+  isActive?: boolean
+  passwordHash: string
+  emailVerified?: boolean
   createdAt?: Date | string
   orders?: Prisma.MembershipOrderCreateNestedManyWithoutStudentInput
   attendances?: Prisma.AttendanceCreateNestedManyWithoutStudentInput
   skills?: Prisma.UserSkillCreateNestedManyWithoutStudentInput
   streak?: Prisma.StreakCreateNestedOneWithoutStudentInput
   waitlists?: Prisma.ClassWaitlistCreateNestedManyWithoutStudentInput
+  emailTokens?: Prisma.EmailTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserProfileUncheckedCreateWithoutFamilyMemberInput = {
   id?: string
-  clerkId: string
   email: string
   phone?: string | null
   name?: string | null
   avatarUrl?: string | null
   role: $Enums.Role
   isActive?: boolean
+  passwordHash: string
+  emailVerified?: boolean
   createdAt?: Date | string
   orders?: Prisma.MembershipOrderUncheckedCreateNestedManyWithoutStudentInput
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutStudentInput
   skills?: Prisma.UserSkillUncheckedCreateNestedManyWithoutStudentInput
   streak?: Prisma.StreakUncheckedCreateNestedOneWithoutStudentInput
   waitlists?: Prisma.ClassWaitlistUncheckedCreateNestedManyWithoutStudentInput
+  emailTokens?: Prisma.EmailTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserProfileCreateOrConnectWithoutFamilyMemberInput = {
@@ -596,70 +735,78 @@ export type UserProfileUpdateToOneWithWhereWithoutFamilyMemberInput = {
 
 export type UserProfileUpdateWithoutFamilyMemberInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   orders?: Prisma.MembershipOrderUpdateManyWithoutStudentNestedInput
   attendances?: Prisma.AttendanceUpdateManyWithoutStudentNestedInput
   skills?: Prisma.UserSkillUpdateManyWithoutStudentNestedInput
   streak?: Prisma.StreakUpdateOneWithoutStudentNestedInput
   waitlists?: Prisma.ClassWaitlistUpdateManyWithoutStudentNestedInput
+  emailTokens?: Prisma.EmailTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserProfileUncheckedUpdateWithoutFamilyMemberInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   orders?: Prisma.MembershipOrderUncheckedUpdateManyWithoutStudentNestedInput
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutStudentNestedInput
   skills?: Prisma.UserSkillUncheckedUpdateManyWithoutStudentNestedInput
   streak?: Prisma.StreakUncheckedUpdateOneWithoutStudentNestedInput
   waitlists?: Prisma.ClassWaitlistUncheckedUpdateManyWithoutStudentNestedInput
+  emailTokens?: Prisma.EmailTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserProfileCreateWithoutOrdersInput = {
   id?: string
-  clerkId: string
   email: string
   phone?: string | null
   name?: string | null
   avatarUrl?: string | null
   role: $Enums.Role
   isActive?: boolean
+  passwordHash: string
+  emailVerified?: boolean
   createdAt?: Date | string
   attendances?: Prisma.AttendanceCreateNestedManyWithoutStudentInput
   skills?: Prisma.UserSkillCreateNestedManyWithoutStudentInput
   familyMember?: Prisma.FamilyMemberCreateNestedOneWithoutStudentInput
   streak?: Prisma.StreakCreateNestedOneWithoutStudentInput
   waitlists?: Prisma.ClassWaitlistCreateNestedManyWithoutStudentInput
+  emailTokens?: Prisma.EmailTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserProfileUncheckedCreateWithoutOrdersInput = {
   id?: string
-  clerkId: string
   email: string
   phone?: string | null
   name?: string | null
   avatarUrl?: string | null
   role: $Enums.Role
   isActive?: boolean
+  passwordHash: string
+  emailVerified?: boolean
   createdAt?: Date | string
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutStudentInput
   skills?: Prisma.UserSkillUncheckedCreateNestedManyWithoutStudentInput
   familyMember?: Prisma.FamilyMemberUncheckedCreateNestedOneWithoutStudentInput
   streak?: Prisma.StreakUncheckedCreateNestedOneWithoutStudentInput
   waitlists?: Prisma.ClassWaitlistUncheckedCreateNestedManyWithoutStudentInput
+  emailTokens?: Prisma.EmailTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserProfileCreateOrConnectWithoutOrdersInput = {
@@ -680,70 +827,78 @@ export type UserProfileUpdateToOneWithWhereWithoutOrdersInput = {
 
 export type UserProfileUpdateWithoutOrdersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attendances?: Prisma.AttendanceUpdateManyWithoutStudentNestedInput
   skills?: Prisma.UserSkillUpdateManyWithoutStudentNestedInput
   familyMember?: Prisma.FamilyMemberUpdateOneWithoutStudentNestedInput
   streak?: Prisma.StreakUpdateOneWithoutStudentNestedInput
   waitlists?: Prisma.ClassWaitlistUpdateManyWithoutStudentNestedInput
+  emailTokens?: Prisma.EmailTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserProfileUncheckedUpdateWithoutOrdersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutStudentNestedInput
   skills?: Prisma.UserSkillUncheckedUpdateManyWithoutStudentNestedInput
   familyMember?: Prisma.FamilyMemberUncheckedUpdateOneWithoutStudentNestedInput
   streak?: Prisma.StreakUncheckedUpdateOneWithoutStudentNestedInput
   waitlists?: Prisma.ClassWaitlistUncheckedUpdateManyWithoutStudentNestedInput
+  emailTokens?: Prisma.EmailTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserProfileCreateWithoutAttendancesInput = {
   id?: string
-  clerkId: string
   email: string
   phone?: string | null
   name?: string | null
   avatarUrl?: string | null
   role: $Enums.Role
   isActive?: boolean
+  passwordHash: string
+  emailVerified?: boolean
   createdAt?: Date | string
   orders?: Prisma.MembershipOrderCreateNestedManyWithoutStudentInput
   skills?: Prisma.UserSkillCreateNestedManyWithoutStudentInput
   familyMember?: Prisma.FamilyMemberCreateNestedOneWithoutStudentInput
   streak?: Prisma.StreakCreateNestedOneWithoutStudentInput
   waitlists?: Prisma.ClassWaitlistCreateNestedManyWithoutStudentInput
+  emailTokens?: Prisma.EmailTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserProfileUncheckedCreateWithoutAttendancesInput = {
   id?: string
-  clerkId: string
   email: string
   phone?: string | null
   name?: string | null
   avatarUrl?: string | null
   role: $Enums.Role
   isActive?: boolean
+  passwordHash: string
+  emailVerified?: boolean
   createdAt?: Date | string
   orders?: Prisma.MembershipOrderUncheckedCreateNestedManyWithoutStudentInput
   skills?: Prisma.UserSkillUncheckedCreateNestedManyWithoutStudentInput
   familyMember?: Prisma.FamilyMemberUncheckedCreateNestedOneWithoutStudentInput
   streak?: Prisma.StreakUncheckedCreateNestedOneWithoutStudentInput
   waitlists?: Prisma.ClassWaitlistUncheckedCreateNestedManyWithoutStudentInput
+  emailTokens?: Prisma.EmailTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserProfileCreateOrConnectWithoutAttendancesInput = {
@@ -764,70 +919,78 @@ export type UserProfileUpdateToOneWithWhereWithoutAttendancesInput = {
 
 export type UserProfileUpdateWithoutAttendancesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   orders?: Prisma.MembershipOrderUpdateManyWithoutStudentNestedInput
   skills?: Prisma.UserSkillUpdateManyWithoutStudentNestedInput
   familyMember?: Prisma.FamilyMemberUpdateOneWithoutStudentNestedInput
   streak?: Prisma.StreakUpdateOneWithoutStudentNestedInput
   waitlists?: Prisma.ClassWaitlistUpdateManyWithoutStudentNestedInput
+  emailTokens?: Prisma.EmailTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserProfileUncheckedUpdateWithoutAttendancesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   orders?: Prisma.MembershipOrderUncheckedUpdateManyWithoutStudentNestedInput
   skills?: Prisma.UserSkillUncheckedUpdateManyWithoutStudentNestedInput
   familyMember?: Prisma.FamilyMemberUncheckedUpdateOneWithoutStudentNestedInput
   streak?: Prisma.StreakUncheckedUpdateOneWithoutStudentNestedInput
   waitlists?: Prisma.ClassWaitlistUncheckedUpdateManyWithoutStudentNestedInput
+  emailTokens?: Prisma.EmailTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserProfileCreateWithoutWaitlistsInput = {
   id?: string
-  clerkId: string
   email: string
   phone?: string | null
   name?: string | null
   avatarUrl?: string | null
   role: $Enums.Role
   isActive?: boolean
+  passwordHash: string
+  emailVerified?: boolean
   createdAt?: Date | string
   orders?: Prisma.MembershipOrderCreateNestedManyWithoutStudentInput
   attendances?: Prisma.AttendanceCreateNestedManyWithoutStudentInput
   skills?: Prisma.UserSkillCreateNestedManyWithoutStudentInput
   familyMember?: Prisma.FamilyMemberCreateNestedOneWithoutStudentInput
   streak?: Prisma.StreakCreateNestedOneWithoutStudentInput
+  emailTokens?: Prisma.EmailTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserProfileUncheckedCreateWithoutWaitlistsInput = {
   id?: string
-  clerkId: string
   email: string
   phone?: string | null
   name?: string | null
   avatarUrl?: string | null
   role: $Enums.Role
   isActive?: boolean
+  passwordHash: string
+  emailVerified?: boolean
   createdAt?: Date | string
   orders?: Prisma.MembershipOrderUncheckedCreateNestedManyWithoutStudentInput
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutStudentInput
   skills?: Prisma.UserSkillUncheckedCreateNestedManyWithoutStudentInput
   familyMember?: Prisma.FamilyMemberUncheckedCreateNestedOneWithoutStudentInput
   streak?: Prisma.StreakUncheckedCreateNestedOneWithoutStudentInput
+  emailTokens?: Prisma.EmailTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserProfileCreateOrConnectWithoutWaitlistsInput = {
@@ -848,70 +1011,78 @@ export type UserProfileUpdateToOneWithWhereWithoutWaitlistsInput = {
 
 export type UserProfileUpdateWithoutWaitlistsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   orders?: Prisma.MembershipOrderUpdateManyWithoutStudentNestedInput
   attendances?: Prisma.AttendanceUpdateManyWithoutStudentNestedInput
   skills?: Prisma.UserSkillUpdateManyWithoutStudentNestedInput
   familyMember?: Prisma.FamilyMemberUpdateOneWithoutStudentNestedInput
   streak?: Prisma.StreakUpdateOneWithoutStudentNestedInput
+  emailTokens?: Prisma.EmailTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserProfileUncheckedUpdateWithoutWaitlistsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   orders?: Prisma.MembershipOrderUncheckedUpdateManyWithoutStudentNestedInput
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutStudentNestedInput
   skills?: Prisma.UserSkillUncheckedUpdateManyWithoutStudentNestedInput
   familyMember?: Prisma.FamilyMemberUncheckedUpdateOneWithoutStudentNestedInput
   streak?: Prisma.StreakUncheckedUpdateOneWithoutStudentNestedInput
+  emailTokens?: Prisma.EmailTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserProfileCreateWithoutSkillsInput = {
   id?: string
-  clerkId: string
   email: string
   phone?: string | null
   name?: string | null
   avatarUrl?: string | null
   role: $Enums.Role
   isActive?: boolean
+  passwordHash: string
+  emailVerified?: boolean
   createdAt?: Date | string
   orders?: Prisma.MembershipOrderCreateNestedManyWithoutStudentInput
   attendances?: Prisma.AttendanceCreateNestedManyWithoutStudentInput
   familyMember?: Prisma.FamilyMemberCreateNestedOneWithoutStudentInput
   streak?: Prisma.StreakCreateNestedOneWithoutStudentInput
   waitlists?: Prisma.ClassWaitlistCreateNestedManyWithoutStudentInput
+  emailTokens?: Prisma.EmailTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserProfileUncheckedCreateWithoutSkillsInput = {
   id?: string
-  clerkId: string
   email: string
   phone?: string | null
   name?: string | null
   avatarUrl?: string | null
   role: $Enums.Role
   isActive?: boolean
+  passwordHash: string
+  emailVerified?: boolean
   createdAt?: Date | string
   orders?: Prisma.MembershipOrderUncheckedCreateNestedManyWithoutStudentInput
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutStudentInput
   familyMember?: Prisma.FamilyMemberUncheckedCreateNestedOneWithoutStudentInput
   streak?: Prisma.StreakUncheckedCreateNestedOneWithoutStudentInput
   waitlists?: Prisma.ClassWaitlistUncheckedCreateNestedManyWithoutStudentInput
+  emailTokens?: Prisma.EmailTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserProfileCreateOrConnectWithoutSkillsInput = {
@@ -932,70 +1103,78 @@ export type UserProfileUpdateToOneWithWhereWithoutSkillsInput = {
 
 export type UserProfileUpdateWithoutSkillsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   orders?: Prisma.MembershipOrderUpdateManyWithoutStudentNestedInput
   attendances?: Prisma.AttendanceUpdateManyWithoutStudentNestedInput
   familyMember?: Prisma.FamilyMemberUpdateOneWithoutStudentNestedInput
   streak?: Prisma.StreakUpdateOneWithoutStudentNestedInput
   waitlists?: Prisma.ClassWaitlistUpdateManyWithoutStudentNestedInput
+  emailTokens?: Prisma.EmailTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserProfileUncheckedUpdateWithoutSkillsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   orders?: Prisma.MembershipOrderUncheckedUpdateManyWithoutStudentNestedInput
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutStudentNestedInput
   familyMember?: Prisma.FamilyMemberUncheckedUpdateOneWithoutStudentNestedInput
   streak?: Prisma.StreakUncheckedUpdateOneWithoutStudentNestedInput
   waitlists?: Prisma.ClassWaitlistUncheckedUpdateManyWithoutStudentNestedInput
+  emailTokens?: Prisma.EmailTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserProfileCreateWithoutStreakInput = {
   id?: string
-  clerkId: string
   email: string
   phone?: string | null
   name?: string | null
   avatarUrl?: string | null
   role: $Enums.Role
   isActive?: boolean
+  passwordHash: string
+  emailVerified?: boolean
   createdAt?: Date | string
   orders?: Prisma.MembershipOrderCreateNestedManyWithoutStudentInput
   attendances?: Prisma.AttendanceCreateNestedManyWithoutStudentInput
   skills?: Prisma.UserSkillCreateNestedManyWithoutStudentInput
   familyMember?: Prisma.FamilyMemberCreateNestedOneWithoutStudentInput
   waitlists?: Prisma.ClassWaitlistCreateNestedManyWithoutStudentInput
+  emailTokens?: Prisma.EmailTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserProfileUncheckedCreateWithoutStreakInput = {
   id?: string
-  clerkId: string
   email: string
   phone?: string | null
   name?: string | null
   avatarUrl?: string | null
   role: $Enums.Role
   isActive?: boolean
+  passwordHash: string
+  emailVerified?: boolean
   createdAt?: Date | string
   orders?: Prisma.MembershipOrderUncheckedCreateNestedManyWithoutStudentInput
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutStudentInput
   skills?: Prisma.UserSkillUncheckedCreateNestedManyWithoutStudentInput
   familyMember?: Prisma.FamilyMemberUncheckedCreateNestedOneWithoutStudentInput
   waitlists?: Prisma.ClassWaitlistUncheckedCreateNestedManyWithoutStudentInput
+  emailTokens?: Prisma.EmailTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserProfileCreateOrConnectWithoutStreakInput = {
@@ -1016,36 +1195,40 @@ export type UserProfileUpdateToOneWithWhereWithoutStreakInput = {
 
 export type UserProfileUpdateWithoutStreakInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   orders?: Prisma.MembershipOrderUpdateManyWithoutStudentNestedInput
   attendances?: Prisma.AttendanceUpdateManyWithoutStudentNestedInput
   skills?: Prisma.UserSkillUpdateManyWithoutStudentNestedInput
   familyMember?: Prisma.FamilyMemberUpdateOneWithoutStudentNestedInput
   waitlists?: Prisma.ClassWaitlistUpdateManyWithoutStudentNestedInput
+  emailTokens?: Prisma.EmailTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserProfileUncheckedUpdateWithoutStreakInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   orders?: Prisma.MembershipOrderUncheckedUpdateManyWithoutStudentNestedInput
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutStudentNestedInput
   skills?: Prisma.UserSkillUncheckedUpdateManyWithoutStudentNestedInput
   familyMember?: Prisma.FamilyMemberUncheckedUpdateOneWithoutStudentNestedInput
   waitlists?: Prisma.ClassWaitlistUncheckedUpdateManyWithoutStudentNestedInput
+  emailTokens?: Prisma.EmailTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -1058,6 +1241,7 @@ export type UserProfileCountOutputType = {
   attendances: number
   skills: number
   waitlists: number
+  emailTokens: number
 }
 
 export type UserProfileCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1065,6 +1249,7 @@ export type UserProfileCountOutputTypeSelect<ExtArgs extends runtime.Types.Exten
   attendances?: boolean | UserProfileCountOutputTypeCountAttendancesArgs
   skills?: boolean | UserProfileCountOutputTypeCountSkillsArgs
   waitlists?: boolean | UserProfileCountOutputTypeCountWaitlistsArgs
+  emailTokens?: boolean | UserProfileCountOutputTypeCountEmailTokensArgs
 }
 
 /**
@@ -1105,16 +1290,24 @@ export type UserProfileCountOutputTypeCountWaitlistsArgs<ExtArgs extends runtime
   where?: Prisma.ClassWaitlistWhereInput
 }
 
+/**
+ * UserProfileCountOutputType without action
+ */
+export type UserProfileCountOutputTypeCountEmailTokensArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.EmailTokenWhereInput
+}
+
 
 export type UserProfileSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  clerkId?: boolean
   email?: boolean
   phone?: boolean
   name?: boolean
   avatarUrl?: boolean
   role?: boolean
   isActive?: boolean
+  passwordHash?: boolean
+  emailVerified?: boolean
   createdAt?: boolean
   orders?: boolean | Prisma.UserProfile$ordersArgs<ExtArgs>
   attendances?: boolean | Prisma.UserProfile$attendancesArgs<ExtArgs>
@@ -1122,46 +1315,50 @@ export type UserProfileSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   familyMember?: boolean | Prisma.UserProfile$familyMemberArgs<ExtArgs>
   streak?: boolean | Prisma.UserProfile$streakArgs<ExtArgs>
   waitlists?: boolean | Prisma.UserProfile$waitlistsArgs<ExtArgs>
+  emailTokens?: boolean | Prisma.UserProfile$emailTokensArgs<ExtArgs>
   _count?: boolean | Prisma.UserProfileCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["userProfile"]>
 
 export type UserProfileSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  clerkId?: boolean
   email?: boolean
   phone?: boolean
   name?: boolean
   avatarUrl?: boolean
   role?: boolean
   isActive?: boolean
+  passwordHash?: boolean
+  emailVerified?: boolean
   createdAt?: boolean
 }, ExtArgs["result"]["userProfile"]>
 
 export type UserProfileSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  clerkId?: boolean
   email?: boolean
   phone?: boolean
   name?: boolean
   avatarUrl?: boolean
   role?: boolean
   isActive?: boolean
+  passwordHash?: boolean
+  emailVerified?: boolean
   createdAt?: boolean
 }, ExtArgs["result"]["userProfile"]>
 
 export type UserProfileSelectScalar = {
   id?: boolean
-  clerkId?: boolean
   email?: boolean
   phone?: boolean
   name?: boolean
   avatarUrl?: boolean
   role?: boolean
   isActive?: boolean
+  passwordHash?: boolean
+  emailVerified?: boolean
   createdAt?: boolean
 }
 
-export type UserProfileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "clerkId" | "email" | "phone" | "name" | "avatarUrl" | "role" | "isActive" | "createdAt", ExtArgs["result"]["userProfile"]>
+export type UserProfileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "phone" | "name" | "avatarUrl" | "role" | "isActive" | "passwordHash" | "emailVerified" | "createdAt", ExtArgs["result"]["userProfile"]>
 export type UserProfileInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   orders?: boolean | Prisma.UserProfile$ordersArgs<ExtArgs>
   attendances?: boolean | Prisma.UserProfile$attendancesArgs<ExtArgs>
@@ -1169,6 +1366,7 @@ export type UserProfileInclude<ExtArgs extends runtime.Types.Extensions.Internal
   familyMember?: boolean | Prisma.UserProfile$familyMemberArgs<ExtArgs>
   streak?: boolean | Prisma.UserProfile$streakArgs<ExtArgs>
   waitlists?: boolean | Prisma.UserProfile$waitlistsArgs<ExtArgs>
+  emailTokens?: boolean | Prisma.UserProfile$emailTokensArgs<ExtArgs>
   _count?: boolean | Prisma.UserProfileCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserProfileIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1183,16 +1381,18 @@ export type $UserProfilePayload<ExtArgs extends runtime.Types.Extensions.Interna
     familyMember: Prisma.$FamilyMemberPayload<ExtArgs> | null
     streak: Prisma.$StreakPayload<ExtArgs> | null
     waitlists: Prisma.$ClassWaitlistPayload<ExtArgs>[]
+    emailTokens: Prisma.$EmailTokenPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
-    clerkId: string
     email: string
     phone: string | null
     name: string | null
     avatarUrl: string | null
     role: $Enums.Role
     isActive: boolean
+    passwordHash: string
+    emailVerified: boolean
     createdAt: Date
   }, ExtArgs["result"]["userProfile"]>
   composites: {}
@@ -1594,6 +1794,7 @@ export interface Prisma__UserProfileClient<T, Null = never, ExtArgs extends runt
   familyMember<T extends Prisma.UserProfile$familyMemberArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserProfile$familyMemberArgs<ExtArgs>>): Prisma.Prisma__FamilyMemberClient<runtime.Types.Result.GetResult<Prisma.$FamilyMemberPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   streak<T extends Prisma.UserProfile$streakArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserProfile$streakArgs<ExtArgs>>): Prisma.Prisma__StreakClient<runtime.Types.Result.GetResult<Prisma.$StreakPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   waitlists<T extends Prisma.UserProfile$waitlistsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserProfile$waitlistsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ClassWaitlistPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  emailTokens<T extends Prisma.UserProfile$emailTokensArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserProfile$emailTokensArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EmailTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1624,13 +1825,14 @@ export interface Prisma__UserProfileClient<T, Null = never, ExtArgs extends runt
  */
 export interface UserProfileFieldRefs {
   readonly id: Prisma.FieldRef<"UserProfile", 'String'>
-  readonly clerkId: Prisma.FieldRef<"UserProfile", 'String'>
   readonly email: Prisma.FieldRef<"UserProfile", 'String'>
   readonly phone: Prisma.FieldRef<"UserProfile", 'String'>
   readonly name: Prisma.FieldRef<"UserProfile", 'String'>
   readonly avatarUrl: Prisma.FieldRef<"UserProfile", 'String'>
   readonly role: Prisma.FieldRef<"UserProfile", 'Role'>
   readonly isActive: Prisma.FieldRef<"UserProfile", 'Boolean'>
+  readonly passwordHash: Prisma.FieldRef<"UserProfile", 'String'>
+  readonly emailVerified: Prisma.FieldRef<"UserProfile", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"UserProfile", 'DateTime'>
 }
     
@@ -2156,6 +2358,30 @@ export type UserProfile$waitlistsArgs<ExtArgs extends runtime.Types.Extensions.I
   take?: number
   skip?: number
   distinct?: Prisma.ClassWaitlistScalarFieldEnum | Prisma.ClassWaitlistScalarFieldEnum[]
+}
+
+/**
+ * UserProfile.emailTokens
+ */
+export type UserProfile$emailTokensArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the EmailToken
+   */
+  select?: Prisma.EmailTokenSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the EmailToken
+   */
+  omit?: Prisma.EmailTokenOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EmailTokenInclude<ExtArgs> | null
+  where?: Prisma.EmailTokenWhereInput
+  orderBy?: Prisma.EmailTokenOrderByWithRelationInput | Prisma.EmailTokenOrderByWithRelationInput[]
+  cursor?: Prisma.EmailTokenWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.EmailTokenScalarFieldEnum | Prisma.EmailTokenScalarFieldEnum[]
 }
 
 /**

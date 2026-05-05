@@ -75,3 +75,11 @@ export const ContentType = {
 } as const
 
 export type ContentType = (typeof ContentType)[keyof typeof ContentType]
+
+
+export const TokenType = {
+  EMAIL_VERIFICATION: 'EMAIL_VERIFICATION',
+  PASSWORD_RESET: 'PASSWORD_RESET'
+} as const
+
+export type TokenType = (typeof TokenType)[keyof typeof TokenType]

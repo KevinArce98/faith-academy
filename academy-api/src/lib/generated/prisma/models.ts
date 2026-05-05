@@ -9,6 +9,7 @@
  * 🟢 You can import this file directly.
  */
 export type * from './models/UserProfile.js'
+export type * from './models/EmailToken.js'
 export type * from './models/Family.js'
 export type * from './models/FamilyMember.js'
 export type * from './models/MembershipPlan.js'

@@ -1,67 +1,64 @@
 import type { DbClient } from '../db.js';
 
-// Prisma 7 transaction client - same interface as the regular client
 type Tx = DbClient;
 
-/**
- * Promotes the first person on the waitlist (lowest position) to a RESERVED
- * attendance. If the candidate no longer has an active membership or credits,
- * they are removed and the function recurses to try the next candidate.
- */
 export async function promoteWaitlist(classId: string, tx: Tx): Promise<void> {
-  const next = await tx.classWaitlist.findFirst({
-    where: { classId },
-    orderBy: { position: 'asc' },
-  });
+	const MAX_ATTEMPTS = 20;
 
-  if (!next) return;
+	for (let i = 0; i < MAX_ATTEMPTS; i++) {
+		const next = await tx.classWaitlist.findFirst({
+			where: { classId },
+			orderBy: { position: 'asc' },
+		});
 
-  const now = new Date();
-  const activeOrder = await tx.membershipOrder.findFirst({
-    where: {
-      studentId: next.studentId,
-      status: 'ACTIVE',
-      expiresAt: { gt: now },
-    },
-  });
+		if (!next) return;
 
-  const latestLedger = await tx.creditLedger.findFirst({
-    where: { studentId: next.studentId },
-    orderBy: { createdAt: 'desc' },
-  });
+		const now = new Date();
+		const [activeOrder, latestLedger] = await Promise.all([
+			tx.membershipOrder.findFirst({
+				where: {
+					studentId: next.studentId,
+					status: 'ACTIVE',
+					expiresAt: { gt: now },
+				},
+			}),
+			tx.creditLedger.findFirst({
+				where: { studentId: next.studentId },
+				orderBy: { createdAt: 'desc' },
+			}),
+		]);
 
-  const hasCredits = latestLedger && latestLedger.balance > 0;
+		if (!activeOrder || !latestLedger || latestLedger.balance <= 0) {
+			await tx.classWaitlist.delete({ where: { id: next.id } });
+			continue;
+		}
 
-  if (!activeOrder || !hasCredits) {
-    await tx.classWaitlist.delete({ where: { id: next.id } });
-    await promoteWaitlist(classId, tx);
-    return;
-  }
+		const newBalance = latestLedger.balance - 1;
 
-  const newBalance = latestLedger.balance - 1;
+		await tx.attendance.create({
+			data: {
+				classId,
+				studentId: next.studentId,
+				status: 'RESERVED',
+				creditDeducted: true,
+			},
+		});
 
-  await tx.attendance.create({
-    data: {
-      classId,
-      studentId: next.studentId,
-      status: 'RESERVED',
-      creditDeducted: true,
-    },
-  });
+		await tx.creditLedger.create({
+			data: {
+				studentId: next.studentId,
+				type: 'CREDIT_DEBIT',
+				amount: 1,
+				balance: newBalance,
+				note: 'Promovido desde lista de espera',
+			},
+		});
 
-  await tx.creditLedger.create({
-    data: {
-      studentId: next.studentId,
-      type: 'CREDIT_DEBIT',
-      amount: 1,
-      balance: newBalance,
-      note: 'Promovido desde lista de espera',
-    },
-  });
-
-  await tx.classWaitlist.update({
-    where: { id: next.id },
-    data: { notifiedAt: now },
-  });
-  await tx.classWaitlist.delete({ where: { id: next.id } });
+		await tx.classWaitlist.update({
+			where: { id: next.id },
+			data: { notifiedAt: now },
+		});
+		await tx.classWaitlist.delete({ where: { id: next.id } });
+		return;
+	}
 }

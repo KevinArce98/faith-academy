@@ -625,10 +625,6 @@ export type NullableIntFieldUpdateOperationsInput = {
   divide?: number
 }
 
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
-}
-
 export type MembershipOrderCreateNestedOneWithoutLedgerEntriesInput = {
   create?: Prisma.XOR<Prisma.MembershipOrderCreateWithoutLedgerEntriesInput, Prisma.MembershipOrderUncheckedCreateWithoutLedgerEntriesInput>
   connectOrCreate?: Prisma.MembershipOrderCreateOrConnectWithoutLedgerEntriesInput

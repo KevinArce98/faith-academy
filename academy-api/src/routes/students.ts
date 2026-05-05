@@ -1,266 +1,216 @@
 import { Hono } from 'hono';
-import { createStudentSchema, updateStudentSchema } from '../lib/validations/students.js';
-import { authMiddleware } from '../middleware/auth.js';
-import { getCurrentUser, requireRole } from '../lib/auth.js';
-import { getClerkClient } from '../lib/clerk.js';
-import { generateTempPassword } from '../lib/utils/password.js';
+
+import { createManagedUser } from '../lib/auth.js';
 import { db } from '../lib/db.js';
+import { parseJsonBody } from '../lib/request.js';
+import { generateTempPassword } from '../lib/utils/password.js';
+import {
+	createStudentSchema,
+	updateStudentSchema,
+} from '../lib/validations/students.js';
+import { authMiddleware } from '../middleware/auth.js';
+import { requireRoleMiddleware } from '../middleware/requireRole.js';
 import type { AuthVariables } from '../types/auth.js';
 
 const studentsRoutes = new Hono<{ Variables: AuthVariables }>();
 
-studentsRoutes.get('/', authMiddleware, async (c) => {
-  try {
-    await requireRole(c, ['ADMIN', 'TEACHER']);
-  } catch (error) {
-    const status = error instanceof Error && error.message === 'UNAUTHENTICATED' ? 401 : 403;
-    return c.json({ error: 'No autorizado' }, status);
-  }
+studentsRoutes.get(
+	'/',
+	authMiddleware,
+	requireRoleMiddleware(['ADMIN', 'TEACHER']),
+	async (c) => {
+		const students = await db.userProfile.findMany({
+			where: { role: 'STUDENT' },
+			include: {
+				familyMember: {
+					include: {
+						family: { select: { name: true } },
+					},
+				},
+				orders: {
+					orderBy: { createdAt: 'desc' },
+					take: 1,
+					include: {
+						plan: { select: { id: true, name: true } },
+						ledgerEntries: {
+							orderBy: { createdAt: 'desc' },
+							take: 1,
+							select: { balance: true },
+						},
+					},
+				},
+			},
+			orderBy: { createdAt: 'desc' },
+		});
 
-  const students = await db.userProfile.findMany({
-    where: { role: 'STUDENT' },
-    include: {
-      familyMember: {
-        include: {
-          family: { select: { name: true } },
-        },
-      },
-      orders: {
-        orderBy: { createdAt: 'desc' },
-        take: 1,
-        include: {
-          plan: { select: { id: true, name: true } },
-          ledgerEntries: {
-            orderBy: { createdAt: 'desc' },
-            take: 1,
-            select: { balance: true },
-          },
-        },
-      },
-    },
-    orderBy: { createdAt: 'desc' },
-  });
+		return c.json({ students });
+	},
+);
 
-  return c.json({ students });
-});
+studentsRoutes.post(
+	'/',
+	authMiddleware,
+	requireRoleMiddleware(['ADMIN', 'TEACHER']),
+	async (c) => {
+		const body = await parseJsonBody(c);
+		const parsed = createStudentSchema.safeParse(body);
+		if (!parsed.success) {
+			return c.json({ success: false, error: parsed.error.flatten() }, 422);
+		}
 
-studentsRoutes.post('/', authMiddleware, async (c) => {
-  try {
-    await requireRole(c, ['ADMIN', 'TEACHER']);
-  } catch (error) {
-    const status = error instanceof Error && error.message === 'UNAUTHENTICATED' ? 401 : 403;
-    return c.json({ success: false, error: 'No autorizado' }, status);
-  }
+		const { name, email, notes, phone } = parsed.data;
+		const planId = parsed.data.planId?.trim() || null;
 
-  const body = await c.req.json().catch(() => null);
-  const parsed = createStudentSchema.safeParse(body);
-  if (!parsed.success) {
-    return c.json({ success: false, error: parsed.error.flatten() }, 422);
-  }
+		try {
+			const tempPassword = generateTempPassword();
 
-  const { name, email, notes, phone } = parsed.data;
-  const planId = parsed.data.planId?.trim() || null;
+			const created = await createManagedUser({
+				email,
+				name,
+				role: 'STUDENT',
+				tempPassword,
+				phone: phone?.trim() || null,
+			});
 
-  try {
-    const clerk = getClerkClient();
+			if (planId) {
+				await db.membershipOrder.create({
+					data: {
+						studentId: created.id,
+						planId,
+						status: 'PENDING_REVIEW',
+						notes: notes?.trim() ? notes.trim() : null,
+					},
+				});
+			}
 
-    const parts = name.trim().split(/\s+/).filter(Boolean);
-    const firstName = parts[0] ?? name;
-    const lastName = parts.length > 1 ? parts.slice(1).join(' ') : undefined;
-    const tempPassword = generateTempPassword();
+			return c.json({ success: true, userId: created.id, tempPassword }, 201);
+		} catch (err) {
+			const message =
+				err instanceof Error && err.message.includes('Unique')
+					? 'El correo ya está registrado.'
+					: 'Error al crear el alumno.';
+			return c.json({ success: false, error: message }, 400);
+		}
+	},
+);
 
-    const clerkUser = await clerk.users.createUser({
-      emailAddress: [email],
-      firstName,
-      lastName,
-      password: tempPassword,
-      publicMetadata: { role: 'STUDENT' },
-    });
+studentsRoutes.put(
+	'/:id',
+	authMiddleware,
+	requireRoleMiddleware(['ADMIN', 'TEACHER']),
+	async (c) => {
+		const body = await parseJsonBody(c);
+		const parsed = updateStudentSchema.safeParse(body);
+		if (!parsed.success) {
+			return c.json({ success: false, error: parsed.error.flatten() }, 422);
+		}
 
-    try {
-      const created = await db.userProfile.create({
-        data: {
-          clerkId: clerkUser.id,
-          email,
-          name,
-          phone: phone?.trim() ? phone.trim() : null,
-          role: 'STUDENT',
-        },
-      });
+		const id = c.req.param('id');
+		const student = await db.userProfile.findFirst({
+			where: { id, role: 'STUDENT' },
+			include: {
+				orders: { orderBy: { createdAt: 'desc' }, take: 1 },
+			},
+		});
 
-      if (planId) {
-        await db.membershipOrder.create({
-          data: {
-            studentId: created.id,
-            planId,
-            status: 'PENDING_REVIEW',
-            notes: notes?.trim() ? notes.trim() : null,
-          },
-        });
-      }
+		if (!student) {
+			return c.json({ success: false, error: 'Alumno no encontrado.' }, 404);
+		}
 
-      return c.json({ success: true, userId: created.id, tempPassword }, 201);
-    } catch (dbErr) {
-      try {
-        await clerk.users.deleteUser(clerkUser.id);
-      } catch {
-        // noop
-      }
-      throw dbErr;
-    }
-  } catch (err) {
-    let message = 'Error al crear el alumno.';
-    if (typeof err === 'object' && err !== null && 'errors' in err) {
-      const clerkError = err as { errors?: Array<{ longMessage?: string; message?: string }> };
-      message = clerkError.errors?.[0]?.longMessage ?? clerkError.errors?.[0]?.message ?? message;
-    }
+		const name = parsed.data.name.replace(/\s+/g, ' ').trim();
+		const email = parsed.data.email.trim().toLowerCase();
+		const phone = parsed.data.phone?.trim() || null;
+		const planId = parsed.data.planId?.trim() || null;
+		const notes = parsed.data.notes?.trim() || null;
 
-    return c.json({ success: false, error: message }, 400);
-  }
-});
+		const currentName = student.name ?? '';
+		const currentEmail = student.email.trim().toLowerCase();
+		const currentPhone = student.phone?.trim() || null;
+		const latestOrder = student.orders[0] ?? null;
 
-studentsRoutes.put('/:id', authMiddleware, async (c) => {
-  try {
-    await requireRole(c, ['ADMIN', 'TEACHER']);
-  } catch (error) {
-    const status = error instanceof Error && error.message === 'UNAUTHENTICATED' ? 401 : 403;
-    return c.json({ success: false, error: 'No autorizado' }, status);
-  }
+		const hasProfileChanges =
+			name !== currentName || email !== currentEmail || phone !== currentPhone;
+		const planChanged = Boolean(planId && latestOrder?.planId !== planId);
+		const notesChanged =
+			latestOrder != null && (latestOrder.notes ?? null) !== notes;
+		const hasMembershipChanges = planChanged || notesChanged;
 
-  const body = await c.req.json().catch(() => null);
-  const parsed = updateStudentSchema.safeParse(body);
-  if (!parsed.success) {
-    return c.json({ success: false, error: parsed.error.flatten() }, 422);
-  }
+		if (!hasProfileChanges && !hasMembershipChanges) {
+			return c.json(
+				{ success: false, error: 'No hay cambios para aplicar.' },
+				400,
+			);
+		}
 
-  const id = c.req.param('id');
-  const student = await db.userProfile.findFirst({
-    where: { id, role: 'STUDENT' },
-    include: {
-      orders: { orderBy: { createdAt: 'desc' }, take: 1 },
-    },
-  });
+		let updated = student;
+		if (hasProfileChanges) {
+			updated = await db.userProfile.update({
+				where: { id: student.id },
+				data: { name, email, phone },
+				include: { orders: { orderBy: { createdAt: 'desc' }, take: 1 } },
+			});
+		}
 
-  if (!student) {
-    return c.json({ success: false, error: 'Alumno no encontrado.' }, 404);
-  }
+		if (planId) {
+			if (latestOrder && latestOrder.status === 'PENDING_REVIEW') {
+				await db.membershipOrder.update({
+					where: { id: latestOrder.id },
+					data: { planId, notes },
+				});
+			} else if (latestOrder && latestOrder.planId === planId) {
+				await db.membershipOrder.update({
+					where: { id: latestOrder.id },
+					data: { notes },
+				});
+			} else {
+				await db.membershipOrder.create({
+					data: {
+						studentId: student.id,
+						planId,
+						status: 'PENDING_REVIEW',
+						notes,
+					},
+				});
+			}
+		} else if (notesChanged && latestOrder) {
+			await db.membershipOrder.update({
+				where: { id: latestOrder.id },
+				data: { notes },
+			});
+		}
 
-  const name = parsed.data.name.replace(/\s+/g, ' ').trim();
-  const email = parsed.data.email.trim().toLowerCase();
-  const phone = parsed.data.phone?.trim() || null;
-  const planId = parsed.data.planId?.trim() || null;
-  const notes = parsed.data.notes?.trim() || null;
+		return c.json({ success: true, student: updated, email });
+	},
+);
 
-  const currentName = student.name ?? '';
-  const currentEmail = student.email.trim().toLowerCase();
-  const currentPhone = student.phone?.trim() || null;
-  const latestOrder = student.orders[0] ?? null;
+studentsRoutes.delete(
+	'/:id',
+	authMiddleware,
+	requireRoleMiddleware(['ADMIN', 'TEACHER']),
+	async (c) => {
+		const id = c.req.param('id');
+		const student = await db.userProfile.findFirst({
+			where: { id, role: 'STUDENT' },
+			select: { id: true, name: true },
+		});
 
-  const hasProfileChanges = name !== currentName || email !== currentEmail || phone !== currentPhone;
-  const hasMembershipChanges =
-    (planId && latestOrder?.planId !== planId) ||
-    (latestOrder && (latestOrder.notes ?? null) !== notes);
+		if (!student) {
+			return c.json({ success: false, error: 'Alumno no encontrado.' }, 404);
+		}
 
-  if (!hasProfileChanges && !hasMembershipChanges) {
-    return c.json({ success: false, error: 'No hay cambios para aplicar.' }, 400);
-  }
+		await db.$transaction([
+			db.creditLedger.deleteMany({ where: { studentId: student.id } }),
+			db.classWaitlist.deleteMany({ where: { studentId: student.id } }),
+			db.attendance.deleteMany({ where: { studentId: student.id } }),
+			db.userSkill.deleteMany({ where: { studentId: student.id } }),
+			db.streak.deleteMany({ where: { studentId: student.id } }),
+			db.familyMember.deleteMany({ where: { studentId: student.id } }),
+			db.membershipOrder.deleteMany({ where: { studentId: student.id } }),
+			db.userProfile.delete({ where: { id: student.id } }),
+		]);
 
-  let updated = student;
-  if (hasProfileChanges) {
-    updated = await db.userProfile.update({
-      where: { id: student.id },
-      data: { name, email, phone },
-      include: { orders: { orderBy: { createdAt: 'desc' }, take: 1 } },
-    });
-
-    const parts = name.split(' ');
-    const firstName = parts[0] ?? name;
-    const lastName = parts.length > 1 ? parts.slice(1).join(' ') : undefined;
-
-    try {
-      const clerk = getClerkClient();
-      await clerk.users.updateUser(student.clerkId, { firstName, lastName });
-    } catch {
-      // noop - BD is source of truth
-    }
-  }
-
-  if (planId) {
-    if (latestOrder && latestOrder.status === 'PENDING_REVIEW') {
-      await db.membershipOrder.update({
-        where: { id: latestOrder.id },
-        data: { planId, notes },
-      });
-    } else if (latestOrder && latestOrder.planId === planId) {
-      await db.membershipOrder.update({
-        where: { id: latestOrder.id },
-        data: { notes },
-      });
-    } else {
-      await db.membershipOrder.create({
-        data: {
-          studentId: student.id,
-          planId,
-          status: 'PENDING_REVIEW',
-          notes,
-        },
-      });
-    }
-  }
-
-  return c.json({ success: true, student: updated, email });
-});
-
-studentsRoutes.delete('/:id', authMiddleware, async (c) => {
-  try {
-    await requireRole(c, ['ADMIN', 'TEACHER']);
-  } catch (error) {
-    const status = error instanceof Error && error.message === 'UNAUTHENTICATED' ? 401 : 403;
-    return c.json({ success: false, error: 'No autorizado' }, status);
-  }
-
-  const id = c.req.param('id');
-  const student = await db.userProfile.findFirst({
-    where: { id, role: 'STUDENT' },
-    select: { id: true, clerkId: true, name: true },
-  });
-
-  if (!student) {
-    return c.json({ success: false, error: 'Alumno no encontrado.' }, 404);
-  }
-
-  try {
-    const clerk = getClerkClient();
-    await clerk.users.deleteUser(student.clerkId);
-  } catch {
-    // noop - continue cleanup in DB
-  }
-
-  const orders = await db.membershipOrder.findMany({
-    where: { studentId: student.id },
-    select: { id: true },
-  });
-
-  const orderIds = orders.map((order: { id: string }) => order.id);
-
-  await db.creditLedger.deleteMany({
-    where: {
-      OR: [{ studentId: student.id }, ...(orderIds.length > 0 ? [{ orderId: { in: orderIds } }] : [])],
-    },
-  });
-
-  await Promise.all([
-    db.classWaitlist.deleteMany({ where: { studentId: student.id } }),
-    db.attendance.deleteMany({ where: { studentId: student.id } }),
-    db.userSkill.deleteMany({ where: { studentId: student.id } }),
-    db.streak.deleteMany({ where: { studentId: student.id } }),
-    db.familyMember.deleteMany({ where: { studentId: student.id } }),
-    db.membershipOrder.deleteMany({ where: { studentId: student.id } }),
-  ]);
-
-  await db.userProfile.delete({ where: { id: student.id } });
-
-  return c.json({ success: true });
-});
+		return c.json({ success: true });
+	},
+);
 
 export default studentsRoutes;

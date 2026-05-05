@@ -52,6 +52,7 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   UserProfile: 'UserProfile',
+  EmailToken: 'EmailToken',
   Family: 'Family',
   FamilyMember: 'FamilyMember',
   MembershipPlan: 'MembershipPlan',
@@ -83,17 +84,31 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 
 export const UserProfileScalarFieldEnum = {
   id: 'id',
-  clerkId: 'clerkId',
   email: 'email',
   phone: 'phone',
   name: 'name',
   avatarUrl: 'avatarUrl',
   role: 'role',
   isActive: 'isActive',
+  passwordHash: 'passwordHash',
+  emailVerified: 'emailVerified',
   createdAt: 'createdAt'
 } as const
 
 export type UserProfileScalarFieldEnum = (typeof UserProfileScalarFieldEnum)[keyof typeof UserProfileScalarFieldEnum]
+
+
+export const EmailTokenScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  token: 'token',
+  type: 'type',
+  expiresAt: 'expiresAt',
+  usedAt: 'usedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type EmailTokenScalarFieldEnum = (typeof EmailTokenScalarFieldEnum)[keyof typeof EmailTokenScalarFieldEnum]
 
 
 export const FamilyScalarFieldEnum = {

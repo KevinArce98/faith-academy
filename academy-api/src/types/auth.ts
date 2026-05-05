@@ -1,11 +1,11 @@
 import type { Context } from 'hono';
 
 export type AuthState = {
-  userId: string | null;
+	userId: string | null;
 };
 
 export type AuthVariables = {
-  auth: AuthState;
+	auth: AuthState;
 };
 
 export type AuthContext = Context<{ Variables: AuthVariables }>;

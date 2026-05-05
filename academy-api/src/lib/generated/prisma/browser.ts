@@ -23,6 +23,11 @@ export * from './enums.js';
  */
 export type UserProfile = Prisma.UserProfileModel
 /**
+ * Model EmailToken
+ * 
+ */
+export type EmailToken = Prisma.EmailTokenModel
+/**
  * Model Family
  * 
  */

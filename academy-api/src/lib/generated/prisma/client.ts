@@ -47,6 +47,11 @@ export { Prisma }
  */
 export type UserProfile = Prisma.UserProfileModel
 /**
+ * Model EmailToken
+ * 
+ */
+export type EmailToken = Prisma.EmailTokenModel
+/**
  * Model Family
  * 
  */

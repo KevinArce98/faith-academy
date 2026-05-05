@@ -1,52 +1,47 @@
-import { verifyToken } from '@clerk/backend';
 import type { MiddlewareHandler } from 'hono';
+
+import { verifyAccessToken } from '../lib/jwt.js';
 import type { AuthVariables } from '../types/auth.js';
 
-function getBearerToken(authorizationHeader: string | undefined): string | null {
-  if (!authorizationHeader?.startsWith('Bearer ')) return null;
-  return authorizationHeader.slice('Bearer '.length).trim();
+function getBearerToken(header: string | undefined): string | null {
+	if (!header?.startsWith('Bearer ')) return null;
+	return header.slice('Bearer '.length).trim();
 }
 
-function getClerkSecretKey(): string {
-  const secretKey = process.env.CLERK_SECRET_KEY;
-  if (!secretKey) {
-    throw new Error('CLERK_SECRET_KEY is required');
-  }
-  return secretKey;
-}
+export const optionalAuthMiddleware: MiddlewareHandler<{
+	Variables: AuthVariables;
+}> = async (c, next) => {
+	c.set('auth', { userId: null });
 
-export const optionalAuthMiddleware: MiddlewareHandler<{ Variables: AuthVariables }> = async (c, next) => {
-  c.set('auth', { userId: null });
+	const token = getBearerToken(c.req.header('authorization'));
+	if (!token) {
+		await next();
+		return;
+	}
 
-  const token = getBearerToken(c.req.header('authorization'));
-  if (!token) {
-    await next();
-    return;
-  }
+	try {
+		const payload = await verifyAccessToken(token);
+		c.set('auth', { userId: payload.sub });
+	} catch {
+		c.set('auth', { userId: null });
+	}
 
-  try {
-    const payload = await verifyToken(token, {
-      secretKey: getClerkSecretKey(),
-    });
-
-    const userId = typeof payload.sub === 'string' ? payload.sub : null;
-    c.set('auth', { userId });
-  } catch {
-    c.set('auth', { userId: null });
-  }
-
-  await next();
+	await next();
 };
 
-export const authMiddleware: MiddlewareHandler<{ Variables: AuthVariables }> = async (c, next) => {
-  await optionalAuthMiddleware(c, async () => {
-    return;
-  });
+export const authMiddleware: MiddlewareHandler<{
+	Variables: AuthVariables;
+}> = async (c, next) => {
+	const existing = c.get('auth');
 
-  const auth = c.get('auth');
-  if (!auth?.userId) {
-    return c.json({ error: 'UNAUTHENTICATED' }, 401);
-  }
+	if (!existing) {
+		await optionalAuthMiddleware(c, async () => {});
+	}
 
-  await next();
+	const auth = c.get('auth');
+	if (!auth?.userId) {
+		return c.json({ error: 'UNAUTHENTICATED' }, 401);
+	}
+
+	await next();
 };

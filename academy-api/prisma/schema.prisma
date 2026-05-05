@@ -56,15 +56,16 @@ enum ContentType {
 }
 
 model UserProfile {
-  id        String   @id @default(cuid())
-  clerkId   String   @unique
-  email     String
-  phone     String?
-  name      String?
-  avatarUrl String?
-  role      Role
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
+  id            String   @id @default(cuid())
+  email         String   @unique
+  phone         String?
+  name          String?
+  avatarUrl     String?
+  role          Role
+  isActive      Boolean  @default(true)
+  passwordHash  String
+  emailVerified Boolean  @default(false)
+  createdAt     DateTime @default(now())
 
   orders       MembershipOrder[]
   attendances  Attendance[]
@@ -72,9 +73,29 @@ model UserProfile {
   familyMember FamilyMember?
   streak       Streak?
   waitlists    ClassWaitlist[]
+  emailTokens  EmailToken[]
 
   @@index([role])
   @@index([role, isActive])
+}
+
+enum TokenType {
+  EMAIL_VERIFICATION
+  PASSWORD_RESET
+}
+
+model EmailToken {
+  id        String    @id @default(cuid())
+  userId    String
+  token     String    @unique
+  type      TokenType
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user UserProfile @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, type])
 }
 
 model Family {
