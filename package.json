@@ -1,6 +1,7 @@
 {
 	"name": "studio-flow-academy-monorepo",
 	"private": true,
+	"type": "module",
 	"packageManager": "pnpm@10.30.3",
 	"pnpm": {
 		"onlyBuiltDependencies": [
@@ -17,6 +18,12 @@
 		"dev:web": "pnpm --filter academy-app-web dev",
 		"build:api": "pnpm --filter academy-api prisma:generate && pnpm --filter academy-api build",
 		"build:web": "pnpm --filter academy-app-web build",
-		"build:new-stack": "pnpm build:api && pnpm build:web"
+		"build:new-stack": "pnpm build:api && pnpm build:web",
+		"prepare": "husky"
+	},
+	"devDependencies": {
+		"@commitlint/cli": "^19.8.1",
+		"@commitlint/config-conventional": "^19.8.1",
+		"husky": "^9.1.7"
 	}
 }
