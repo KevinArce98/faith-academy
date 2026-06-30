@@ -6,201 +6,197 @@
 @import 'tailwindcss';
 
 @theme {
-	--color-background: var(--background, #f5f8fc);
-	--color-foreground: var(--foreground, #012641);
-	--font-sans: Inter, system-ui, sans-serif;
+  --color-background: var(--background, #f5f8fc);
+  --color-foreground: var(--foreground, #012641);
+  --font-sans: Inter, system-ui, sans-serif;
 
-	/* ── Primary Brand ── resolved from studio.config via StudioCssVars */
-	--color-primary: var(--studio-primary, #ee005a);
-	--color-primary-light: var(--studio-primary-light, #ff4089);
-	--color-primary-dark: var(--studio-primary-dark, #c4004a);
+  /* ── Primary Brand ── resolved from studio.config via StudioCssVars */
+  --color-primary: var(--studio-primary, #ee005a);
+  --color-primary-light: var(--studio-primary-light, #ff4089);
+  --color-primary-dark: var(--studio-primary-dark, #c4004a);
 
-	/* ── Dark Brand ── */
-	--color-dark: var(--studio-dark, #012641);
-	--color-dark-mid: var(--studio-dark-mid, #01325a);
-	--color-dark-light: var(--studio-dark-light, #024a85);
+  /* ── Dark Brand ── */
+  --color-dark: var(--studio-dark, #012641);
+  --color-dark-mid: var(--studio-dark-mid, #01325a);
+  --color-dark-light: var(--studio-dark-light, #024a85);
 
-	/* ── Neutral (no configurable por cliente) ── */
-	--color-white: var(--studio-surface, #ffffff);
-	--color-gray-50: #f5f8fc;
-	--color-gray-100: #e8edf3;
-	--color-gray-400: #94a3b8;
-	--color-gray-600: #486288;
-	--color-gray-900: #0f1823;
+  /* ── Neutral (no configurable por cliente) ── */
+  --color-white: var(--studio-surface, #ffffff);
+  --color-gray-50: #f5f8fc;
+  --color-gray-100: #e8edf3;
+  --color-gray-400: #94a3b8;
+  --color-gray-600: #486288;
+  --color-gray-900: #0f1823;
 
-	/* ── Semantic ── */
-	--color-success: var(--studio-success, #1b8b81);
-	--color-success-bg: #ccfaf5;
-	--color-warning: var(--studio-warning, #f5b809);
-	--color-warning-bg: #fef3c7;
-	--color-danger: var(--studio-danger, #ff3820);
-	--color-danger-bg: #fee2e2;
-	--color-info: #1046bb;
-	--color-info-bg: #e3eef7;
+  /* ── Semantic ── */
+  --color-success: var(--studio-success, #1b8b81);
+  --color-success-bg: #ccfaf5;
+  --color-warning: var(--studio-warning, #f5b809);
+  --color-warning-bg: #fef3c7;
+  --color-danger: var(--studio-danger, #ff3820);
+  --color-danger-bg: #fee2e2;
+  --color-info: #1046bb;
+  --color-info-bg: #e3eef7;
 }
 
 body {
-	background: var(--background);
-	color: var(--foreground);
-	font-family: Inter, system-ui, sans-serif;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Inter, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* ── Typography Scale ── */
 .text-display-xl {
-	font-size: 32px;
-	font-weight: 700;
-	line-height: 1.2;
-	color: var(--color-dark);
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--color-dark);
 }
 
 .text-heading-1 {
-	font-size: 24px;
-	font-weight: 700;
-	line-height: 1.25;
-	color: var(--color-dark);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--color-dark);
 }
 
 .text-heading-2 {
-	font-size: 20px;
-	font-weight: 600;
-	line-height: 1.3;
-	color: var(--color-dark);
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--color-dark);
 }
 
 .text-heading-3 {
-	font-size: 16px;
-	font-weight: 600;
-	line-height: 1.4;
-	color: var(--color-dark);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--color-dark);
 }
 
 .text-body-lg {
-	font-size: 15px;
-	font-weight: 400;
-	line-height: 1.5;
-	color: var(--color-gray-600);
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--color-gray-600);
 }
 
 .text-body {
-	font-size: 14px;
-	font-weight: 400;
-	line-height: 1.5;
-	color: var(--color-gray-600);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--color-gray-600);
 }
 
 .text-caption {
-	font-size: 12px;
-	font-weight: 400;
-	line-height: 1.4;
-	color: var(--color-gray-400);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--color-gray-400);
 }
 
 .text-label {
-	font-size: 12px;
-	font-weight: 500;
-	line-height: 1.4;
-	letter-spacing: 0.05em;
-	text-transform: uppercase;
-	color: var(--color-dark);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-dark);
 }
 
 /* ── Touch Improvements ── */
 
 /* Remove hover effects on touch devices */
 @media (hover: none) {
-	button:hover,
-	a:hover {
-		background-color: inherit;
-	}
+  button:hover,
+  a:hover {
+    background-color: inherit;
+  }
 }
 
 /* Smooth momentum scrolling for lists */
 .touch-scroll {
-	-webkit-overflow-scrolling: touch;
-	overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overflow-y: auto;
 }
 
 /* Prevent text selection on interactive elements */
 button,
 [role='button'] {
-	-webkit-tap-highlight-color: transparent;
-	-webkit-touch-callout: none;
-	user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
 }
 
 /* Minimum touch target utility */
 .touch-target {
-	min-height: 44px;
-	min-width: 44px;
+  min-height: 44px;
+  min-width: 44px;
 }
 
 /* ── FullCalendar Studio Theme ── */
 .fc-studio {
-	font-family: Inter, system-ui, sans-serif;
+  font-family: Inter, system-ui, sans-serif;
 }
 .fc-studio .fc-scrollgrid,
 .fc-studio .fc-scrollgrid td,
 .fc-studio .fc-scrollgrid th {
-	border-color: #f5f8fc;
+  border-color: #f5f8fc;
 }
 .fc-studio .fc-col-header-cell {
-	padding: 10px 0;
-	background: white;
-	border-color: #f5f8fc;
+  padding: 10px 0;
+  background: white;
+  border-color: #f5f8fc;
 }
 .fc-studio .fc-col-header-cell-cushion {
-	font-size: 11px;
-	font-weight: 600;
-	color: #94a3b8;
-	text-decoration: none;
-	text-transform: uppercase;
-	letter-spacing: 0.04em;
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 .fc-studio .fc-day-today .fc-col-header-cell-cushion {
-	color: var(--color-primary);
+  color: var(--color-primary);
 }
 .fc-studio .fc-day-today {
-	background: color-mix(
-		in srgb,
-		var(--color-primary) 3%,
-		transparent
-	) !important;
+  background: color-mix(in srgb, var(--color-primary) 3%, transparent) !important;
 }
 .fc-studio .fc-timegrid-slot {
-	height: 56px;
-	border-color: #f5f8fc;
+  height: 56px;
+  border-color: #f5f8fc;
 }
 .fc-studio .fc-timegrid-slot-minor {
-	border-top-style: none;
+  border-top-style: none;
 }
 .fc-studio .fc-timegrid-axis {
-	width: 52px;
-	border-color: #f5f8fc;
+  width: 52px;
+  border-color: #f5f8fc;
 }
 .fc-studio .fc-timegrid-axis-cushion {
-	font-size: 11px;
-	color: #94a3b8;
-	padding-right: 10px;
-	max-width: none;
+  font-size: 11px;
+  color: #94a3b8;
+  padding-right: 10px;
+  max-width: none;
 }
 .fc-studio .fc-timegrid-col {
-	border-color: #f5f8fc;
+  border-color: #f5f8fc;
 }
 .fc-studio .fc-event {
-	cursor: pointer;
-	box-shadow: none !important;
-	border: none !important;
-	background: transparent !important;
+  cursor: pointer;
+  box-shadow: none !important;
+  border: none !important;
+  background: transparent !important;
 }
 .fc-studio .fc-event-main {
-	padding: 1px 2px;
-	overflow: hidden;
+  padding: 1px 2px;
+  overflow: hidden;
 }
 .fc-studio .fc-now-indicator-line {
-	border-color: var(--color-primary);
+  border-color: var(--color-primary);
 }
 .fc-studio .fc-now-indicator-arrow {
-	border-top-color: var(--color-primary);
+  border-top-color: var(--color-primary);
 }
