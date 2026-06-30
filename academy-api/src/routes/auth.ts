@@ -27,19 +27,24 @@ import type { AuthVariables } from '../types/auth.js';
 
 const authRoutes = new Hono<{ Variables: AuthVariables }>();
 
-// Inicia sesión: firma el access token corto y emite el refresh token (cookie httpOnly).
+// Inicia sesión: firma el access token corto y emite el refresh token.
+// Para clientes mobile (X-Client: mobile), devuelve el refresh en el body en vez de cookie.
 async function startSession(
 	c: Context,
 	user: { id: string; email: string; role: string },
-): Promise<string> {
+	isMobile = false,
+): Promise<{ token: string; refreshToken?: string }> {
 	const token = await signAccessToken({
 		sub: user.id,
 		email: user.email,
 		role: user.role,
 	});
 	const refresh = await issueRefreshToken(user.id);
+	if (isMobile) {
+		return { token, refreshToken: refresh };
+	}
 	setRefreshCookie(c, refresh);
-	return token;
+	return { token };
 }
 
 const registerSchema = z.object({
@@ -166,8 +171,9 @@ authRoutes.post('/verify-email', async (c) => {
 		}),
 	]);
 
-	const token = await startSession(c, user);
-	return c.json({ token });
+	const isMobile = c.req.header('X-Client') === 'mobile';
+	const session = await startSession(c, user, isMobile);
+	return c.json(session);
 });
 
 // POST /auth/resend-verification
@@ -232,8 +238,9 @@ authRoutes.post('/login', async (c) => {
 		return c.json({ error: 'EMAIL_NOT_VERIFIED', userId: user.id }, 403);
 	}
 
-	const token = await startSession(c, user);
-	return c.json({ token });
+	const isMobile = c.req.header('X-Client') === 'mobile';
+	const session = await startSession(c, user, isMobile);
+	return c.json(session);
 });
 
 // POST /auth/forgot-password
@@ -305,18 +312,25 @@ authRoutes.post('/reset-password', async (c) => {
 	// Resetear contraseña cierra todas las sesiones previas.
 	await revokeAllForUser(user.id);
 
-	const token = await startSession(c, user);
-	return c.json({ token });
+	const isMobile = c.req.header('X-Client') === 'mobile';
+	const session = await startSession(c, user, isMobile);
+	return c.json(session);
 });
 
-// POST /auth/refresh — rota el refresh token (cookie) y entrega un access token nuevo.
+// POST /auth/refresh — rota el refresh token y entrega un access token nuevo.
+// Mobile: lee el refresh de la cabecera X-Refresh-Token y lo devuelve en el body.
+// Web: lee/escribe el refresh via cookie httpOnly.
 authRoutes.post('/refresh', async (c) => {
-	const current = getCookie(c, REFRESH_COOKIE);
+	const isMobile = c.req.header('X-Client') === 'mobile';
+	const current = isMobile
+		? (c.req.header('X-Refresh-Token') ?? undefined)
+		: getCookie(c, REFRESH_COOKIE);
+
 	if (!current) return c.json({ error: 'NO_REFRESH' }, 401);
 
 	const rotated = await rotateRefreshToken(current);
 	if (!rotated) {
-		clearRefreshCookie(c);
+		if (!isMobile) clearRefreshCookie(c);
 		return c.json({ error: 'INVALID_REFRESH' }, 401);
 	}
 
@@ -325,24 +339,33 @@ authRoutes.post('/refresh', async (c) => {
 	});
 	if (!user || !user.isActive) {
 		await revokeAllForUser(rotated.userId);
-		clearRefreshCookie(c);
+		if (!isMobile) clearRefreshCookie(c);
 		return c.json({ error: 'INVALID_REFRESH' }, 401);
 	}
 
-	setRefreshCookie(c, rotated.token);
 	const token = await signAccessToken({
 		sub: user.id,
 		email: user.email,
 		role: user.role,
 	});
+
+	if (isMobile) {
+		return c.json({ token, refreshToken: rotated.token });
+	}
+
+	setRefreshCookie(c, rotated.token);
 	return c.json({ token });
 });
 
-// POST /auth/logout — revoca el refresh token de esta sesión y limpia la cookie.
+// POST /auth/logout — revoca el refresh token y limpia la cookie (web) o responde vacío (mobile).
 authRoutes.post('/logout', async (c) => {
-	const current = getCookie(c, REFRESH_COOKIE);
+	const isMobile = c.req.header('X-Client') === 'mobile';
+	const current = isMobile
+		? ((await c.req.json().catch(() => null))?.refreshToken as string | undefined)
+		: getCookie(c, REFRESH_COOKIE);
+
 	if (current) await revokeRefreshToken(current);
-	clearRefreshCookie(c);
+	if (!isMobile) clearRefreshCookie(c);
 	return c.json({ success: true });
 });
 
