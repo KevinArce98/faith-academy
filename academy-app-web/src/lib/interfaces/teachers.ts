@@ -1,9 +1,7 @@
 export type TeacherClass = {
 	id: string;
 	name: string;
-	dayOfWeek: string;
-	startTime: string;
-	endTime: string;
+	schedule: string;
 	capacity: number;
 	attendanceCount: number;
 };
@@ -16,5 +14,5 @@ export type TeacherProfile = {
 	role: 'TEACHER';
 	isActive: boolean;
 	createdAt: string;
-	clases: TeacherClass[];
+	classes: TeacherClass[];
 };

@@ -1,16 +1,15 @@
 export type Plan = { id: string; name: string };
 
-export type Order = {
+// Mensualidad de un mes concreto (modelo flat-fee).
+export type Subscription = {
 	id: string;
-	status: string;
-	expiresAt: Date | null;
-	creditGranted: number | null;
-	notes?: string | null;
-	plan: Plan;
-	ledgerEntries?: { balance: number }[];
+	planId: string;
+	period: string;
+	amount: number;
+	isPaid: boolean;
+	paidAt: string | null;
+	plan: { id: string; name: string; isPublic?: boolean };
 };
-
-export type FamilyMember = { family: { name: string }; position: number };
 
 export type Student = {
 	id: string;
@@ -18,23 +17,14 @@ export type Student = {
 	email: string;
 	phone?: string;
 	role: string;
-	createdAt: Date;
-	orders: Order[];
-	familyMember: FamilyMember | null;
+	createdAt: string;
+	isActive: boolean;
+	enrollmentFee: number | null;
+	enrolledAt: string | null;
+	subscriptions: Subscription[];
 };
 
-export const STATUS_LABELS: Record<string, string> = {
-	ACTIVE: 'ACTIVO',
-	EXPIRED: 'VENCIDO',
-	PENDING_REVIEW: 'EN REVISION',
-	REJECTED: 'RECHAZADO',
-	CANCELLED: 'CANCELADO',
-};
-
-export const STATUS_COLORS: Record<string, string> = {
-	ACTIVE: 'bg-success/10 text-success',
-	EXPIRED: 'bg-danger/10 text-danger',
-	PENDING_REVIEW: 'bg-warning/10 text-warning',
-	REJECTED: 'bg-gray-100 text-gray-500',
-	CANCELLED: 'bg-gray-100 text-gray-500',
-};
+// La mensualidad vigente del alumno = la suscripción más reciente.
+export function currentSubscription(student: Student): Subscription | null {
+	return student.subscriptions[0] ?? null;
+}

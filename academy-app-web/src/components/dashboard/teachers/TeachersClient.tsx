@@ -127,19 +127,20 @@ export function TeachersClient({ teachers, activeCount }: TeachersClientProps) {
 	}
 
 	function renderClasses(teacher: TeacherProfile) {
-		if (!teacher.clases.length) {
+		if (!teacher.classes.length) {
 			return (
 				<p className="text-gray-400 text-sm italic">Sin clases asignadas</p>
 			);
 		}
 		return (
 			<div className="flex flex-wrap gap-2">
-				{teacher.clases.map((cls) => (
+				{teacher.classes.map((cls) => (
 					<span
 						key={cls.id}
 						className="bg-primary/10 text-primary rounded-full px-3 py-1 text-xs font-semibold"
 					>
-						{cls.name} · {cls.dayOfWeek} {cls.startTime}-{cls.endTime}
+						{cls.name}
+						{cls.schedule ? ` · ${cls.schedule}` : ''}
 					</span>
 				))}
 			</div>
@@ -259,7 +260,7 @@ export function TeachersClient({ teachers, activeCount }: TeachersClientProps) {
 								<div className="mt-6 flex items-center justify-between text-sm text-gray-500">
 									<div className="flex items-center gap-2">
 										<Calendar className="h-4 w-4" />
-										{teacher.clases.length} clases activas
+										{teacher.classes.length} clases activas
 									</div>
 									<p className="text-xs">Desde {createdAtLabel}</p>
 								</div>

@@ -7,7 +7,12 @@ import { useApiClient } from '@/lib/api';
 import type { MeResponse } from '@/lib/interfaces/auth';
 import { isAdminOrTeacher } from '@/lib/roles';
 
-type PlanOption = { id: string; name: string; price: number };
+type PlanOption = {
+	id: string;
+	name: string;
+	price: number;
+	isSingleClass: boolean;
+};
 type PlansResponse = { plans: PlanOption[] } | PlanOption[];
 type OrdersResponse = { orders: Order[] } | Order[];
 

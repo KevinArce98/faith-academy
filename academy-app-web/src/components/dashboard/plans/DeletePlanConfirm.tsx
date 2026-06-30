@@ -88,14 +88,14 @@ export function DeletePlanConfirm({
 							¿Estás seguro de que deseas eliminar el plan{' '}
 							<span className="text-dark font-semibold">{plan.name}</span>?
 						</p>
-						{plan._count.orders > 0 && (
+						{plan._count.subscriptions > 0 && (
 							<p className="bg-warning/10 text-warning rounded-lg px-3 py-2 text-xs font-medium">
-								Este plan tiene {plan._count.orders} alumno
-								{plan._count.orders !== 1 ? 's' : ''} activo
-								{plan._count.orders !== 1 ? 's' : ''} y no puede eliminarse.
+								Este plan tiene {plan._count.subscriptions} alumno
+								{plan._count.subscriptions !== 1 ? 's' : ''} activo
+								{plan._count.subscriptions !== 1 ? 's' : ''} y no puede eliminarse.
 							</p>
 						)}
-						{plan._count.orders === 0 && (
+						{plan._count.subscriptions === 0 && (
 							<p className="bg-danger/10 text-danger rounded-lg px-3 py-2 text-xs">
 								Esta acción no se puede deshacer.
 							</p>
@@ -118,7 +118,7 @@ export function DeletePlanConfirm({
 							type="button"
 							color="danger"
 							onClick={handleDelete}
-							disabled={isPending || plan._count.orders > 0}
+							disabled={isPending || plan._count.subscriptions > 0}
 							className="rounded-xl px-6"
 						>
 							{isPending ? 'Eliminando…' : 'Eliminar'}

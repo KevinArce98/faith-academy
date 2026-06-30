@@ -1,50 +1,50 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
-	AlertTriangle,
-	Calendar,
+	BarChart3,
+	CalendarDays,
+	CheckCircle2,
+	ClipboardCheck,
+	Clock,
 	DollarSign,
-	FileText,
 	GraduationCap,
+	Hourglass,
 	Users,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 import { StudentDashboard } from '@/components/dashboard/StudentDashboard';
+import { LEVEL_LABELS } from '@/components/dashboard/classes/classes.types';
 import { Button } from '@/components/ui/Button';
 import { InlineSpinner } from '@/components/ui/Spinner';
 import { useApiClient } from '@/lib/api';
+import { cn } from '@/lib/cn';
 import type { MeResponse } from '@/lib/interfaces/auth';
 import { isStudent } from '@/lib/roles';
 import {
 	formatDate,
 	formatPrice,
-	formatTime,
 	getInitials,
 	greeting,
-	timeAgo,
 } from '@/utils/general';
+import { formatSlotRange } from '@/utils/schedule';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
-type PendingOrder = {
-	id: string;
+type PendingPayment = {
+	subscriptionId: string;
 	studentId: string;
 	studentName: string;
 	studentEmail: string;
 	planName: string;
-	planPrice: number;
-	status: string;
-	receiptUrl: string | null;
-	createdAt: string;
+	amount: number;
 };
 
-type TodayClass = {
-	id: string;
-	name: string;
-	startsAt: string;
-	endsAt: string;
-	attendanceCount: number;
-	maxCapacity?: number;
+type ClassStat = {
+	classId: string;
+	className: string;
+	teacherName: string;
+	students: number;
+	revenue: number;
 };
 
 type NewStudent = {
@@ -58,125 +58,105 @@ type NewStudent = {
 type AdminDashboardData = {
 	userName: string;
 	activeStudents: number;
-	pendingOrders: PendingOrder[];
-	expiringOrders: number;
-	todayClasses: TodayClass[];
+	monthCollected: number;
+	monthPending: number;
+	teacherPayout: number;
+	pendingCount: number;
+	pendingPayments: PendingPayment[];
+	classStats: ClassStat[];
 	newStudents: NewStudent[];
-	monthRevenue: number;
-	revenueChange: number;
 };
 
-type StudentDashboardData = {
+type TeacherSlot = { dayOfWeek: number; startTime: string; endTime: string };
+
+type TeacherClass = {
+	id: string;
+	name: string;
+	skillLevel: string;
+	schedule: string | null;
+	slots: TeacherSlot[];
+	oneOffDate: string | null; // "YYYY-MM-DD" si es clase única
+	students: number;
+	sessionsGiven: number;
+	avgAttendance: number;
+};
+
+type TeacherDashboardData = {
 	userName: string;
-	creditBalance: number;
-	activeOrder: {
-		id: string;
-		planName: string;
-		status: string;
-		creditsRemaining: number;
-		expiresAt: string | null;
-	} | null;
-	upcomingClasses: {
-		id: string;
-		name: string;
-		startsAt: string;
-		endsAt: string;
-		skillLevel: string;
-	}[];
-	recentPayments: {
-		id: string;
-		planName: string;
-		status: string;
-		createdAt: string;
-		price: number;
-	}[];
+	totalClasses: number;
+	totalStudents: number;
+	hoursThisMonth: number;
+	classes: TeacherClass[];
 };
 
-// ─── Helper component ────────────────────────────────────────────────────────
+export type StudentDashboardData = {
+	userName: string;
+	enrollmentFee: number | null;
+	subscription: { planName: string; amount: number; isPaid: boolean } | null;
+	planActive: boolean;
+	planExpired: boolean;
+	expiresAt: string | null;
+	classesThisMonth: { id: string; name: string }[];
+};
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function StudentInitials({ name }: { name: string }) {
-	const initials = getInitials(name);
 	return (
 		<div className="bg-dark flex h-9 w-9 shrink-0 items-center justify-center rounded-full">
-			<span className="text-xs font-bold text-white">{initials}</span>
+			<span className="text-xs font-bold text-white">{getInitials(name)}</span>
 		</div>
 	);
 }
 
-// ─── Admin dashboard view ────────────────────────────────────────────────────
+function Kpi({
+	label,
+	value,
+	icon: Icon,
+	sub,
+	subColor = 'text-gray-400',
+	valueColor = 'text-dark',
+}: {
+	label: string;
+	value: string;
+	icon: typeof Users;
+	sub?: string;
+	subColor?: string;
+	valueColor?: string;
+}) {
+	return (
+		<div className="rounded-2xl border border-gray-50 bg-white p-4 shadow-sm md:p-5">
+			<div className="mb-2 flex items-start justify-between md:mb-3">
+				<p className="text-xs text-gray-400 md:text-sm">{label}</p>
+				<Icon className="h-4 w-4 text-gray-300 md:h-5 md:w-5" />
+			</div>
+			<p className={`mb-1 text-2xl font-bold md:text-4xl ${valueColor}`}>
+				{value}
+			</p>
+			{sub && <p className={`text-xs font-medium ${subColor}`}>● {sub}</p>}
+		</div>
+	);
+}
+
+// ─── Admin dashboard ─────────────────────────────────────────────────────────
 
 function AdminDashboard({ data }: { data: AdminDashboardData }) {
 	const apiClient = useApiClient();
 	const queryClient = useQueryClient();
 	const now = new Date();
 
-	const approveMutation = useMutation({
-		mutationFn: (orderId: string) =>
-			apiClient(`/api/v1/payments/orders/${orderId}/approve`, {
-				method: 'POST',
+	const payMutation = useMutation({
+		mutationFn: (subscriptionId: string) =>
+			apiClient(`/api/v1/subscriptions/${subscriptionId}/pay`, {
+				method: 'PATCH',
+				body: JSON.stringify({ isPaid: true }),
 			}),
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['dashboard'] });
-		},
+		onSuccess: () => queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
 	});
-
-	const rejectMutation = useMutation({
-		mutationFn: (orderId: string) =>
-			apiClient(`/api/v1/payments/orders/${orderId}/reject`, {
-				method: 'POST',
-				body: JSON.stringify({ notes: '' }),
-			}),
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['dashboard'] });
-		},
-	});
-
-	const {
-		activeStudents,
-		pendingOrders,
-		expiringOrders,
-		todayClasses,
-		newStudents,
-		monthRevenue,
-		revenueChange,
-	} = data;
-
-	const kpis = [
-		{
-			label: 'Alumnos Activos',
-			value: activeStudents.toLocaleString(),
-			icon: Users,
-			sub: `+${newStudents.length} nuevos este mes`,
-			subColor: 'text-success',
-		},
-		{
-			label: 'Ingresos del Mes',
-			value: formatPrice(monthRevenue),
-			icon: DollarSign,
-			sub: `${revenueChange >= 0 ? '+' : ''}${revenueChange}% vs mes anterior`,
-			subColor: revenueChange >= 0 ? 'text-success' : 'text-danger',
-		},
-		{
-			label: 'Membresias por Vencer',
-			value: String(expiringOrders),
-			icon: AlertTriangle,
-			sub: 'proximos 7 dias',
-			subColor: 'text-warning',
-			valueColor: 'text-warning',
-		},
-		{
-			label: 'Pagos Pendientes',
-			value: String(pendingOrders.length),
-			icon: FileText,
-			sub: 'requieren aprobacion',
-			subColor: 'text-danger',
-			valueColor: 'text-danger',
-		},
-	];
 
 	return (
 		<div className="space-y-8">
-			{/* ── Header ─────────────────────────────────── */}
+			{/* Header */}
 			<div className="flex flex-col gap-1 md:flex-row md:items-center md:justify-between">
 				<h1 className="text-dark text-2xl font-bold md:text-[28px]">
 					{greeting()}, {data.userName?.split(' ')[0]} 👋
@@ -184,228 +164,118 @@ function AdminDashboard({ data }: { data: AdminDashboardData }) {
 				<p className="text-sm text-gray-400 capitalize">{formatDate(now)}</p>
 			</div>
 
-			{/* ── KPI Cards ──────────────────────────────── */}
+			{/* KPIs */}
 			<div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-5">
-				{kpis.map((kpi) => (
-					<div
-						key={kpi.label}
-						className="rounded-2xl border border-gray-50 bg-white p-4 shadow-sm md:p-5"
-					>
-						<div className="mb-2 flex items-start justify-between md:mb-3">
-							<p className="text-xs text-gray-400 md:text-sm">{kpi.label}</p>
-							<kpi.icon className="h-4 w-4 text-gray-300 md:h-5 md:w-5" />
-						</div>
-						<p
-							className={`text-2xl font-bold md:text-4xl ${kpi.valueColor ?? 'text-dark'} mb-1`}
-						>
-							{kpi.value}
-						</p>
-						<p className={`text-xs font-medium ${kpi.subColor}`}>● {kpi.sub}</p>
-					</div>
-				))}
+				<Kpi
+					label="Alumnos Activos"
+					value={data.activeStudents.toLocaleString()}
+					icon={Users}
+					sub={`+${data.newStudents.length} nuevos esta semana`}
+					subColor="text-success"
+				/>
+				<Kpi
+					label="Recaudado del Mes"
+					value={formatPrice(data.monthCollected)}
+					icon={DollarSign}
+					sub="mensualidades pagadas"
+					subColor="text-success"
+				/>
+				<Kpi
+					label="Por Cobrar"
+					value={formatPrice(data.monthPending)}
+					icon={Clock}
+					sub={`${data.pendingCount} mensualidades`}
+					subColor="text-warning"
+					valueColor="text-warning"
+				/>
+				<Kpi
+					label="Pago a Profes"
+					value={formatPrice(data.teacherPayout)}
+					icon={GraduationCap}
+					sub="repartido este mes"
+				/>
 			</div>
 
-			{/* ── Main content ──────────────────────────── */}
-			<div className="flex flex-col gap-4 md:grid md:grid-cols-1 lg:grid-cols-[1fr_340px] lg:gap-6">
-				{/* Pending payments */}
+			<div className="flex flex-col gap-4 lg:grid lg:grid-cols-[1fr_340px] lg:gap-6">
+				{/* Pending mensualidades */}
 				<div className="rounded-2xl border border-gray-50 bg-white p-4 shadow-sm md:p-6">
 					<div className="mb-5 flex items-center justify-between">
 						<h2 className="text-dark text-base font-bold">
-							Pagos Pendientes de Aprobacion
+							Mensualidades Pendientes
 						</h2>
 						<Link
-							to="/payments"
+							to="/students"
 							className="text-primary text-sm font-semibold hover:underline"
 						>
-							Ver todos →
+							Ver alumnos →
 						</Link>
 					</div>
 
-					{pendingOrders.length === 0 ? (
+					{data.pendingPayments.length === 0 ? (
 						<p className="py-8 text-center text-sm text-gray-400">
-							Sin pagos pendientes
+							Todas las mensualidades del mes están al día 🎉
 						</p>
 					) : (
-						<>
-							{/* Desktop table */}
-							<table className="hidden w-full text-sm md:table">
-								<thead>
-									<tr className="border-b border-gray-50 text-xs tracking-wide text-gray-400 uppercase">
-										<th className="py-2 text-left font-medium">Alumno</th>
-										<th className="py-2 text-left font-medium">Plan</th>
-										<th className="py-2 text-left font-medium">
-											Fecha Solicitud
-										</th>
-										<th className="py-2 text-left font-medium">Comprobante</th>
-										<th className="py-2 text-left font-medium">Acciones</th>
-									</tr>
-								</thead>
-								<tbody className="divide-y divide-gray-50">
-									{pendingOrders.slice(0, 5).map((order) => (
-										<tr key={order.id} className="hover:bg-gray-50/50">
-											<td className="py-3">
-												<div className="flex items-center gap-2">
-													<StudentInitials name={order.studentName} />
-													<div>
-														<p className="text-dark font-medium">
-															{order.studentName}
-														</p>
-														<p className="text-primary text-xs">
-															{order.studentEmail}
-														</p>
-													</div>
-												</div>
-											</td>
-											<td className="py-3">
-												<span className="bg-dark rounded-full px-2.5 py-1 text-xs font-medium text-white">
-													{order.planName}
-												</span>
-											</td>
-											<td className="py-3 text-gray-500">
-												{timeAgo(order.createdAt)}
-											</td>
-											<td className="py-3">
-												{order.receiptUrl ? (
-													<a
-														href={order.receiptUrl}
-														target="_blank"
-														rel="noopener noreferrer"
-														className="text-primary flex items-center gap-1 text-xs hover:underline"
-													>
-														<FileText className="h-3.5 w-3.5" /> ver
-													</a>
-												) : (
-													<span className="text-xs text-gray-300">—</span>
-												)}
-											</td>
-											<td className="py-3">
-												<div className="flex gap-2">
-													<Button
-														type="button"
-														variant="contained"
-														color="success"
-														className="rounded-lg px-3 py-1 text-xs"
-														disabled={
-															approveMutation.isPending ||
-															rejectMutation.isPending
-														}
-														onClick={() => approveMutation.mutate(order.id)}
-													>
-														Aprobar
-													</Button>
-													<Button
-														type="button"
-														variant="outlined"
-														color="danger"
-														className="rounded-lg px-3 py-1 text-xs"
-														disabled={
-															approveMutation.isPending ||
-															rejectMutation.isPending
-														}
-														onClick={() => rejectMutation.mutate(order.id)}
-													>
-														Rechazar
-													</Button>
-												</div>
-											</td>
-										</tr>
-									))}
-								</tbody>
-							</table>
-
-							{/* Mobile cards */}
-							<div className="space-y-3 md:hidden">
-								{pendingOrders.slice(0, 5).map((order) => (
-									<div key={order.id} className="rounded-xl bg-gray-50 p-4">
-										<div className="mb-2 flex items-center gap-2">
-											<StudentInitials name={order.studentName} />
-											<div className="min-w-0 flex-1">
-												<p className="text-dark truncate text-sm font-bold">
-													{order.studentName}
-												</p>
-											</div>
-											<span className="bg-dark shrink-0 rounded-full px-2.5 py-1 text-xs font-medium text-white">
-												{order.planName}
-											</span>
-										</div>
-										<p className="mb-2 text-xs text-gray-400">
-											{timeAgo(order.createdAt)}
+						<div className="space-y-2">
+							{data.pendingPayments.slice(0, 8).map((p) => (
+								<div
+									key={p.subscriptionId}
+									className="flex items-center gap-3 rounded-xl bg-gray-50 p-3"
+								>
+									<StudentInitials name={p.studentName} />
+									<div className="min-w-0 flex-1">
+										<p className="text-dark truncate text-sm font-medium">
+											{p.studentName}
 										</p>
-										{order.receiptUrl && (
-											<a
-												href={order.receiptUrl}
-												target="_blank"
-												rel="noopener noreferrer"
-												className="text-primary mb-3 inline-flex items-center gap-1 text-xs hover:underline"
-											>
-												<FileText className="h-3.5 w-3.5" /> Ver comprobante
-											</a>
-										)}
-										<div className="grid grid-cols-2 gap-2">
-											<Button
-												type="button"
-												variant="contained"
-												color="success"
-												className="min-h-11 w-full rounded-lg text-xs"
-												disabled={
-													approveMutation.isPending || rejectMutation.isPending
-												}
-												onClick={() => approveMutation.mutate(order.id)}
-											>
-												Aprobar
-											</Button>
-											<Button
-												type="button"
-												variant="outlined"
-												color="danger"
-												className="min-h-11 w-full rounded-lg text-xs"
-												disabled={
-													approveMutation.isPending || rejectMutation.isPending
-												}
-												onClick={() => rejectMutation.mutate(order.id)}
-											>
-												Rechazar
-											</Button>
-										</div>
+										<p className="truncate text-xs text-gray-400">
+											{p.planName} · {formatPrice(p.amount)}
+										</p>
 									</div>
-								))}
-							</div>
-						</>
+									<Button
+										type="button"
+										variant="contained"
+										color="success"
+										className="shrink-0 rounded-lg px-3 py-1 text-xs"
+										disabled={payMutation.isPending}
+										onClick={() => payMutation.mutate(p.subscriptionId)}
+									>
+										<CheckCircle2 className="h-3.5 w-3.5" /> Pagado
+									</Button>
+								</div>
+							))}
+						</div>
 					)}
 				</div>
 
 				{/* Right column */}
 				<div className="flex flex-col gap-4 lg:gap-6">
-					{/* Today's classes */}
+					{/* Class stats */}
 					<div className="rounded-2xl border border-gray-50 bg-white p-5 shadow-sm">
 						<div className="mb-4 flex items-center justify-between">
-							<h2 className="text-dark text-base font-bold">Clases de Hoy</h2>
-							<span className="text-xs text-gray-400">
-								{new Intl.DateTimeFormat('es-CR', {
-									day: 'numeric',
-									month: 'long',
-								}).format(now)}
-							</span>
+							<h2 className="text-dark text-base font-bold">
+								Ingreso por Clase
+							</h2>
+							<BarChart3 className="h-4 w-4 text-gray-300" />
 						</div>
-						{todayClasses.length === 0 ? (
+						{data.classStats.length === 0 ? (
 							<p className="py-4 text-center text-sm text-gray-400">
-								Sin clases hoy
+								Sin datos este mes
 							</p>
 						) : (
-							<div className="space-y-2.5">
-								{todayClasses.map((cls) => (
-									<div key={cls.id} className="flex items-center gap-3">
-										<span className="w-14 shrink-0 font-mono text-xs text-gray-400">
-											{formatTime(new Date(cls.startsAt))}
-										</span>
+							<div className="space-y-3">
+								{data.classStats.map((cl) => (
+									<div key={cl.classId} className="flex items-center gap-3">
 										<div className="min-w-0 flex-1">
 											<p className="text-dark truncate text-sm font-medium">
-												{cls.name}
+												{cl.className}
+											</p>
+											<p className="truncate text-xs text-gray-400">
+												{cl.teacherName || 'Sin profesor'} · {cl.students}{' '}
+												{cl.students === 1 ? 'alumno' : 'alumnos'}
 											</p>
 										</div>
-										<span className="shrink-0 text-xs text-gray-400">
-											{cls.attendanceCount}
-											{cls.maxCapacity != null ? `/${cls.maxCapacity}` : ''}
+										<span className="text-dark shrink-0 text-sm font-semibold">
+											{formatPrice(cl.revenue)}
 										</span>
 									</div>
 								))}
@@ -418,36 +288,27 @@ function AdminDashboard({ data }: { data: AdminDashboardData }) {
 						<h2 className="text-dark mb-4 text-base font-bold">
 							Alumnos Nuevos esta Semana
 						</h2>
-						{newStudents.length === 0 ? (
+						{data.newStudents.length === 0 ? (
 							<p className="py-4 text-center text-sm text-gray-400">
 								Sin alumnos nuevos
 							</p>
 						) : (
 							<div className="space-y-3">
-								{newStudents.map((student) => {
-									const daysAgo = Math.floor(
-										(now.getTime() - new Date(student.createdAt).getTime()) /
-											86400000,
-									);
-									return (
-										<div key={student.id} className="flex items-center gap-3">
-											<StudentInitials name={student.name ?? ''} />
-											<div className="min-w-0 flex-1">
-												<p className="text-dark truncate text-sm font-medium">
-													{student.name}
-												</p>
-												{student.planName && (
-													<span className="text-primary text-xs">
-														{student.planName}
-													</span>
-												)}
-											</div>
-											<span className="shrink-0 text-xs text-gray-400">
-												{daysAgo === 0 ? 'Hoy' : `Hace ${daysAgo}d`}
-											</span>
+								{data.newStudents.map((student) => (
+									<div key={student.id} className="flex items-center gap-3">
+										<StudentInitials name={student.name ?? ''} />
+										<div className="min-w-0 flex-1">
+											<p className="text-dark truncate text-sm font-medium">
+												{student.name}
+											</p>
+											{student.planName && (
+												<span className="text-primary text-xs">
+													{student.planName}
+												</span>
+											)}
 										</div>
-									);
-								})}
+									</div>
+								))}
 							</div>
 						)}
 					</div>
@@ -459,30 +320,64 @@ function AdminDashboard({ data }: { data: AdminDashboardData }) {
 
 // ─── Teacher dashboard ───────────────────────────────────────────────────────
 
-type TeacherClassItem = {
-	id: string;
-	name: string;
-	startsAt: string;
-	endsAt: string;
-	attendanceCount: number;
-	maxCapacity: number;
-	skillLevel?: string;
-};
+const DAY_LABELS = [
+	'',
+	'Lunes',
+	'Martes',
+	'Miércoles',
+	'Jueves',
+	'Viernes',
+	'Sábado',
+	'Domingo',
+];
 
-type TeacherDashboardData = {
-	userName: string;
-	todayClasses: TeacherClassItem[];
-	upcomingClasses: TeacherClassItem[];
-	totalEnrolled: number;
-	totalClasses: number;
-};
+// JS getDay (0=Dom..6=Sáb) → convención del schema (1=Lun..7=Dom).
+function todayDow(): number {
+	return ((new Date().getDay() + 6) % 7) + 1;
+}
+
+function ymd(d: Date): string {
+	return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
 
 function TeacherDashboard({ data }: { data: TeacherDashboardData }) {
 	const now = new Date();
+	const dow = todayDow();
+	const todayStr = ymd(now);
+
+	// Semana actual (lunes a domingo) para ubicar las clases únicas.
+	const monday = new Date(now);
+	monday.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+	const weekStart = ymd(monday);
+	const sunday = new Date(monday);
+	sunday.setDate(monday.getDate() + 6);
+	const weekEnd = ymd(sunday);
+
+	// Clases de hoy: recurrentes en el día de hoy, y clases únicas con fecha == hoy.
+	const todayClasses = data.classes
+		.map((cls) => {
+			const slot = cls.slots.find((s) => s.dayOfWeek === dow);
+			if (!slot) return null;
+			if (cls.oneOffDate && cls.oneOffDate !== todayStr) return null;
+			return { cls, slot };
+		})
+		.filter((x): x is { cls: TeacherClass; slot: TeacherSlot } => x !== null)
+		.sort((a, b) => a.slot.startTime.localeCompare(b.slot.startTime));
+
+	// Horario semanal: recurrentes siempre; clases únicas solo si caen esta semana.
+	const byDay = new Map<number, { name: string; slot: TeacherSlot }[]>();
+	for (const cls of data.classes) {
+		if (cls.oneOffDate && (cls.oneOffDate < weekStart || cls.oneOffDate > weekEnd))
+			continue;
+		for (const slot of cls.slots) {
+			const list = byDay.get(slot.dayOfWeek) ?? [];
+			list.push({ name: cls.name, slot });
+			byDay.set(slot.dayOfWeek, list);
+		}
+	}
 
 	return (
 		<div className="space-y-8">
-			{/* Header */}
 			<div className="flex flex-col gap-1 md:flex-row md:items-center md:justify-between">
 				<h1 className="text-dark text-2xl font-bold md:text-[28px]">
 					{greeting()}, {data.userName?.split(' ')[0]} 👋
@@ -490,141 +385,145 @@ function TeacherDashboard({ data }: { data: TeacherDashboardData }) {
 				<p className="text-sm text-gray-400 capitalize">{formatDate(now)}</p>
 			</div>
 
-			{/* KPI cards */}
-			<div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-5">
-				<div className="rounded-2xl border border-gray-50 bg-white p-4 shadow-sm md:p-5">
-					<div className="mb-2 flex items-start justify-between md:mb-3">
-						<p className="text-xs text-gray-400 md:text-sm">Clases Hoy</p>
-						<Calendar className="h-4 w-4 text-gray-300 md:h-5 md:w-5" />
-					</div>
-					<p className="text-dark mb-1 text-2xl font-bold md:text-4xl">
-						{data.todayClasses.length}
-					</p>
-					<p className="text-xs font-medium text-gray-400">
-						programadas para hoy
-					</p>
-				</div>
-				<div className="rounded-2xl border border-gray-50 bg-white p-4 shadow-sm md:p-5">
-					<div className="mb-2 flex items-start justify-between md:mb-3">
-						<p className="text-xs text-gray-400 md:text-sm">
-							Alumnos Inscritos
-						</p>
-						<Users className="h-4 w-4 text-gray-300 md:h-5 md:w-5" />
-					</div>
-					<p className="text-dark mb-1 text-2xl font-bold md:text-4xl">
-						{data.totalEnrolled}
-					</p>
-					<p className="text-xs font-medium text-gray-400">
-						en tus clases activas
-					</p>
-				</div>
-				<div className="col-span-2 rounded-2xl border border-gray-50 bg-white p-4 shadow-sm md:col-span-1 md:p-5">
-					<div className="mb-2 flex items-start justify-between md:mb-3">
-						<p className="text-xs text-gray-400 md:text-sm">Próximas Clases</p>
-						<GraduationCap className="h-4 w-4 text-gray-300 md:h-5 md:w-5" />
-					</div>
-					<p className="text-dark mb-1 text-2xl font-bold md:text-4xl">
-						{data.upcomingClasses.length}
-					</p>
-					<Link
-						to="/classes"
-						className="text-primary text-xs font-semibold hover:underline"
-					>
-						Ver calendario →
-					</Link>
-				</div>
+			{/* KPIs operativos — sin finanzas */}
+			<div className="grid grid-cols-3 gap-3 md:gap-5">
+				<Kpi
+					label="Tus Clases"
+					value={String(data.totalClasses)}
+					icon={GraduationCap}
+				/>
+				<Kpi
+					label="Alumnos Inscritos"
+					value={String(data.totalStudents)}
+					icon={Users}
+					sub="este mes"
+				/>
+				<Kpi
+					label="Horas del Mes"
+					value={`${data.hoursThisMonth} h`}
+					icon={Hourglass}
+					sub="sesiones dadas"
+				/>
 			</div>
 
-			{/* Main content */}
-			<div className="flex flex-col gap-4 lg:grid lg:grid-cols-2 lg:gap-6">
-				{/* Today's classes */}
-				<div className="rounded-2xl border border-gray-50 bg-white p-5 shadow-sm">
-					<div className="mb-4 flex items-center justify-between">
-						<h2 className="text-dark text-base font-bold">Mis Clases de Hoy</h2>
-						<span className="text-xs text-gray-400">
-							{new Intl.DateTimeFormat('es-CR', {
-								day: 'numeric',
-								month: 'long',
-							}).format(now)}
-						</span>
+			{/* Clases de hoy + Pasar lista */}
+			<div className="rounded-2xl border border-gray-50 bg-white p-5 shadow-sm">
+				<div className="mb-4 flex items-center justify-between">
+					<h2 className="text-dark text-base font-bold">Clases de Hoy</h2>
+					<CalendarDays className="h-4 w-4 text-gray-300" />
+				</div>
+				{todayClasses.length === 0 ? (
+					<p className="py-6 text-center text-sm text-gray-400">
+						No tienes clases hoy 🎉
+					</p>
+				) : (
+					<div className="space-y-2">
+						{todayClasses.map(({ cls, slot }) => (
+							<div
+								key={cls.id}
+								className="flex items-center gap-3 rounded-xl bg-gray-50 p-3"
+							>
+								<div className="min-w-0 flex-1">
+									<p className="text-dark truncate text-sm font-medium">
+										{cls.name} ·{' '}
+										{LEVEL_LABELS[cls.skillLevel] ?? cls.skillLevel}
+									</p>
+									<p className="truncate text-xs text-gray-400">
+										{formatSlotRange(slot.startTime, slot.endTime)} ·{' '}
+										{cls.students}{' '}
+										{cls.students === 1 ? 'alumno' : 'alumnos'}
+									</p>
+								</div>
+								<Link to={`/class-attendance?classId=${cls.id}`}>
+									<Button
+										type="button"
+										variant="contained"
+										className="shrink-0 rounded-lg px-3 py-1 text-xs"
+									>
+										<ClipboardCheck className="h-3.5 w-3.5" /> Pasar lista
+									</Button>
+								</Link>
+							</div>
+						))}
 					</div>
-					{data.todayClasses.length === 0 ? (
+				)}
+			</div>
+
+			<div className="flex flex-col gap-4 lg:grid lg:grid-cols-2 lg:gap-6">
+				{/* Horario semanal */}
+				<div className="rounded-2xl border border-gray-50 bg-white p-5 shadow-sm">
+					<h2 className="text-dark mb-4 text-base font-bold">
+						Mi Horario Semanal
+					</h2>
+					{data.classes.length === 0 ? (
 						<p className="py-6 text-center text-sm text-gray-400">
-							Sin clases programadas hoy
+							No tienes clases asignadas
 						</p>
 					) : (
 						<div className="space-y-3">
-							{data.todayClasses.map((cls) => (
-								<div key={cls.id} className="flex items-center gap-3">
-									<span className="w-14 shrink-0 font-mono text-xs text-gray-400">
-										{formatTime(new Date(cls.startsAt))}
-									</span>
-									<div className="min-w-0 flex-1">
-										<p className="text-dark truncate text-sm font-medium">
-											{cls.name}
-										</p>
+							{[1, 2, 3, 4, 5, 6, 7].map((d) => {
+								const items = byDay.get(d);
+								if (!items?.length) return null;
+								return (
+									<div key={d} className="flex gap-3">
+										<span
+											className={cn(
+												'w-20 shrink-0 text-xs font-semibold',
+												d === dow ? 'text-primary' : 'text-gray-400',
+											)}
+										>
+											{DAY_LABELS[d]}
+										</span>
+										<div className="flex-1 space-y-1">
+											{items
+												.sort((a, b) =>
+													a.slot.startTime.localeCompare(b.slot.startTime),
+												)
+												.map((it, i) => (
+													<p key={i} className="text-dark text-sm">
+														{formatSlotRange(it.slot.startTime, it.slot.endTime)}{' '}
+														<span className="text-gray-400">· {it.name}</span>
+													</p>
+												))}
+										</div>
 									</div>
-									<span
-										className={`shrink-0 text-xs font-medium ${cls.attendanceCount >= cls.maxCapacity ? 'text-danger' : 'text-gray-400'}`}
-									>
-										{cls.attendanceCount}/{cls.maxCapacity}
-									</span>
-								</div>
-							))}
+								);
+							})}
 						</div>
 					)}
 				</div>
 
-				{/* Upcoming classes this week */}
+				{/* Resumen de asistencia */}
 				<div className="rounded-2xl border border-gray-50 bg-white p-5 shadow-sm">
 					<div className="mb-4 flex items-center justify-between">
-						<h2 className="text-dark text-base font-bold">Próximas Clases</h2>
-						<Link
-							to="/classes"
-							className="text-primary text-sm font-semibold hover:underline"
-						>
-							Ver todas →
-						</Link>
+						<h2 className="text-dark text-base font-bold">
+							Asistencia del Mes
+						</h2>
+						<BarChart3 className="h-4 w-4 text-gray-300" />
 					</div>
-					{data.upcomingClasses.length === 0 ? (
+					{data.classes.length === 0 ? (
 						<p className="py-6 text-center text-sm text-gray-400">
-							Sin clases próximas esta semana
+							Sin datos este mes
 						</p>
 					) : (
 						<div className="space-y-3">
-							{data.upcomingClasses.map((cls) => {
-								const start = new Date(cls.startsAt);
-								const dayShort = new Intl.DateTimeFormat('es-CR', {
-									weekday: 'short',
-								})
-									.format(start)
-									.replace('.', '');
-								return (
-									<div key={cls.id} className="flex items-center gap-3">
-										<div className="flex w-12 shrink-0 flex-col items-center justify-center rounded-lg bg-gray-50 px-1 py-1.5">
-											<span className="text-dark text-[11px] font-bold uppercase leading-none">
-												{dayShort}
-											</span>
-											<span className="mt-0.5 text-[10px] text-gray-400">
-												{formatTime(start)}
-											</span>
-										</div>
-										<div className="min-w-0 flex-1">
-											<p className="text-dark truncate text-sm font-medium">
-												{cls.name}
-											</p>
-											<p className="text-xs text-gray-400">
-												{formatTime(start)} — {formatTime(new Date(cls.endsAt))}
-											</p>
-										</div>
-										<span
-											className={`shrink-0 text-xs font-medium ${cls.attendanceCount >= cls.maxCapacity ? 'text-danger' : 'text-gray-400'}`}
-										>
-											{cls.attendanceCount}/{cls.maxCapacity}
-										</span>
+							{data.classes.map((cls) => (
+								<div key={cls.id} className="flex items-center gap-3">
+									<div className="min-w-0 flex-1">
+										<p className="text-dark truncate text-sm font-medium">
+											{cls.name}
+										</p>
+										<p className="truncate text-xs text-gray-400">
+											{cls.sessionsGiven}{' '}
+											{cls.sessionsGiven === 1 ? 'sesión' : 'sesiones'} ·{' '}
+											{cls.students} inscritos
+										</p>
 									</div>
-								);
-							})}
+									<span className="text-primary inline-flex shrink-0 items-center gap-1 text-sm font-semibold">
+										<Users className="h-4 w-4" /> {cls.avgAttendance}
+									</span>
+								</div>
+							))}
 						</div>
 					)}
 				</div>

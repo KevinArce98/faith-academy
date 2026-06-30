@@ -1,15 +1,15 @@
-import { Calendar, Pencil, Star, Trash2 } from 'lucide-react';
+import { Pencil, Star, Trash2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/Button';
 import { useApiClient } from '@/lib/api';
 import { cn } from '@/lib/cn';
-import { INTERVAL_LABEL, getPlanColor } from '@/lib/interfaces/plans';
+import { getPlanColor } from '@/lib/interfaces/plans';
 import type { Plan } from '@/lib/interfaces/plans';
 import { formatPrice } from '@/utils/general';
 
 interface PlanCardProps {
 	plan: Plan;
-	isPopular: boolean;
+	isAdmin?: boolean;
 	onEdit?: (plan: Plan) => void;
 	onDelete?: (plan: Plan) => void;
 	onToggle?: (id: string, next: boolean) => void;
@@ -17,7 +17,7 @@ interface PlanCardProps {
 
 export function PlanCard({
 	plan,
-	isPopular,
+	isAdmin = false,
 	onEdit,
 	onDelete,
 	onToggle,
@@ -38,20 +38,18 @@ export function PlanCard({
 		<div
 			className={cn(
 				'relative flex w-full flex-col gap-4 rounded-2xl border-2 bg-white p-4 shadow-sm md:p-6',
-				isPopular ? 'border-primary' : colors.border,
+				colors.border,
 			)}
 		>
-			{/* Mas popular badge */}
-			{isPopular && (
-				<div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-					<span className="bg-primary rounded-full px-3 py-1 text-[10px] font-bold tracking-wider text-white uppercase">
-						Mas popular
-					</span>
-				</div>
-			)}
-
 			<div className="flex items-start justify-between">
-				<h2 className="text-dark text-lg font-bold">{plan.name}</h2>
+				<div className="flex flex-col gap-1">
+					<h2 className="text-dark text-lg font-bold">{plan.name}</h2>
+					{!plan.isPublic && (
+						<span className="w-fit rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold tracking-wide text-amber-700 uppercase">
+							Beca · oculto
+						</span>
+					)}
+				</div>
 
 				{/* Toggle activo/inactivo */}
 				{onToggle && (
@@ -83,13 +81,11 @@ export function PlanCard({
 			<div className="space-y-1.5 text-sm text-gray-600">
 				<div className="flex items-center gap-2">
 					<Star className="h-4 w-4 text-gray-300" />
-					{plan.credits > 999
-						? 'Créditos ilimitados'
-						: `${plan.credits} créditos por mes`}
-				</div>
-				<div className="flex items-center gap-2">
-					<Calendar className="h-4 w-4 text-gray-300" />
-					{INTERVAL_LABEL[plan.intervalType] ?? plan.intervalType}
+					{plan.isSingleClass
+						? 'Una sola clase'
+						: plan.classesPerWeek === 0
+							? 'Clases ilimitadas'
+							: `${plan.classesPerWeek} ${plan.classesPerWeek === 1 ? 'clase' : 'clases'} por semana`}
 				</div>
 			</div>
 
@@ -97,9 +93,13 @@ export function PlanCard({
 				<p className="text-sm leading-snug text-gray-400">{plan.description}</p>
 			)}
 
-			<p className="text-dark text-sm font-semibold">
-				{plan._count.orders} alumnos activos
-			</p>
+			{isAdmin && (
+				<p className="text-dark text-sm font-semibold">
+					{plan._count.subscriptions} alumno
+					{plan._count.subscriptions !== 1 ? 's' : ''} activo
+					{plan._count.subscriptions !== 1 ? 's' : ''} este mes
+				</p>
+			)}
 
 			{(onEdit || onDelete) && (
 				<div className="mt-auto flex gap-2">

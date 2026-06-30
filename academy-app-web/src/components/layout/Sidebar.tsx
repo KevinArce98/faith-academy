@@ -1,12 +1,17 @@
+import { useQueryClient } from '@tanstack/react-query';
 import {
 	BarChart2,
+	BookOpen,
 	Calendar,
+	ClipboardCheck,
 	CreditCard,
+	DollarSign,
 	GraduationCap,
 	LayoutDashboard,
 	LogOut,
 	PlayCircle,
 	Tag,
+	UserCheck,
 	Users,
 	X,
 } from 'lucide-react';
@@ -41,8 +46,39 @@ function getBaseNavItems(role: Role): NavItem[] {
 			label: role === 'STUDENT' ? 'Mis Pagos' : 'Pagos',
 		},
 		{ href: '/classes', icon: Calendar, label: 'Clases' },
-		{ href: '/plans', icon: Tag, label: 'Planes' },
 	);
+
+	// Asistencia real (pasar lista): admin + profes.
+	if (role === 'ADMIN' || role === 'TEACHER') {
+		items.push({
+			href: '/class-attendance',
+			icon: UserCheck,
+			label: 'Asistencia',
+		});
+	}
+
+	// Auto-inscripción del alumno.
+	if (role === 'STUDENT') {
+		items.push({ href: '/my-classes', icon: BookOpen, label: 'Mis Clases' });
+	}
+
+	// Inscripciones y pago a profes: solo admin (por seguridad).
+	if (role === 'ADMIN') {
+		items.push(
+			{
+				href: '/attendance',
+				icon: ClipboardCheck,
+				label: 'Inscripciones',
+			},
+			{
+				href: '/payouts',
+				icon: DollarSign,
+				label: 'Pago a profes',
+			},
+		);
+	}
+
+	items.push({ href: '/plans', icon: Tag, label: 'Planes' });
 
 	return items;
 }
@@ -71,6 +107,7 @@ type SidebarProps = {
 export function Sidebar({ user, onClose }: SidebarProps) {
 	const { pathname } = useLocation();
 	const navigate = useNavigate();
+	const queryClient = useQueryClient();
 	const { clearToken } = useAuth();
 
 	const navItems: NavItem[] = [
@@ -87,6 +124,9 @@ export function Sidebar({ user, onClose }: SidebarProps) {
 
 	function handleLogout() {
 		clearToken();
+		// Limpia datos cacheados del usuario anterior (me/dashboard/clases…)
+		// para que el siguiente login no vea info de la sesión previa.
+		queryClient.clear();
 		navigate('/sign-in');
 	}
 

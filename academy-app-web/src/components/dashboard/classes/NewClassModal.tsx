@@ -4,74 +4,73 @@ import { X } from 'lucide-react';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/Button';
+import { DatePicker } from '@/components/ui/DatePicker';
 import { Input } from '@/components/ui/Input';
-import { Select } from '@/components/ui/Select';
+import { SelectMenu } from '@/components/ui/SelectMenu';
 import { Textarea } from '@/components/ui/Textarea';
+import { TimePicker } from '@/components/ui/TimePicker';
 import { useScrollLock } from '@/hooks/useScrollLock';
 import { modalVariants, overlayVariants } from '@/lib/animations';
 import { useApiClient } from '@/lib/api';
 import { cn } from '@/lib/cn';
 import { getErrorMessage } from '@/lib/errorMessages';
 
-import type { Teacher } from './classes.types';
-
-const DAYS_ABBR = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+import { ScheduleEditor } from './ScheduleEditor';
+import {
+	LEVEL_OPTIONS,
+	type Slot,
+	type Teacher,
+	dowFromDate,
+} from './classes.types';
 
 type NewClassModalProps = {
 	teachers: Teacher[];
-	weekStart: Date;
-	role: 'ADMIN' | 'TEACHER' | 'STUDENT';
-	userId: string;
 	onClose: () => void;
 };
 
-export function NewClassModal({
-	teachers,
-	weekStart,
-	role,
-	userId,
-	onClose,
-}: NewClassModalProps) {
-	const isTeacher = role === 'TEACHER';
+export function NewClassModal({ teachers, onClose }: NewClassModalProps) {
 	const apiClient = useApiClient();
 	const queryClient = useQueryClient();
-	const [selectedDays, setSelectedDays] = useState<number[]>([]);
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+	const [slots, setSlots] = useState<Slot[]>([]);
+	const [teacherId, setTeacherId] = useState('');
+	const [skillLevel, setSkillLevel] = useState('BEGINNER');
+	const [isPrivate, setIsPrivate] = useState(false);
+	const [isOneOff, setIsOneOff] = useState(false);
+	const [oneOffDate, setOneOffDate] = useState('');
+	const [oneOffStart, setOneOffStart] = useState('17:00');
+	const [oneOffEnd, setOneOffEnd] = useState('18:00');
 
 	useScrollLock(true);
-
-	function toggleDay(i: number) {
-		setSelectedDays((prev) =>
-			prev.includes(i) ? prev.filter((d) => d !== i) : [...prev, i],
-		);
-	}
 
 	async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
 		setError(null);
 
-		if (selectedDays.length === 0) {
-			setError('Selecciona al menos un dia de la semana');
+		if (!teacherId) {
+			setError('Selecciona un profesor');
 			return;
 		}
 
-		const form = e.currentTarget;
-		const data = new FormData(form);
-		const startTime = data.get('startTime') as string;
-		const endTime = data.get('endTime') as string;
+		if (isOneOff && !oneOffDate) {
+			setError('Elige la fecha de la clase única');
+			return;
+		}
 
-		const occurrences = selectedDays.map((dayIndex) => {
-			const date = new Date(weekStart);
-			date.setDate(date.getDate() + dayIndex);
-			const [sh, sm] = startTime.split(':').map(Number);
-			const [eh, em] = endTime.split(':').map(Number);
-			const startsAt = new Date(date);
-			startsAt.setHours(sh, sm, 0, 0);
-			const endsAt = new Date(date);
-			endsAt.setHours(eh, em, 0, 0);
-			return { startsAt: startsAt.toISOString(), endsAt: endsAt.toISOString() };
-		});
+		// Clase única: un solo slot con la hora elegida y el día derivado de la fecha.
+		const finalSlots: Slot[] = isOneOff
+			? [
+					{
+						dayOfWeek: dowFromDate(oneOffDate),
+						startTime: oneOffStart,
+						endTime: oneOffEnd,
+					},
+				]
+			: slots;
+
+		const data = new FormData(e.currentTarget);
+		const capacityRaw = (data.get('capacity') as string)?.trim();
 
 		setLoading(true);
 		try {
@@ -79,12 +78,13 @@ export function NewClassModal({
 				method: 'POST',
 				body: JSON.stringify({
 					name: data.get('name') as string,
-					skillLevel: data.get('skillLevel') as string,
-					teacherId: isTeacher ? userId : (data.get('teacherId') as string),
-					maxCapacity: parseInt(data.get('capacity') as string),
-					cancelWindowHours: parseInt(data.get('cancelWindow') as string),
+					teacherId,
+					slots: finalSlots,
+					skillLevel,
+					maxCapacity: capacityRaw ? parseInt(capacityRaw, 10) : undefined,
 					description: (data.get('description') as string) || undefined,
-					occurrences,
+					isPrivate,
+					oneOffDate: isOneOff ? oneOffDate : null,
 				}),
 			});
 
@@ -132,96 +132,127 @@ export function NewClassModal({
 					<Input
 						name="name"
 						label="Nombre de la clase"
-						placeholder="Ej. Ballet Basico — Grupo A"
+						placeholder="Ej. Ballet, Jazz, K-Pop"
 						required
 					/>
-					<Select name="skillLevel" label="Nivel">
-						<option value="BEGINNER">Basico</option>
-						<option value="INTERMEDIATE">Intermedio</option>
-						<option value="ADVANCED">Avanzado</option>
-						<option value="MASTER">Master</option>
-					</Select>
 
-					<div>
-						<label className="text-dark mb-2 block text-sm font-medium">
-							Dias de la semana
-						</label>
-						<div className="flex gap-2">
-							{DAYS_ABBR.map((d, i) => (
-								<Button
-									key={i}
-									type="button"
-									onClick={() => toggleDay(i)}
-									variant={selectedDays.includes(i) ? 'contained' : 'text'}
-									color={selectedDays.includes(i) ? 'dark' : 'neutral'}
-									className={cn(
-										'h-9 w-9 rounded-xl p-0',
-										!selectedDays.includes(i) &&
-											'border-transparent bg-gray-100 text-gray-400 hover:bg-gray-200',
-									)}
-								>
-									{d}
-								</Button>
-							))}
-						</div>
-					</div>
+					<SelectMenu
+						label="Profesor"
+						placeholder="Seleccionar profesor"
+						value={teacherId}
+						onChange={setTeacherId}
+						options={teachers.map((t) => ({
+							value: t.id,
+							label: `Prof. ${t.name || 'Sin nombre'}`,
+						}))}
+					/>
 
 					<div className="grid grid-cols-2 gap-4">
-						<Input
-							name="startTime"
-							type="time"
-							label="Hora inicio"
-							defaultValue="09:00"
+						<SelectMenu
+							label="Nivel"
+							value={skillLevel}
+							onChange={setSkillLevel}
+							options={LEVEL_OPTIONS.map((opt) => ({
+								value: opt.value,
+								label: opt.label,
+							}))}
 						/>
-						<Input
-							name="endTime"
-							type="time"
-							label="Hora fin"
-							defaultValue="10:00"
-						/>
-					</div>
-
-					<div className="grid grid-cols-2 gap-4">
 						<Input
 							name="capacity"
 							type="number"
-							label="Capacidad maxima"
-							defaultValue={20}
-						/>
-						<Input
-							name="cancelWindow"
-							type="number"
-							label="Ventana de cancelacion"
-							defaultValue={24}
-							endAdornment="horas"
+							min="0"
+							label="Capacidad máxima"
+							placeholder="0 = sin límite"
+							hint="Opcional"
 						/>
 					</div>
 
-					{isTeacher ? (
-						<div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-500">
-							Profesor:{' '}
-							<span className="font-medium text-dark">
-								{teachers.find((t) => t.id === userId)?.name ?? 'Tú'}
-							</span>
+					<label className="flex cursor-pointer items-center justify-between gap-3">
+						<span className="text-dark text-sm font-medium">
+							Clase única (una sola fecha)
+						</span>
+						<button
+							type="button"
+							role="switch"
+							aria-checked={isOneOff}
+							onClick={() => setIsOneOff((v) => !v)}
+							className={cn(
+								'relative h-6 w-11 shrink-0 rounded-full transition-colors',
+								isOneOff ? 'bg-primary' : 'bg-gray-200',
+							)}
+						>
+							<span
+								className={cn(
+									'absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform',
+									isOneOff ? 'translate-x-5' : 'translate-x-0',
+								)}
+							/>
+						</button>
+					</label>
+
+					{isOneOff ? (
+						<div className="space-y-3">
+							<DatePicker
+								label="Fecha de la clase"
+								value={oneOffDate}
+								onChange={setOneOffDate}
+							/>
+							<div className="flex items-end gap-2">
+								<TimePicker
+									label="Inicio"
+									value={oneOffStart}
+									onChange={setOneOffStart}
+									className="flex-1"
+								/>
+								<span className="pb-3 text-gray-400">–</span>
+								<TimePicker
+									label="Fin"
+									value={oneOffEnd}
+									onChange={setOneOffEnd}
+									className="flex-1"
+								/>
+							</div>
 						</div>
 					) : (
-						<Select name="teacherId" label="Profesor asignado">
-							<option value="">Seleccionar profesor</option>
-							{teachers.map((t) => (
-								<option key={t.id} value={t.id}>
-									Prof. {t.name || 'Sin nombre'}
-								</option>
-							))}
-						</Select>
+						<ScheduleEditor value={slots} onChange={setSlots} />
 					)}
 
 					<Textarea
 						name="description"
-						label="Descripcion"
-						placeholder="Descripcion breve de la clase..."
+						label="Descripción"
+						placeholder="Descripción breve de la clase..."
 						rows={3}
 						hint="Opcional"
 					/>
+
+					<label className="flex cursor-pointer items-start justify-between gap-3 rounded-xl border border-gray-100 p-3">
+						<span>
+							<span className="text-dark block text-sm font-medium">
+								Clase privada
+							</span>
+							<span className="block text-xs text-gray-400">
+								Solo el admin inscribe alumnos (compañía/audición). Oculta para
+								quien no esté asignado.
+							</span>
+						</span>
+						<button
+							type="button"
+							role="switch"
+							aria-checked={isPrivate}
+							onClick={() => setIsPrivate((v) => !v)}
+							className={cn(
+								'relative mt-0.5 h-6 w-11 shrink-0 rounded-full transition-colors',
+								isPrivate ? 'bg-primary' : 'bg-gray-200',
+							)}
+						>
+							<span
+								className={cn(
+									'absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform',
+									isPrivate ? 'translate-x-5' : 'translate-x-0',
+								)}
+							/>
+						</button>
+					</label>
 
 					{error && (
 						<p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">

@@ -1,14 +1,70 @@
+import { useQuery } from '@tanstack/react-query';
 import { FileText, Upload, X } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/Button';
 import { ResponsiveModal } from '@/components/ui/ResponsiveModal';
-import { Select } from '@/components/ui/Select';
+import { SelectMenu } from '@/components/ui/SelectMenu';
+import { LEVEL_LABELS } from '@/components/dashboard/classes/classes.types';
 import { useApiClient } from '@/lib/api';
 import { getErrorMessage } from '@/lib/errorMessages';
 import { formatPrice } from '@/utils/general';
+import { to12h } from '@/utils/schedule';
 
-export type PlanOption = { id: string; name: string; price: number };
+export type PlanOption = {
+	id: string;
+	name: string;
+	price: number;
+	isSingleClass: boolean;
+};
+
+type Slot = { dayOfWeek: number; startTime: string; endTime: string };
+type ClassOption = {
+	id: string;
+	name: string;
+	skillLevel: string;
+	slots: Slot[];
+	isPrivate?: boolean;
+	oneOffDate?: string | null; // "YYYY-MM-DD" si es clase única
+};
+
+function prettyDate(d: Date): string {
+	return d.toLocaleDateString('es-CR', {
+		weekday: 'short',
+		day: 'numeric',
+		month: 'short',
+	});
+}
+
+// Próximas sesiones (fecha + hora) de una clase. Clase única → solo su fecha.
+function upcomingSessions(
+	cls: ClassOption,
+	weeks = 6,
+): { date: string; label: string }[] {
+	const today = new Date();
+	today.setHours(0, 0, 0, 0);
+
+	if (cls.oneOffDate) {
+		const [y, m, d] = cls.oneOffDate.split('-').map(Number);
+		const dt = new Date(y, m - 1, d);
+		if (dt < today) return []; // ya pasó
+		const slot = cls.slots[0];
+		const time = slot ? ` · ${to12h(slot.startTime)}` : '';
+		return [{ date: cls.oneOffDate, label: `${prettyDate(dt)}${time}` }];
+	}
+
+	const out: { date: string; label: string }[] = [];
+	for (let i = 0; i < weeks * 7; i++) {
+		const d = new Date(today);
+		d.setDate(today.getDate() + i);
+		const dow = ((d.getDay() + 6) % 7) + 1; // 1=Lun … 7=Dom
+		const slot = cls.slots.find((s) => s.dayOfWeek === dow);
+		if (!slot) continue;
+		const date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+		out.push({ date, label: `${prettyDate(d)} · ${to12h(slot.startTime)}` });
+	}
+	return out;
+}
 
 type UploadPaymentModalProps = {
 	isOpen: boolean;
@@ -28,6 +84,8 @@ export function UploadPaymentModal({
 }: UploadPaymentModalProps) {
 	const apiClient = useApiClient();
 	const [selectedPlanId, setSelectedPlanId] = useState('');
+	const [bookingClassId, setBookingClassId] = useState('');
+	const [bookingDate, setBookingDate] = useState('');
 	const [file, setFile] = useState<File | null>(null);
 	const [preview, setPreview] = useState<string | null>(null);
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -35,6 +93,23 @@ export function UploadPaymentModal({
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
 	const selectedPlan = plans.find((p) => p.id === selectedPlanId);
+	const isSingleClass = selectedPlan?.isSingleClass ?? false;
+
+	// Clases disponibles (para elegir cuando el plan es de clase suelta).
+	const { data: classesData } = useQuery<{ classes: ClassOption[] }>({
+		queryKey: ['classes'],
+		queryFn: () => apiClient<{ classes: ClassOption[] }>('/api/v1/classes'),
+		enabled: isOpen && isSingleClass,
+	});
+	// No se puede reservar clase suelta en clases privadas (compañía/audición).
+	const classes = (classesData?.classes ?? []).filter((cl) => !cl.isPrivate);
+	const bookingClass = classes.find((cl) => cl.id === bookingClassId);
+	const sessionOptions = bookingClass ? upcomingSessions(bookingClass) : [];
+
+	// Al cambiar de clase, limpiar la fecha elegida.
+	useEffect(() => {
+		setBookingDate('');
+	}, [bookingClassId]);
 
 	function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
 		const f = e.target.files?.[0];
@@ -61,6 +136,8 @@ export function UploadPaymentModal({
 
 	function handleClose() {
 		setSelectedPlanId('');
+		setBookingClassId('');
+		setBookingDate('');
 		setFile(null);
 		setPreview(null);
 		setError(null);
@@ -69,6 +146,10 @@ export function UploadPaymentModal({
 
 	async function handleSubmit() {
 		if (!selectedPlanId || !file) return;
+		if (isSingleClass && (!bookingClassId || !bookingDate)) {
+			setError('Elige la clase y la fecha de la sesión.');
+			return;
+		}
 		setIsSubmitting(true);
 		setError(null);
 
@@ -77,21 +158,24 @@ export function UploadPaymentModal({
 			const formData = new FormData();
 			formData.append('file', file);
 
+			// useApiClient detecta el FormData y deja que el navegador ponga el
+			// Content-Type multipart con su boundary.
 			const { key } = await apiClient<{ key: string }>(
 				'/api/v1/payments/upload',
 				{
 					method: 'POST',
 					body: formData,
-					// Pass empty headers object so useApiClient does not set Content-Type,
-					// allowing the browser to set multipart/form-data with the correct boundary.
-					headers: {},
 				},
 			);
 
-			// 2. Create the membership order
+			// 2. Create the membership order (clase suelta lleva clase + fecha)
 			await apiClient('/api/v1/payments/orders', {
 				method: 'POST',
-				body: JSON.stringify({ planId: selectedPlanId, receiptKey: key }),
+				body: JSON.stringify({
+					planId: selectedPlanId,
+					receiptKey: key,
+					...(isSingleClass ? { bookingClassId, bookingDate } : {}),
+				}),
 			});
 
 			onSuccess();
@@ -103,7 +187,11 @@ export function UploadPaymentModal({
 		}
 	}
 
-	const canSubmit = !!selectedPlanId && !!file && !isSubmitting;
+	const canSubmit =
+		!!selectedPlanId &&
+		!!file &&
+		!isSubmitting &&
+		(!isSingleClass || (!!bookingClassId && !!bookingDate));
 
 	return (
 		<ResponsiveModal
@@ -113,18 +201,47 @@ export function UploadPaymentModal({
 		>
 			<div className="space-y-5 px-6 py-5">
 				{/* Plan selector */}
-				<Select
+				<SelectMenu
 					label="Plan"
+					placeholder="Selecciona un plan"
 					value={selectedPlanId}
-					onChange={(e) => setSelectedPlanId(e.target.value)}
-				>
-					<option value="">Selecciona un plan</option>
-					{plans.map((plan) => (
-						<option key={plan.id} value={plan.id}>
-							{plan.name} — {formatPrice(plan.price)}
-						</option>
-					))}
-				</Select>
+					onChange={setSelectedPlanId}
+					options={plans.map((plan) => ({
+						value: plan.id,
+						label: `${plan.name} — ${formatPrice(plan.price)}`,
+					}))}
+				/>
+
+				{/* Clase suelta: elegir clase + sesión */}
+				{isSingleClass && (
+					<>
+						<SelectMenu
+							label="Clase"
+							placeholder="Selecciona la clase"
+							value={bookingClassId}
+							onChange={setBookingClassId}
+							options={classes.map((cl) => ({
+								value: cl.id,
+								label: `${cl.name} · ${LEVEL_LABELS[cl.skillLevel] ?? cl.skillLevel}`,
+							}))}
+						/>
+						<SelectMenu
+							label="Fecha de la sesión"
+							placeholder={
+								bookingClass
+									? 'Selecciona la fecha'
+									: 'Primero elige la clase'
+							}
+							value={bookingDate}
+							onChange={setBookingDate}
+							disabled={!bookingClass}
+							options={sessionOptions.map((s) => ({
+								value: s.date,
+								label: s.label,
+							}))}
+						/>
+					</>
+				)}
 
 				{/* File upload area */}
 				<div className="flex flex-col gap-1.5">

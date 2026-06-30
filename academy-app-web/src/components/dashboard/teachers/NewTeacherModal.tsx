@@ -29,7 +29,7 @@ export function NewTeacherModal({
 }: NewTeacherModalProps) {
 	const apiClient = useApiClient();
 	const queryClient = useQueryClient();
-	const initialForm = { name: '', email: '' };
+	const initialForm = { name: '', email: '', hourlyRate: '' };
 	const [form, setForm] = useState(initialForm);
 	const [error, setError] = useState<string | null>(null);
 	const [result, setResult] = useState<{ tempPassword: string } | null>(null);
@@ -59,13 +59,20 @@ export function NewTeacherModal({
 			return;
 		}
 
+		const rateRaw = form.hourlyRate.trim();
+		const hourlyRate = rateRaw === '' ? undefined : Number(rateRaw);
+		if (rateRaw !== '' && (isNaN(hourlyRate!) || hourlyRate! < 0)) {
+			setError('El costo por hora debe ser un número positivo.');
+			return;
+		}
+
 		setIsPending(true);
 		try {
 			const res = await apiClient<{ tempPassword: string }>(
 				'/api/v1/teachers',
 				{
 					method: 'POST',
-					body: JSON.stringify({ name, email }),
+					body: JSON.stringify({ name, email, hourlyRate }),
 				},
 			);
 			setResult({ tempPassword: res.tempPassword });
@@ -121,12 +128,13 @@ export function NewTeacherModal({
 								variant="text"
 								color="neutral"
 								onClick={handleCopy}
-								className="h-10 w-10 border border-amber-200 text-amber-700 hover:bg-amber-100"
+								aria-label="Copiar contraseña"
+								className="h-10 w-10 shrink-0 rounded-lg border border-amber-200 bg-white p-0 hover:bg-amber-100"
 							>
 								{copied ? (
 									<Check className="text-success h-4 w-4" />
 								) : (
-									<Copy className="h-4 w-4" />
+									<Copy className="h-4 w-4 text-amber-700" />
 								)}
 							</Button>
 						</div>
@@ -161,6 +169,15 @@ export function NewTeacherModal({
 						value={form.email}
 						onChange={(e) =>
 							setForm((prev) => ({ ...prev, email: e.target.value }))
+						}
+					/>
+					<Input
+						type="number"
+						label="Costo por hora (opcional)"
+						placeholder="Ej. 5000"
+						value={form.hourlyRate}
+						onChange={(e) =>
+							setForm((prev) => ({ ...prev, hourlyRate: e.target.value }))
 						}
 					/>
 					{error && <p className="text-danger text-sm">{error}</p>}

@@ -16,6 +16,16 @@ type PaymentCardProps = {
 	isAdmin?: boolean;
 };
 
+// "YYYY-MM-DD" (DATE) → fecha local sin corrimiento de zona horaria.
+function formatBookingDate(iso: string): string {
+	const [y, m, d] = iso.slice(0, 10).split('-').map(Number);
+	return new Date(y, m - 1, d).toLocaleDateString('es-CR', {
+		weekday: 'short',
+		day: 'numeric',
+		month: 'short',
+	});
+}
+
 export function PaymentCard({ order, isAdmin = false }: PaymentCardProps) {
 	const apiClient = useApiClient();
 	const queryClient = useQueryClient();
@@ -37,7 +47,11 @@ export function PaymentCard({ order, isAdmin = false }: PaymentCardProps) {
 		});
 		setStatus('ACTIVE');
 		setApprovedAt(new Date());
-		queryClient.invalidateQueries({ queryKey: ['payments'] });
+		// Aprobar marca la mensualidad del mes como pagada → refrescar también
+		// alumnos, mensualidades y dashboard, no solo la lista de pagos.
+		for (const key of ['payments', 'students', 'subscriptions', 'dashboard']) {
+			queryClient.invalidateQueries({ queryKey: [key] });
+		}
 	};
 
 	const handleReject = async () => {
@@ -90,9 +104,15 @@ export function PaymentCard({ order, isAdmin = false }: PaymentCardProps) {
 					<span className="text-xs text-gray-400">{timeAgo(statusDate)}</span>
 				</div>
 
-				<p className="text-dark mb-3 text-sm">
-					Plan mensual — {formatPrice(order.plan.price)}
+				<p className="text-dark mb-1 text-sm">
+					{order.plan.name} — {formatPrice(order.plan.price)}
 				</p>
+				{order.bookingClass && order.bookingDate && (
+					<p className="mb-3 text-xs font-medium text-primary">
+						Reserva: {order.bookingClass.name} ·{' '}
+						{formatBookingDate(order.bookingDate)}
+					</p>
+				)}
 
 				<div
 					className="hover:border-primary/30 mb-2 flex h-24 cursor-pointer items-center justify-center rounded-xl border border-gray-100 bg-gray-50 transition-colors"
@@ -134,19 +154,7 @@ export function PaymentCard({ order, isAdmin = false }: PaymentCardProps) {
 				{approved ? (
 					<div className="bg-success/5 border-success/20 text-success flex items-center gap-2 rounded-xl border px-4 py-3 text-sm">
 						<Check className="h-4 w-4" />
-						<div>
-							<p className="font-semibold">Aprobado — {timeAgo(statusDate)}</p>
-							{order.creditGranted && order.expiresAt && (
-								<p className="text-xs text-gray-500">
-									{order.creditGranted} créditos activados · Vence{' '}
-									{new Intl.DateTimeFormat('es-CR', {
-										day: 'numeric',
-										month: 'short',
-										year: 'numeric',
-									}).format(new Date(order.expiresAt))}
-								</p>
-							)}
-						</div>
+						<p className="font-semibold">Aprobado — {timeAgo(statusDate)}</p>
 					</div>
 				) : rejected ? (
 					<div className="bg-danger/5 border-danger/20 text-danger rounded-xl border px-4 py-3 text-center text-sm font-semibold">

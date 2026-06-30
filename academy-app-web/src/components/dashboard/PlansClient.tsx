@@ -42,10 +42,6 @@ export function PlansClient({ plans, isAdmin = false }: PlansClientProps) {
 		return matchSearch && matchStatus;
 	});
 
-	const popular = planList.length
-		? planList.reduce((a, b) => (a._count.orders > b._count.orders ? a : b))
-		: null;
-
 	const pagination = usePagination(filtered, { pageSize: 12 });
 
 	function handleToggle(id: string, next: boolean) {
@@ -185,7 +181,7 @@ export function PlansClient({ plans, isAdmin = false }: PlansClientProps) {
 						<PlanCard
 							key={plan.id}
 							plan={plan}
-							isPopular={popular?.id === plan.id}
+							isAdmin={isAdmin}
 							onEdit={isAdmin ? (p) => setModalPlan(p) : undefined}
 							onDelete={isAdmin ? (p) => setDeletingPlan(p) : undefined}
 							onToggle={isAdmin ? handleToggle : undefined}

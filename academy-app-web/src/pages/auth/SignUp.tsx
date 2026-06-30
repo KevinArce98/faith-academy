@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Spinner } from '@/components/ui/Spinner';
 import { useAuth } from '@/lib/auth/AuthContext';
+import { getErrorMessage } from '@/lib/errorMessages';
 import {
 	type SignUpFormValues,
 	type VerifyCodeFormValues,
@@ -56,7 +57,12 @@ export default function SignUp() {
 			const data = await res.json();
 
 			if (!res.ok) {
-				setError(data.error ?? 'Error al crear la cuenta. Intenta de nuevo.');
+				setError(
+					getErrorMessage(
+						data.error,
+						'Error al crear la cuenta. Intenta de nuevo.',
+					),
+				);
 				return;
 			}
 
@@ -82,7 +88,7 @@ export default function SignUp() {
 			const data = await res.json();
 
 			if (!res.ok) {
-				setError(data.error ?? 'Código inválido o expirado.');
+				setError(getErrorMessage(data.error, 'Código inválido o expirado.'));
 				return;
 			}
 

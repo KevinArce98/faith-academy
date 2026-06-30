@@ -5,7 +5,7 @@ import { InlineSpinner } from '@/components/ui/Spinner';
 import { useApiClient } from '@/lib/api';
 import type { Plan, Student } from '@/lib/interfaces/students';
 
-type StudentsResponse = { students: Student[]; total: number };
+type StudentsResponse = { students: Student[] };
 type PlansResponse = { plans: Plan[] } | Plan[];
 
 export default function Students() {
@@ -51,7 +51,7 @@ export default function Students() {
 		<StudentsClient
 			students={studentsData.students}
 			plans={plans}
-			total={studentsData.total}
+			total={studentsData.students.length}
 		/>
 	);
 }

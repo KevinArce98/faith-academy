@@ -16,6 +16,10 @@ const Dashboard = lazy(() => import('@/pages/Dashboard'));
 const Students = lazy(() => import('@/pages/Students'));
 const Teachers = lazy(() => import('@/pages/Teachers'));
 const Classes = lazy(() => import('@/pages/Classes'));
+const MonthlyAttendance = lazy(() => import('@/pages/MonthlyAttendance'));
+const ClassAttendance = lazy(() => import('@/pages/ClassAttendance'));
+const MyClasses = lazy(() => import('@/pages/MyClasses'));
+const Payouts = lazy(() => import('@/pages/Payouts'));
 const Payments = lazy(() => import('@/pages/Payments'));
 const Plans = lazy(() => import('@/pages/Plans'));
 const Reports = lazy(() => import('@/pages/Reports'));
@@ -47,6 +51,10 @@ export default function App() {
 						<Route path="/students" element={<Students />} />
 						<Route path="/teachers" element={<Teachers />} />
 						<Route path="/classes" element={<Classes />} />
+						<Route path="/attendance" element={<MonthlyAttendance />} />
+						<Route path="/class-attendance" element={<ClassAttendance />} />
+						<Route path="/my-classes" element={<MyClasses />} />
+						<Route path="/payouts" element={<Payouts />} />
 						<Route path="/payments" element={<Payments />} />
 						<Route path="/plans" element={<Plans />} />
 						<Route path="/reports" element={<Reports />} />

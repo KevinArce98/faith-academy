@@ -1,15 +1,23 @@
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { useQueryClient } from '@tanstack/react-query';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Eye, Pencil, Plus, Search, Trash2, Users2 } from 'lucide-react';
+import {
+	Check,
+	Clock,
+	Eye,
+	Loader2,
+	Pencil,
+	Plus,
+	Search,
+	Trash2,
+} from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 import { Button } from '@/components/ui/Button';
-import { Checkbox } from '@/components/ui/Checkbox';
 import { Input } from '@/components/ui/Input';
 import { Pagination } from '@/components/ui/Pagination';
 import { ResponsiveModal } from '@/components/ui/ResponsiveModal';
-import { Select } from '@/components/ui/Select';
+import { SelectMenu } from '@/components/ui/SelectMenu';
 import {
 	Table,
 	TableBody,
@@ -20,14 +28,19 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/Table';
+import { Tooltip } from '@/components/ui/Tooltip';
 import { useDebounce } from '@/hooks/useDebounce';
 import { usePagination } from '@/hooks/usePagination';
 import { useApiClient } from '@/lib/api';
 import { cn } from '@/lib/cn';
 import { getErrorMessage } from '@/lib/errorMessages';
-import { STATUS_COLORS, STATUS_LABELS } from '@/lib/interfaces/students';
-import type { Plan, Student } from '@/lib/interfaces/students';
-import { getInitials } from '@/utils/general';
+import {
+	type Plan,
+	type Student,
+	type Subscription,
+	currentSubscription,
+} from '@/lib/interfaces/students';
+import { formatPrice, getInitials } from '@/utils/general';
 
 import { EditStudentModal } from './EditStudentModal';
 import { NewStudentModal } from './NewStudentModal';
@@ -41,6 +54,13 @@ type StudentsClientProps = {
 
 type ToastState = { type: 'success' | 'error'; message: string } | null;
 
+function planBadgeClass(name: string) {
+	const n = name.toLowerCase();
+	if (n.includes('vip')) return 'bg-primary text-white';
+	if (n.includes('pro')) return 'bg-dark text-white';
+	return 'bg-gray-100 text-gray-600';
+}
+
 export function StudentsClient({
 	students,
 	plans,
@@ -51,13 +71,12 @@ export function StudentsClient({
 	const [search, setSearch] = useState('');
 	const [statusFilter, setStatusFilter] = useState('all');
 	const [planFilter, setPlanFilter] = useState('all');
-	const [familyFilter, setFamilyFilter] = useState<'all' | 'with' | 'without'>(
+	const [paymentFilter, setPaymentFilter] = useState<'all' | 'paid' | 'unpaid'>(
 		'all',
 	);
 	const [modalOpen, setModalOpen] = useState(false);
 	const [selected, setSelected] = useState<Student | null>(null);
 	const [tbodyRef] = useAutoAnimate<HTMLTableSectionElement>();
-	const [rowsSelected, setRowsSelected] = useState<Student[]>([]);
 	const [editing, setEditing] = useState<Student | null>(null);
 	const [deleting, setDeleting] = useState<Student | null>(null);
 	const [loadingId, setLoadingId] = useState<string | null>(null);
@@ -72,27 +91,22 @@ export function StudentsClient({
 					s.name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
 					s.email.toLowerCase().includes(debouncedSearch.toLowerCase());
 
-				const activeOrder = s.orders.find((o) => o.status === 'ACTIVE');
-				const status = activeOrder?.status ?? 'EXPIRED';
-
 				const matchesStatus =
 					statusFilter === 'all' ||
-					(statusFilter === 'ACTIVE' && status === 'ACTIVE') ||
-					(statusFilter === 'EXPIRED' && status === 'EXPIRED') ||
-					(statusFilter === 'PENDING_REVIEW' && status === 'PENDING_REVIEW');
+					(statusFilter === 'active' && s.isActive) ||
+					(statusFilter === 'inactive' && !s.isActive);
 
-				const matchesPlan =
-					planFilter === 'all' ||
-					(activeOrder && activeOrder.plan.id === planFilter);
+				const sub = currentSubscription(s);
+				const matchesPlan = planFilter === 'all' || sub?.plan.id === planFilter;
 
-				const matchesFamily =
-					familyFilter === 'all' ||
-					(familyFilter === 'with' && s.familyMember) ||
-					(familyFilter === 'without' && !s.familyMember);
+				const matchesPayment =
+					paymentFilter === 'all' ||
+					(paymentFilter === 'paid' && sub?.isPaid) ||
+					(paymentFilter === 'unpaid' && (!sub || !sub.isPaid));
 
-				return matchesSearch && matchesStatus && matchesPlan && matchesFamily;
+				return matchesSearch && matchesStatus && matchesPlan && matchesPayment;
 			}),
-		[students, debouncedSearch, statusFilter, planFilter, familyFilter],
+		[students, debouncedSearch, statusFilter, planFilter, paymentFilter],
 	);
 
 	const pagination = usePagination(filtered, { pageSize: 10 });
@@ -101,7 +115,7 @@ export function StudentsClient({
 	useEffect(() => {
 		pagination.reset();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [debouncedSearch, statusFilter, planFilter, familyFilter]);
+	}, [debouncedSearch, statusFilter, planFilter, paymentFilter]);
 
 	async function deleteStudent(student: Student) {
 		setLoadingId(student.id);
@@ -121,13 +135,70 @@ export function StudentsClient({
 		}
 	}
 
+	async function togglePaid(sub: Subscription) {
+		setLoadingId(sub.id);
+		try {
+			await apiClient(`/api/v1/subscriptions/${sub.id}/pay`, {
+				method: 'PATCH',
+				body: JSON.stringify({ isPaid: !sub.isPaid }),
+			});
+			// Esperamos el refetch para que el spinner dure hasta ver el estado nuevo.
+			await queryClient.invalidateQueries({ queryKey: ['students'] });
+		} catch (err) {
+			setToast({
+				type: 'error',
+				message: getErrorMessage(err, 'Error al actualizar el pago.'),
+			});
+		} finally {
+			setLoadingId(null);
+		}
+	}
+
+	function PaymentBadge({ sub }: { sub: Subscription | null }) {
+		if (!sub) return <span className="text-xs text-gray-300">Sin plan</span>;
+		const loading = loadingId === sub.id;
+		return (
+			<Tooltip
+				label={
+					sub.isPaid
+						? 'Clic para marcar como pendiente'
+						: 'Clic para marcar como pagado'
+				}
+			>
+				<button
+					type="button"
+					onClick={(e) => {
+						e.stopPropagation();
+						togglePaid(sub);
+					}}
+					disabled={loading}
+					className={cn(
+						'inline-flex cursor-pointer items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-semibold transition-all hover:shadow-sm active:scale-95 disabled:cursor-wait disabled:opacity-60',
+						sub.isPaid
+							? 'border-success/30 bg-success/10 text-success hover:bg-success/20'
+							: 'border-warning/40 bg-warning/10 text-warning hover:bg-warning/20',
+					)}
+				>
+					{loading ? (
+						<Loader2 className="h-3 w-3 animate-spin" />
+					) : sub.isPaid ? (
+						<Check className="h-3 w-3" />
+					) : (
+						<Clock className="h-3 w-3" />
+					)}
+					{loading ? 'Guardando…' : sub.isPaid ? 'Pagado' : 'Pendiente'}
+				</button>
+			</Tooltip>
+		);
+	}
+
 	return (
 		<div className="space-y-6">
 			{/* Header */}
 			<div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
 				<div className="flex items-center gap-3">
 					<h1 className="text-dark text-2xl font-bold md:text-3xl">Alumnos</h1>
-					<span className="text-sm text-gray-400">{total} alumnos activos</span>
+					<span className="text-sm text-gray-400">{total} alumnos</span>
 				</div>
 				<Button
 					variant="contained"
@@ -175,44 +246,38 @@ export function StudentsClient({
 					className="flex items-center gap-3 overflow-x-auto pb-1"
 					style={{ WebkitOverflowScrolling: 'touch' }}
 				>
-					<Select
+					<SelectMenu
+						className="w-40 shrink-0"
+						buttonClassName="h-9"
 						value={statusFilter}
-						onChange={(e) => setStatusFilter(e.target.value)}
-						className="h-9 shrink-0"
-					>
-						<option value="all">Todos los estados</option>
-						<option value="ACTIVE">Activo</option>
-						<option value="EXPIRED">Vencido</option>
-						<option value="PENDING_REVIEW">En revision</option>
-					</Select>
-					<Select
+						onChange={setStatusFilter}
+						options={[
+							{ value: 'all', label: 'Todos los estados' },
+							{ value: 'active', label: 'Activo' },
+							{ value: 'inactive', label: 'Inactivo' },
+						]}
+					/>
+					<SelectMenu
+						className="w-44 shrink-0"
+						buttonClassName="h-9"
 						value={planFilter}
-						onChange={(e) => setPlanFilter(e.target.value)}
-						className="h-9 shrink-0"
-					>
-						<option value="all">Todos los planes</option>
-						{plans.map((p) => (
-							<option key={p.id} value={p.id}>
-								{p.name}
-							</option>
-						))}
-					</Select>
-					<Button
-						variant={familyFilter === 'with' ? 'contained' : 'text'}
-						color="neutral"
-						onClick={() =>
-							setFamilyFilter(
-								familyFilter === 'with'
-									? 'all'
-									: familyFilter === 'all'
-										? 'with'
-										: 'all',
-							)
-						}
-						className="text-dark h-9 shrink-0 border border-gray-200 px-4 text-sm font-medium hover:bg-gray-50"
-					>
-						<Users2 className="h-4 w-4" /> Familia
-					</Button>
+						onChange={setPlanFilter}
+						options={[
+							{ value: 'all', label: 'Todos los planes' },
+							...plans.map((p) => ({ value: p.id, label: p.name })),
+						]}
+					/>
+					<SelectMenu
+						className="w-44 shrink-0"
+						buttonClassName="h-9"
+						value={paymentFilter}
+						onChange={(v) => setPaymentFilter(v as 'all' | 'paid' | 'unpaid')}
+						options={[
+							{ value: 'all', label: 'Todos los pagos' },
+							{ value: 'paid', label: 'Pagado este mes' },
+							{ value: 'unpaid', label: 'Pendiente' },
+						]}
+					/>
 				</div>
 			</div>
 
@@ -221,62 +286,27 @@ export function StudentsClient({
 				<TableContainer>
 					<Table>
 						<TableHead>
-							<TableHeader className="w-8 px-3 pl-5">
-								<Checkbox
-									checked={
-										filtered.length > 0 &&
-										rowsSelected.length === filtered.length
-									}
-									onChange={(e) => {
-										if (e.target.checked) {
-											setRowsSelected(filtered);
-										} else {
-											setRowsSelected([]);
-										}
-									}}
-								/>
-							</TableHeader>
-							<TableHeader>Alumno</TableHeader>
+							<TableHeader className="pl-5">Alumno</TableHeader>
 							<TableHeader>Plan</TableHeader>
-							<TableHeader>Creditos</TableHeader>
-							<TableHeader>Vencimiento</TableHeader>
+							<TableHeader>Mensualidad</TableHeader>
+							<TableHeader>Matrícula</TableHeader>
+							<TableHeader>Pago del mes</TableHeader>
 							<TableHeader>Estado</TableHeader>
-							<TableHeader>Familia</TableHeader>
 							<TableHeader>Acciones</TableHeader>
 						</TableHead>
 						<TableBody ref={tbodyRef}>
 							{pagination.paginated.length === 0 ? (
-								<TableEmpty colSpan={8}>Sin alumnos</TableEmpty>
+								<TableEmpty colSpan={7}>Sin alumnos</TableEmpty>
 							) : (
 								pagination.paginated.map((student) => {
-									const activeOrder = student.orders.find(
-										(o) => o.status === 'ACTIVE',
-									);
-									const status = activeOrder?.status ?? 'EXPIRED';
+									const sub = currentSubscription(student);
 									return (
 										<TableRow
 											key={student.id}
 											className="cursor-pointer"
 											onClick={() => setSelected(student)}
 										>
-											<TableCell
-												className="w-8 py-3 pl-5"
-												onClick={(e) => e.stopPropagation()}
-											>
-												<Checkbox
-													checked={rowsSelected.includes(student)}
-													onChange={(e) => {
-														if (e.target.checked) {
-															setRowsSelected([...rowsSelected, student]);
-														} else {
-															setRowsSelected(
-																rowsSelected.filter((s) => s.id !== student.id),
-															);
-														}
-													}}
-												/>
-											</TableCell>
-											<TableCell>
+											<TableCell className="pl-5">
 												<div className="flex items-center gap-2.5">
 													<div className="bg-dark flex h-9 w-9 shrink-0 items-center justify-center rounded-full">
 														<span className="text-xs font-bold text-white">
@@ -294,97 +324,41 @@ export function StudentsClient({
 												</div>
 											</TableCell>
 											<TableCell>
-												{activeOrder ? (
+												{sub ? (
 													<span
 														className={cn(
 															'rounded-full px-2.5 py-1 text-xs font-medium',
-															activeOrder.plan.name
-																.toLowerCase()
-																.includes('vip')
-																? 'bg-primary text-white'
-																: activeOrder.plan.name
-																			.toLowerCase()
-																			.includes('pro')
-																	? 'bg-dark text-white'
-																	: 'bg-gray-100 text-gray-600',
+															planBadgeClass(sub.plan.name),
 														)}
 													>
-														{activeOrder.plan.name}
+														{sub.plan.name}
 													</span>
 												) : (
 													<span className="text-xs text-gray-300">—</span>
 												)}
 											</TableCell>
-											<TableCell>
-												{activeOrder ? (
-													(() => {
-														const total = activeOrder.creditGranted;
-														const balance =
-															activeOrder.ledgerEntries?.[0]?.balance ?? total;
-														const pct =
-															total != null && balance != null
-																? Math.max(
-																		0,
-																		Math.min(100, (balance / total) * 100),
-																	)
-																: null;
-														const barColor =
-															pct == null
-																? 'bg-primary'
-																: pct > 50
-																	? 'bg-primary'
-																	: pct > 20
-																		? 'bg-warning'
-																		: 'bg-danger';
-														return (
-															<div>
-																<span className="text-dark text-sm font-medium">
-																	{total != null
-																		? `${balance ?? total}/${total}`
-																		: '∞'}
-																</span>
-																{pct != null && (
-																	<div className="mt-1 h-1 w-16 rounded-full bg-gray-100">
-																		<div
-																			className={cn(
-																				'h-1 rounded-full',
-																				barColor,
-																			)}
-																			style={{ width: `${pct}%` }}
-																		/>
-																	</div>
-																)}
-															</div>
-														);
-													})()
-												) : (
-													<span className="text-xs text-gray-300">—</span>
-												)}
+											<TableCell className="text-dark text-sm font-medium">
+												{sub ? formatPrice(sub.amount) : '—'}
 											</TableCell>
 											<TableCell className="text-dark text-sm">
-												{activeOrder?.expiresAt
-													? new Intl.DateTimeFormat('es-CR', {
-															day: 'numeric',
-															month: 'short',
-															year: 'numeric',
-														}).format(new Date(activeOrder.expiresAt))
+												{student.enrollmentFee != null
+													? formatPrice(student.enrollmentFee)
 													: '—'}
+											</TableCell>
+											<TableCell onClick={(e) => e.stopPropagation()}>
+												<PaymentBadge sub={sub} />
 											</TableCell>
 											<TableCell>
 												<span
 													className={cn(
 														'rounded-full px-2.5 py-1 text-xs font-semibold',
-														STATUS_COLORS[status] ??
-															'bg-gray-100 text-gray-500',
+														student.isActive
+															? 'bg-success/10 text-success'
+															: 'bg-gray-100 text-gray-500',
 													)}
 												>
-													{STATUS_LABELS[status] ?? status}
+													{student.isActive ? 'ACTIVO' : 'INACTIVO'}
 												</span>
-											</TableCell>
-											<TableCell>
-												{student.familyMember ? (
-													<Users2 className="h-4 w-4 text-gray-400" />
-												) : null}
 											</TableCell>
 											<TableCell>
 												<div
@@ -450,10 +424,7 @@ export function StudentsClient({
 					<p className="py-8 text-center text-sm text-gray-400">Sin alumnos</p>
 				) : (
 					pagination.paginated.map((student) => {
-						const activeOrder = student.orders.find(
-							(o) => o.status === 'ACTIVE',
-						);
-						const status = activeOrder?.status ?? 'EXPIRED';
+						const sub = currentSubscription(student);
 						return (
 							<div
 								key={student.id}
@@ -474,81 +445,34 @@ export function StudentsClient({
 											{student.email}
 										</p>
 									</div>
+									<span
+										className={cn(
+											'shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold',
+											student.isActive
+												? 'bg-success/10 text-success'
+												: 'bg-gray-100 text-gray-500',
+										)}
+									>
+										{student.isActive ? 'ACTIVO' : 'INACTIVO'}
+									</span>
 								</div>
-								<div className="mb-2 flex items-center gap-2">
-									{activeOrder ? (
+								<div className="mb-2 flex flex-wrap items-center gap-2">
+									{sub ? (
 										<span
 											className={cn(
 												'rounded-full px-2.5 py-1 text-xs font-medium',
-												activeOrder.plan.name.toLowerCase().includes('vip')
-													? 'bg-primary text-white'
-													: activeOrder.plan.name.toLowerCase().includes('pro')
-														? 'bg-dark text-white'
-														: 'bg-gray-100 text-gray-600',
+												planBadgeClass(sub.plan.name),
 											)}
 										>
-											{activeOrder.plan.name}
+											{sub.plan.name}
 										</span>
 									) : null}
-									<span
-										className={cn(
-											'rounded-full px-2.5 py-1 text-xs font-semibold',
-											STATUS_COLORS[status] ?? 'bg-gray-100 text-gray-500',
-										)}
-									>
-										{STATUS_LABELS[status] ?? status}
+									<span className="text-dark text-xs font-medium">
+										{sub ? formatPrice(sub.amount) : 'Sin mensualidad'}
 									</span>
 								</div>
 								<div className="flex items-center justify-between">
-									<div className="flex items-center gap-2">
-										{activeOrder
-											? (() => {
-													const total = activeOrder.creditGranted;
-													const balance =
-														activeOrder.ledgerEntries?.[0]?.balance ?? total;
-													const pct =
-														total != null && balance != null
-															? Math.max(
-																	0,
-																	Math.min(100, (balance / total) * 100),
-																)
-															: null;
-													const barColor =
-														pct == null
-															? 'bg-primary'
-															: pct > 50
-																? 'bg-primary'
-																: pct > 20
-																	? 'bg-warning'
-																	: 'bg-danger';
-													return (
-														<>
-															<span className="text-dark text-xs font-medium">
-																{total != null
-																	? `${balance ?? total}/${total}`
-																	: '∞'}
-															</span>
-															{pct != null && (
-																<div className="h-1 w-12 rounded-full bg-gray-100">
-																	<div
-																		className={cn('h-1 rounded-full', barColor)}
-																		style={{ width: `${pct}%` }}
-																	/>
-																</div>
-															)}
-														</>
-													);
-												})()
-											: null}
-										{activeOrder?.expiresAt && (
-											<span className="text-xs text-gray-400">
-												{new Intl.DateTimeFormat('es-CR', {
-													day: 'numeric',
-													month: 'short',
-												}).format(new Date(activeOrder.expiresAt))}
-											</span>
-										)}
-									</div>
+									<PaymentBadge sub={sub} />
 									<div
 										className="flex items-center gap-1"
 										onClick={(e) => e.stopPropagation()}

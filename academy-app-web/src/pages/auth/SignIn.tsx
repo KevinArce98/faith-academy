@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useQueryClient } from '@tanstack/react-query';
 import { Eye, EyeOff } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -9,6 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Spinner } from '@/components/ui/Spinner';
 import { useAuth } from '@/lib/auth/AuthContext';
+import { getErrorMessage } from '@/lib/errorMessages';
 import { type SignInFormValues, signInSchema } from '@/lib/validations/auth';
 
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
@@ -16,6 +18,7 @@ const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
 export default function SignIn() {
 	const { isSignedIn, setToken } = useAuth();
 	const navigate = useNavigate();
+	const queryClient = useQueryClient();
 	const [showPassword, setShowPassword] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [isPending, setIsPending] = useState(false);
@@ -50,10 +53,17 @@ export default function SignIn() {
 					navigate('/verify-email', { state: { email: form.email } });
 					return;
 				}
-				setError(data.error ?? 'Error al iniciar sesión. Intenta de nuevo.');
+				setError(
+					getErrorMessage(
+						data.error,
+						'Error al iniciar sesión. Intenta de nuevo.',
+					),
+				);
 				return;
 			}
 
+			// Empezar limpio: descarta cualquier dato cacheado de una sesión previa.
+			queryClient.clear();
 			setToken(data.token);
 			navigate('/', { replace: true });
 		} catch {

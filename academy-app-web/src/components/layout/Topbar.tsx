@@ -15,10 +15,15 @@ import { timeAgo } from '@/utils/general';
 const ROUTE_LABELS: Record<string, string> = {
 	dashboard: 'Inicio',
 	students: 'Estudiantes',
+	teachers: 'Profesores',
 	payments: 'Pagos',
 	classes: 'Clases',
+	attendance: 'Inscripciones',
+	'class-attendance': 'Asistencia',
+	'my-classes': 'Mis Clases',
+	payouts: 'Pago a profes',
 	plans: 'Planes',
-	teachers: 'Profesores',
+	settings: 'Configuración',
 	'video-library': 'Biblioteca de Videos',
 	reports: 'Reportes',
 };
@@ -60,7 +65,9 @@ export function Topbar({ userInitials, onMenuClick }: TopbarProps) {
 		{ label: 'Inicio' },
 		...segments
 			.filter((s) => s !== 'dashboard')
-			.map((s) => ({ label: ROUTE_LABELS[s] ?? s })),
+			.map((s) => ({
+				label: ROUTE_LABELS[s] ?? s.charAt(0).toUpperCase() + s.slice(1),
+			})),
 	];
 
 	function markAllRead() {

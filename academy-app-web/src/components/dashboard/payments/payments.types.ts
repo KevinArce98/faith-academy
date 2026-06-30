@@ -10,6 +10,8 @@ export type Order = {
 	receiptUrl: string | null;
 	creditGranted: number | null;
 	expiresAt: Date | string | null;
+	bookingDate: string | null;
+	bookingClass?: { name: string } | null;
 	student?: Student;
 	plan: Plan;
 };

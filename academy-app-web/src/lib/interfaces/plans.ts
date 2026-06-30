@@ -2,12 +2,14 @@ export type Plan = {
 	id: string;
 	name: string;
 	price: number;
-	credits: number;
-	intervalType: string;
-	intervalValue: number;
+	classesPerWeek: number;
+	isPublic: boolean;
+	isSingleClass: boolean;
 	isActive: boolean;
 	description: string | null;
-	_count: { orders: number };
+	_count: { subscriptions: number };
+	/** @deprecated sistema de créditos aparcado (fase 2) */
+	credits?: number;
 };
 
 export type PlansClientProps = {
@@ -16,18 +18,6 @@ export type PlansClientProps = {
 };
 
 export type { PlanFormValues } from '../validations/plans';
-
-export const INTERVAL_LABEL: Record<string, string> = {
-	MONTHLY: 'Reinicio mensual',
-	WEEKLY: 'Reinicio semanal',
-	FIXED_PACKAGE: 'Paquete fijo',
-};
-
-export const INTERVAL_OPTIONS = [
-	{ value: 'MONTHLY', label: 'Reinicio mensual' },
-	{ value: 'WEEKLY', label: 'Reinicio semanal' },
-	{ value: 'FIXED_PACKAGE', label: 'Paquete fijo' },
-] as const;
 
 export function getPlanColor(name: string) {
 	const n = name.toLowerCase();

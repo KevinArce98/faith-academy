@@ -6,9 +6,14 @@ import { Button } from '@/components/ui/Button';
 import { useScrollLock } from '@/hooks/useScrollLock';
 import { slideInRight } from '@/lib/animations';
 import { cn } from '@/lib/cn';
-import { STATUS_COLORS, STATUS_LABELS } from '@/lib/interfaces/students';
-import type { Student } from '@/lib/interfaces/students';
-import { getInitials } from '@/utils/general';
+import { type Student, currentSubscription } from '@/lib/interfaces/students';
+import { formatPrice, getInitials } from '@/utils/general';
+
+const monthLabel = (iso: string) =>
+	new Intl.DateTimeFormat('es-CR', {
+		month: 'long',
+		year: 'numeric',
+	}).format(new Date(iso));
 
 export function StudentDrawer({
 	student,
@@ -21,7 +26,7 @@ export function StudentDrawer({
 		'info',
 	);
 
-	const activeOrder = student.orders.find((o) => o.status === 'ACTIVE');
+	const sub = currentSubscription(student);
 
 	useScrollLock(true);
 
@@ -57,7 +62,7 @@ export function StudentDrawer({
 				</div>
 				<h3 className="text-dark text-lg font-bold">{student.name}</h3>
 				<p className="text-sm text-gray-400">{student.email}</p>
-				{activeOrder ? (
+				{student.isActive ? (
 					<span className="bg-success/10 text-success rounded-full px-3 py-1 text-xs font-semibold">
 						ACTIVO
 					</span>
@@ -67,11 +72,7 @@ export function StudentDrawer({
 					</span>
 				)}
 				<p className="text-xs text-gray-400">
-					Miembro desde{' '}
-					{new Intl.DateTimeFormat('es-CR', {
-						month: 'long',
-						year: 'numeric',
-					}).format(student.createdAt)}
+					Miembro desde {monthLabel(student.createdAt)}
 				</p>
 			</div>
 
@@ -101,89 +102,93 @@ export function StudentDrawer({
 			<div className="flex-1 space-y-4 overflow-y-auto p-5">
 				{tab === 'info' && (
 					<>
-						{activeOrder && (
-							<div className="space-y-3 rounded-xl bg-gray-50 p-4">
-								<h4 className="text-dark text-sm font-semibold">
-									Membresia activa
-								</h4>
-								<div className="flex items-center justify-between">
-									<span className="bg-dark rounded-full px-2.5 py-1 text-xs font-medium text-white">
-										{activeOrder.plan.name}
-									</span>
-									<span className="text-dark text-sm font-bold">—</span>
-								</div>
-								{activeOrder.creditGranted != null && (
-									<div className="flex items-center justify-between text-sm">
-										<span className="text-gray-500">Creditos usados</span>
-										<span className="text-dark font-semibold">
-											{activeOrder.creditGranted}/{activeOrder.creditGranted}
+						<div className="space-y-3 rounded-xl bg-gray-50 p-4">
+							<h4 className="text-dark text-sm font-semibold">
+								Mensualidad del mes
+							</h4>
+							{sub ? (
+								<>
+									<div className="flex items-center justify-between">
+										<span className="bg-dark rounded-full px-2.5 py-1 text-xs font-medium text-white">
+											{sub.plan.name}
+										</span>
+										<span className="text-dark text-sm font-bold">
+											{formatPrice(sub.amount)}
 										</span>
 									</div>
-								)}
-								{activeOrder.expiresAt && (
-									<p className="text-danger text-xs">
-										Vence:{' '}
+									<div className="flex items-center justify-between text-sm">
+										<span className="text-gray-500">Estado del pago</span>
+										<span
+											className={cn(
+												'rounded-full px-2 py-0.5 text-xs font-semibold',
+												sub.isPaid
+													? 'bg-success/10 text-success'
+													: 'bg-warning/10 text-warning',
+											)}
+										>
+											{sub.isPaid ? 'Pagado' : 'Pendiente'}
+										</span>
+									</div>
+								</>
+							) : (
+								<p className="text-sm text-gray-400">Sin plan asignado</p>
+							)}
+						</div>
+
+						<div className="space-y-2 rounded-xl bg-gray-50 p-4">
+							<h4 className="text-dark text-sm font-semibold">Matrícula</h4>
+							<div className="flex items-center justify-between text-sm">
+								<span className="text-gray-500">Monto</span>
+								<span className="text-dark font-semibold">
+									{student.enrollmentFee != null
+										? formatPrice(student.enrollmentFee)
+										: '—'}
+								</span>
+							</div>
+							{student.enrolledAt && (
+								<div className="flex items-center justify-between text-sm">
+									<span className="text-gray-500">Fecha</span>
+									<span className="text-dark">
 										{new Intl.DateTimeFormat('es-CR', {
 											day: 'numeric',
 											month: 'short',
 											year: 'numeric',
-										}).format(new Date(activeOrder.expiresAt))}
-									</p>
-								)}
-								<Button
-									variant="text"
-									color="primary"
-									className="h-auto p-0 text-xs font-semibold hover:bg-transparent hover:underline"
-								>
-									Renovar membresia
-								</Button>
-							</div>
-						)}
-						{student.familyMember && (
-							<div className="space-y-2 rounded-xl bg-gray-50 p-4">
-								<h4 className="text-dark text-sm font-semibold">
-									Cuenta familiar — {student.familyMember.family.name}
-								</h4>
-								<p className="text-success text-xs">
-									Descuento aplicado: -10% (2do hijo)
-								</p>
-							</div>
-						)}
+										}).format(new Date(student.enrolledAt))}
+									</span>
+								</div>
+							)}
+						</div>
 					</>
 				)}
 				{tab === 'pagos' && (
 					<div className="space-y-3">
-						{student.orders.length === 0 ? (
+						{student.subscriptions.length === 0 ? (
 							<p className="py-8 text-center text-sm text-gray-400">
 								Sin pagos registrados
 							</p>
 						) : (
-							student.orders.map((o) => (
+							student.subscriptions.map((s) => (
 								<div
-									key={o.id}
+									key={s.id}
 									className="flex items-center justify-between rounded-xl bg-gray-50 p-3"
 								>
 									<div>
 										<p className="text-dark text-sm font-medium">
-											{o.plan.name}
+											{s.plan.name}
 										</p>
-										{o.expiresAt && (
-											<p className="text-xs text-gray-400">
-												Vence{' '}
-												{new Intl.DateTimeFormat('es-CR', {
-													day: 'numeric',
-													month: 'short',
-												}).format(new Date(o.expiresAt))}
-											</p>
-										)}
+										<p className="text-xs text-gray-400 capitalize">
+											{monthLabel(s.period)} · {formatPrice(s.amount)}
+										</p>
 									</div>
 									<span
 										className={cn(
 											'rounded-full px-2 py-1 text-xs font-semibold',
-											STATUS_COLORS[o.status] ?? 'bg-gray-100 text-gray-500',
+											s.isPaid
+												? 'bg-success/10 text-success'
+												: 'bg-warning/10 text-warning',
 										)}
 									>
-										{STATUS_LABELS[o.status] ?? o.status}
+										{s.isPaid ? 'Pagado' : 'Pendiente'}
 									</span>
 								</div>
 							))

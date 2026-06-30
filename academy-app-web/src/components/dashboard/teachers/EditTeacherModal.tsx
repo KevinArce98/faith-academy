@@ -1,4 +1,4 @@
-import { type SubmitEvent, useState } from 'react';
+import { type SubmitEvent, useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -20,11 +20,21 @@ export function EditTeacherModal({
 }: EditTeacherModalProps) {
 	const apiClient = useApiClient();
 	const [name, setName] = useState('');
+	const [hourlyRateStr, setHourlyRateStr] = useState('');
 	const [error, setError] = useState<string | null>(null);
 	const [isPending, setIsPending] = useState(false);
 
+	useEffect(() => {
+		if (teacher) {
+			setHourlyRateStr(
+				teacher.hourlyRate != null ? String(teacher.hourlyRate) : '',
+			);
+		}
+	}, [teacher?.id]);
+
 	function handleClose() {
 		setName('');
+		setHourlyRateStr('');
 		setError(null);
 		onClose();
 	}
@@ -43,12 +53,19 @@ export function EditTeacherModal({
 			return;
 		}
 
+		const rateRaw = hourlyRateStr.trim();
+		const hourlyRate = rateRaw === '' ? null : Number(rateRaw);
+		if (rateRaw !== '' && (isNaN(hourlyRate!) || hourlyRate! < 0)) {
+			setError('El costo por hora debe ser un número positivo.');
+			return;
+		}
+
 		setIsPending(true);
 
 		try {
 			await apiClient(`/api/v1/teachers/${teacher.id}`, {
 				method: 'PATCH',
-				body: JSON.stringify({ name: trimmed }),
+				body: JSON.stringify({ name: trimmed, hourlyRate }),
 			});
 			onUpdated('Información del profesor actualizada.');
 			handleClose();
@@ -79,6 +96,14 @@ export function EditTeacherModal({
 						value={teacher.email}
 						disabled
 						className="bg-gray-50"
+					/>
+					<Input
+						type="number"
+						label="Costo por hora (opcional)"
+						placeholder="Ej. 5000"
+						value={hourlyRateStr}
+						onChange={(e) => setHourlyRateStr(e.target.value)}
+						disabled={isPending}
 					/>
 					{error && <p className="text-danger text-sm">{error}</p>}
 					<div className="flex gap-3 pt-2">

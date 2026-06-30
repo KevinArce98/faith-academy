@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { useAuth } from '@/lib/auth/AuthContext';
+import { getErrorMessage } from '@/lib/errorMessages';
 import {
 	type ForgotPasswordFormValues,
 	type ResetPasswordFormValues,
@@ -82,8 +83,10 @@ export default function ForgotPassword() {
 
 			if (!res.ok) {
 				setGeneralError(
-					data.error ??
+					getErrorMessage(
+						data.error,
 						'No pudimos restablecer la contraseña. Intenta de nuevo.',
+					),
 				);
 				return;
 			}

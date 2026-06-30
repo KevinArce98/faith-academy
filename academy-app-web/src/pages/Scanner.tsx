@@ -106,6 +106,11 @@ export default function Scanner() {
 		return <Navigate to="/sign-in" replace />;
 	}
 
+	// Aparcado para fase 2: check-in por QR. Reactivar con features.attendanceScanner.
+	if (!studioConfig.features.attendanceScanner) {
+		return <Navigate to="/no-access" replace />;
+	}
+
 	if (!me || !isAdminOrTeacher(me.role)) {
 		return <Navigate to="/no-access" replace />;
 	}

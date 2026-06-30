@@ -5,11 +5,15 @@ import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { ResponsiveModal } from '@/components/ui/ResponsiveModal';
-import { Select } from '@/components/ui/Select';
+import { SelectMenu } from '@/components/ui/SelectMenu';
 import { Textarea } from '@/components/ui/Textarea';
 import { useApiClient } from '@/lib/api';
 import { getErrorMessage } from '@/lib/errorMessages';
-import type { Plan, Student } from '@/lib/interfaces/students';
+import {
+	type Plan,
+	type Student,
+	currentSubscription,
+} from '@/lib/interfaces/students';
 import {
 	type UpdateStudentInput,
 	updateStudentSchema,
@@ -35,6 +39,8 @@ export function EditStudentModal({
 		register,
 		handleSubmit,
 		reset,
+		watch,
+		setValue,
 		formState: { errors: fieldErrors },
 	} = useForm<UpdateStudentInput>({
 		resolver: zodResolver(updateStudentSchema),
@@ -44,6 +50,8 @@ export function EditStudentModal({
 			phone: '',
 			planId: '',
 			notes: '',
+			enrollmentFee: '',
+			enrolledAt: '',
 		},
 	});
 
@@ -55,21 +63,23 @@ export function EditStudentModal({
 				phone: '',
 				planId: '',
 				notes: '',
+				enrollmentFee: '',
+				enrolledAt: '',
 			});
 			return;
 		}
 
-		const activeOrder =
-			student.orders.find((order) => order.status === 'ACTIVE') ??
-			student.orders[0] ??
-			null;
+		const sub = currentSubscription(student);
 
 		reset({
 			name: student.name || '',
 			email: student.email || '',
 			phone: student.phone || '',
-			planId: activeOrder?.plan.id || '',
-			notes: activeOrder?.notes || '',
+			planId: sub?.plan.id || '',
+			notes: '',
+			enrollmentFee:
+				student.enrollmentFee != null ? String(student.enrollmentFee) : '',
+			enrolledAt: student.enrolledAt ? student.enrolledAt.slice(0, 10) : '',
 		});
 	}, [student, reset]);
 
@@ -86,10 +96,16 @@ export function EditStudentModal({
 
 		try {
 			await apiClient(`/api/v1/students/${student.id}`, {
-				method: 'PATCH',
+				method: 'PUT',
 				body: JSON.stringify({
-					...form,
+					name: form.name,
+					email: form.email,
+					phone: form.phone,
 					planId: form.planId || '',
+					enrollmentFee: form.enrollmentFee
+						? parseFloat(form.enrollmentFee)
+						: undefined,
+					enrolledAt: form.enrolledAt || undefined,
 				}),
 			});
 			onUpdated('Información del alumno actualizada.');
@@ -130,30 +146,34 @@ export function EditStudentModal({
 							{...register('phone')}
 						/>
 					</div>
-					<Select
-						label="Plan de membresia"
-						error={fieldErrors.planId?.message}
-						{...register('planId')}
-					>
-						<option value="">Seleccionar plan</option>
-						{plans.map((plan) => (
-							<option key={plan.id} value={plan.id}>
-								{plan.name}
-							</option>
-						))}
-					</Select>
-					<div>
-						<label className="text-dark mb-2 block text-sm font-medium">
-							Cuenta familiar
-						</label>
-						<div className="flex items-center gap-3 rounded-xl border border-gray-200 px-4 py-3">
-							<div className="relative h-6 w-10 cursor-pointer rounded-full bg-gray-200">
-								<div className="absolute top-1 left-1 h-4 w-4 rounded-full bg-white shadow transition-transform" />
-							</div>
-							<span className="text-sm text-gray-500">
-								Vincular a familia existente
-							</span>
-						</div>
+					<SelectMenu
+						label="Plan de membresía"
+						placeholder="Seleccionar plan"
+						value={watch('planId') ?? ''}
+						onChange={(v) => setValue('planId', v)}
+						options={plans.map((plan) => ({
+							value: plan.id,
+							label: plan.name,
+						}))}
+					/>
+					<div className="grid grid-cols-2 gap-4">
+						<Input
+							type="number"
+							min="0"
+							step="0.01"
+							label="Matrícula"
+							placeholder="0.00"
+							endAdornment="CRC"
+							hint="Pago único de inscripción"
+							error={fieldErrors.enrollmentFee?.message}
+							{...register('enrollmentFee')}
+						/>
+						<Input
+							type="date"
+							label="Fecha de matrícula"
+							error={fieldErrors.enrolledAt?.message}
+							{...register('enrolledAt')}
+						/>
 					</div>
 					<Textarea
 						label="Notas internas"
