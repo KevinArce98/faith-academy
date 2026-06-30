@@ -1,13 +1,10 @@
 import { useCallback } from 'react';
 
-import { useAuth } from '@/lib/auth/AuthContext';
+import { useAuth } from '@/lib/auth/useAuth';
+import { env } from '@/lib/config/env';
 
-const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
+const API_URL = env.API_URL;
 
-// Saca el mensaje más útil del cuerpo de error del API, soportando:
-//  - { error: "texto" }
-//  - { error: { fieldErrors, formErrors } }  (validación zod)
-//  - { message: "texto" }
 function extractErrorMessage(body: unknown, status: number): string {
 	if (body && typeof body === 'object') {
 		const err = (body as Record<string, unknown>).error;
@@ -30,23 +27,51 @@ function extractErrorMessage(body: unknown, status: number): string {
 	return `HTTP ${status}`;
 }
 
+let refreshPromise: Promise<string | null> | null = null;
+
+export function refreshAccessToken(): Promise<string | null> {
+	if (!refreshPromise) {
+		refreshPromise = fetch(`${API_URL}/api/v1/auth/refresh`, {
+			method: 'POST',
+			credentials: 'include',
+		})
+			.then((r) => (r.ok ? r.json() : null))
+			.then((d: { token?: string } | null) => d?.token ?? null)
+			.catch(() => null)
+			.finally(() => {
+				refreshPromise = null;
+			});
+	}
+	return refreshPromise;
+}
+
 export function useApiClient() {
-	const { getToken } = useAuth();
+	const { getToken, setToken, clearToken } = useAuth();
 
 	return useCallback(
 		async <T = unknown>(url: string, opts?: RequestInit): Promise<T> => {
-			const token = getToken();
-			// Con FormData el navegador debe poner el Content-Type (multipart con
-			// boundary). Si forzamos application/json, el server no puede parsearlo.
 			const isFormData = opts?.body instanceof FormData;
-			const res = await fetch(`${API_URL}${url}`, {
+			const build = (token: string | null): RequestInit => ({
 				...opts,
+				credentials: 'include',
 				headers: {
 					...(isFormData ? {} : { 'Content-Type': 'application/json' }),
 					...(token ? { Authorization: `Bearer ${token}` } : {}),
 					...opts?.headers,
 				},
 			});
+
+			let res = await fetch(`${API_URL}${url}`, build(getToken()));
+
+			if (res.status === 401 && !url.includes('/auth/')) {
+				const newToken = await refreshAccessToken();
+				if (newToken) {
+					setToken(newToken);
+					res = await fetch(`${API_URL}${url}`, build(newToken));
+				} else {
+					clearToken();
+				}
+			}
 
 			if (!res.ok) {
 				const body = await res.json().catch(() => null);
@@ -59,7 +84,7 @@ export function useApiClient() {
 
 			return res.json() as Promise<T>;
 		},
-		[getToken],
+		[getToken, setToken, clearToken],
 	);
 }
 

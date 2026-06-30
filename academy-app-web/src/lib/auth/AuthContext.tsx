@@ -1,13 +1,13 @@
 import {
 	type ReactNode,
-	createContext,
 	useCallback,
-	useContext,
 	useEffect,
+	useRef,
 	useState,
 } from 'react';
 
-const TOKEN_KEY = 'auth_token';
+import { refreshAccessToken } from '@/lib/api';
+import { AuthContext } from './authContext';
 
 type AuthState = {
 	token: string | null;
@@ -15,47 +15,39 @@ type AuthState = {
 	isSignedIn: boolean;
 };
 
-type AuthContextValue = AuthState & {
-	setToken: (token: string) => void;
-	clearToken: () => void;
-	getToken: () => string | null;
-};
-
-const AuthContext = createContext<AuthContextValue | null>(null);
-
 export function AuthProvider({ children }: { children: ReactNode }) {
 	const [state, setState] = useState<AuthState>({
 		token: null,
 		isLoaded: false,
 		isSignedIn: false,
 	});
-
-	useEffect(() => {
-		const token = localStorage.getItem(TOKEN_KEY);
-		setState({ token, isLoaded: true, isSignedIn: Boolean(token) });
-	}, []);
+	const tokenRef = useRef<string | null>(null);
 
 	const setToken = useCallback((token: string) => {
-		localStorage.setItem(TOKEN_KEY, token);
+		tokenRef.current = token;
 		setState({ token, isLoaded: true, isSignedIn: true });
 	}, []);
 
 	const clearToken = useCallback(() => {
-		localStorage.removeItem(TOKEN_KEY);
+		tokenRef.current = null;
 		setState({ token: null, isLoaded: true, isSignedIn: false });
 	}, []);
 
-	const getToken = useCallback(() => localStorage.getItem(TOKEN_KEY), []);
+	const getToken = useCallback(() => tokenRef.current, []);
+
+	const didBootstrap = useRef(false);
+	useEffect(() => {
+		if (didBootstrap.current) return;
+		didBootstrap.current = true;
+		refreshAccessToken().then((token) => {
+			if (token) setToken(token);
+			else clearToken();
+		});
+	}, [setToken, clearToken]);
 
 	return (
 		<AuthContext.Provider value={{ ...state, setToken, clearToken, getToken }}>
 			{children}
 		</AuthContext.Provider>
 	);
-}
-
-export function useAuth() {
-	const ctx = useContext(AuthContext);
-	if (!ctx) throw new Error('useAuth must be used within AuthProvider');
-	return ctx;
 }
