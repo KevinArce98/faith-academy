@@ -3,9 +3,10 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Hono } from 'hono';
 
 import { getCurrentUser, requireRole } from '../lib/auth.js';
-import { type DbClient, db } from '../lib/db.js';
+import { db } from '../lib/db.js';
+import { Prisma } from '../lib/generated/prisma/client.js';
 import { parseJsonBody } from '../lib/request.js';
-import { addDays, addMonths, addYears } from '../lib/utils/date.js';
+import { addDays, addMonths, monthPeriod } from '../lib/utils/date.js';
 import {
 	createOrderSchema,
 	rejectOrderSchema,
@@ -45,7 +46,7 @@ paymentsRoutes.get('/orders', authMiddleware, async (c) => {
 	if (user.role === 'STUDENT') {
 		const orders = await db.membershipOrder.findMany({
 			where: { studentId: user.id },
-			include: { plan: true },
+			include: { plan: true, bookingClass: { select: { name: true } } },
 			orderBy: { createdAt: 'desc' },
 		});
 
@@ -59,6 +60,7 @@ paymentsRoutes.get('/orders', authMiddleware, async (c) => {
 				student: {
 					select: { id: true, name: true, email: true },
 				},
+				bookingClass: { select: { name: true } },
 			},
 			orderBy: { createdAt: 'desc' },
 		});
@@ -85,7 +87,7 @@ paymentsRoutes.post('/orders', authMiddleware, async (c) => {
 		return c.json({ error: parsed.error.flatten() }, 422);
 	}
 
-	const { planId, receiptKey } = parsed.data;
+	const { planId, receiptKey, bookingClassId, bookingDate } = parsed.data;
 
 	// Validate receiptKey belongs to this user
 	if (!receiptKey.startsWith(`receipts/${user.id}/`)) {
@@ -100,6 +102,31 @@ paymentsRoutes.post('/orders', authMiddleware, async (c) => {
 		return c.json({ error: 'Plan no encontrado' }, 404);
 	}
 
+	// Clase suelta: el alumno debe elegir clase + fecha de la sesión.
+	if (plan.isSingleClass) {
+		if (!bookingClassId || !bookingDate) {
+			return c.json(
+				{ error: 'Debes elegir la clase y la fecha de la sesión.' },
+				422,
+			);
+		}
+		const cls = await db.class.findFirst({
+			where: { id: bookingClassId, isActive: true },
+			include: { slots: { select: { dayOfWeek: true } } },
+		});
+		if (!cls) return c.json({ error: 'Clase no encontrada.' }, 404);
+		// La fecha elegida debe caer en un día en que se imparte la clase.
+		const [y, m, d] = bookingDate.split('-').map(Number);
+		const jsDow = new Date(y, m - 1, d).getDay();
+		const dow = jsDow === 0 ? 7 : jsDow; // 1=Lun … 7=Dom
+		if (!cls.slots.some((s) => s.dayOfWeek === dow)) {
+			return c.json(
+				{ error: 'La clase no se imparte el día seleccionado.' },
+				422,
+			);
+		}
+	}
+
 	const receiptUrl = `${process.env.CLOUDFLARE_R2_PUBLIC_URL}/${receiptKey}`;
 
 	const order = await db.membershipOrder.create({
@@ -108,6 +135,10 @@ paymentsRoutes.post('/orders', authMiddleware, async (c) => {
 			planId,
 			receiptUrl,
 			status: 'PENDING_REVIEW',
+			bookingClassId: plan.isSingleClass ? bookingClassId : null,
+			bookingDate: plan.isSingleClass
+				? new Date(`${bookingDate}T00:00:00.000Z`)
+				: null,
 		},
 	});
 
@@ -139,55 +170,78 @@ paymentsRoutes.post('/orders/:id/approve', authMiddleware, async (c) => {
 	}
 
 	const now = new Date();
-	const { intervalType, intervalValue, credits } = order.plan;
+	const isSingle = order.plan.isSingleClass;
 
-	let expiresAt: Date;
-	if (intervalType === 'MONTHLY') {
-		expiresAt = addMonths(now, intervalValue);
-	} else if (intervalType === 'WEEKLY') {
-		expiresAt = addDays(now, intervalValue * 7);
-	} else {
-		expiresAt = addYears(now, 1);
-	}
+	// Clase suelta: el ciclo es la fecha reservada (vence al terminar ese día) y
+	// se auto-inscribe en esa clase para esa sesión. Mensual: ciclo por aniversario.
+	const period =
+		isSingle && order.bookingDate
+			? monthPeriod(order.bookingDate)
+			: monthPeriod(now);
+	const expiresAt =
+		isSingle && order.bookingDate
+			? addDays(order.bookingDate, 1)
+			: addMonths(now, 1);
 
-	const updatedOrder = await db.$transaction(async (rawTx) => {
-		const tx = rawTx as unknown as DbClient;
-
-		const ledgerRows = await tx.$queryRaw<{ id: string; balance: number }[]>`
-			SELECT id, balance
-			FROM "CreditLedger"
-			WHERE "studentId" = ${order.studentId}
-			ORDER BY "createdAt" DESC
-			LIMIT 1
-			FOR UPDATE
-		`;
-		const currentBalance = ledgerRows[0]?.balance ?? 0;
-
-		const updated = await tx.membershipOrder.update({
+	// Aprobar un comprobante = el alumno pagó su mensualidad con el plan del
+	// comprobante. Un alumno tiene un solo plan por período (unique studentId+period).
+	const ops: Prisma.PrismaPromise<unknown>[] = [
+		db.membershipOrder.update({
 			where: { id },
 			data: {
 				status: 'ACTIVE',
 				startsAt: now,
 				expiresAt,
-				creditGranted: credits,
 				approvedById: admin.id,
 				approvedAt: now,
 			},
-		});
-
-		await tx.creditLedger.create({
-			data: {
-				studentId: order.studentId,
-				orderId: order.id,
-				type: 'CREDIT_GRANT',
-				amount: credits,
-				balance: currentBalance + credits,
-				note: `Plan aprobado: ${order.plan.name}`,
+		}),
+		db.monthlySubscription.upsert({
+			where: {
+				studentId_period: { studentId: order.studentId, period },
 			},
-		});
+			create: {
+				studentId: order.studentId,
+				planId: order.planId,
+				period,
+				amount: order.plan.price,
+				isPaid: true,
+				paidAt: now,
+				expiresAt,
+			},
+			update: {
+				planId: order.planId,
+				amount: order.plan.price,
+				isPaid: true,
+				paidAt: now,
+				expiresAt,
+			},
+		}),
+	];
 
-		return updated;
-	});
+	// Clase suelta: auto-inscribir en la clase reservada solo para esa fecha.
+	if (isSingle && order.bookingClassId && order.bookingDate) {
+		ops.push(
+			db.monthlyAttendance.upsert({
+				where: {
+					studentId_classId_period: {
+						studentId: order.studentId,
+						classId: order.bookingClassId,
+						period,
+					},
+				},
+				create: {
+					studentId: order.studentId,
+					classId: order.bookingClassId,
+					period,
+					sessionDate: order.bookingDate,
+				},
+				update: { sessionDate: order.bookingDate },
+			}),
+		);
+	}
+
+	const [updatedOrder] = await db.$transaction(ops);
 
 	return c.json(updatedOrder);
 });

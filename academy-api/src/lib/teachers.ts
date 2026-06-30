@@ -1,22 +1,6 @@
 import { db } from './db.js';
 import type { TeacherProfile } from './interfaces/teachers.js';
-
-const dayFormatter = new Intl.DateTimeFormat('es-CR', { weekday: 'short' });
-
-function formatDay(date: Date): string {
-	const raw = dayFormatter.format(date);
-	if (!raw) return '';
-	const cleaned = raw.replace('.', '');
-	return cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
-}
-
-function formatTime(date: Date): string {
-	const hours = date.getHours();
-	const minutes = date.getMinutes().toString().padStart(2, '0');
-	const suffix = hours >= 12 ? 'pm' : 'am';
-	const hour12 = hours % 12 || 12;
-	return `${hour12}:${minutes}${suffix}`;
-}
+import { formatSlots } from './utils/schedule.js';
 
 export async function getTeachersWithClasses(): Promise<TeacherProfile[]> {
 	// 2 queries instead of N+1: fetch all teachers, then batch-fetch all their classes
@@ -31,9 +15,11 @@ export async function getTeachersWithClasses(): Promise<TeacherProfile[]> {
 				id: true,
 				name: true,
 				teacherId: true,
-				startsAt: true,
-				endsAt: true,
 				maxCapacity: true,
+				slots: {
+					select: { dayOfWeek: true, startTime: true, endTime: true },
+					orderBy: [{ dayOfWeek: 'asc' }, { startTime: 'asc' }],
+				},
 				_count: {
 					select: {
 						attendances: {
@@ -42,7 +28,7 @@ export async function getTeachersWithClasses(): Promise<TeacherProfile[]> {
 					},
 				},
 			},
-			orderBy: { startsAt: 'asc' },
+			orderBy: { name: 'asc' },
 		}),
 	]);
 
@@ -63,13 +49,13 @@ export async function getTeachersWithClasses(): Promise<TeacherProfile[]> {
 				avatarUrl: teacher.avatarUrl,
 				role: 'TEACHER',
 				isActive: teacher.isActive,
+				hourlyRate:
+					teacher.hourlyRate != null ? Number(teacher.hourlyRate) : null,
 				createdAt: teacher.createdAt.toISOString(),
 				classes: (classesByTeacher.get(teacher.id) ?? []).map((cls) => ({
 					id: cls.id,
 					name: cls.name,
-					dayOfWeek: formatDay(new Date(cls.startsAt)),
-					startTime: formatTime(new Date(cls.startsAt)),
-					endTime: formatTime(new Date(cls.endsAt)),
+					schedule: formatSlots(cls.slots),
 					capacity: cls.maxCapacity,
 					attendanceCount: cls._count.attendances,
 				})),

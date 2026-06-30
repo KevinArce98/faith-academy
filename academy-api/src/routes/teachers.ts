@@ -16,12 +16,18 @@ const teachersRoutes = new Hono<{ Variables: AuthVariables }>();
 const createTeacherSchema = z.object({
 	name: z.string().min(1, 'El nombre es requerido'),
 	email: z.email('Email inválido'),
+	hourlyRate: z.number().nonnegative('El costo por hora no puede ser negativo').optional(),
 });
 
 const updateTeacherSchema = z.object({
 	isActive: z.boolean().optional(),
 	role: z.enum(['ADMIN', 'TEACHER', 'STUDENT']).optional(),
 	name: z.string().optional(),
+	hourlyRate: z
+		.number()
+		.nonnegative('El costo por hora no puede ser negativo')
+		.nullable()
+		.optional(),
 });
 
 // GET /teachers
@@ -32,6 +38,24 @@ teachersRoutes.get(
 	async (c) => {
 		const teachers = await getTeachersWithClasses();
 		return c.json(teachers);
+	},
+);
+
+// GET /teachers/assignable — usuarios que pueden impartir una clase
+// (profesores + admins, ya que un admin también puede dar clases).
+// Lo leen ADMIN (asignar) y TEACHER/STUDENT (ver el profe de cada clase).
+// Solo expone id/name/role — sin email ni tarifa.
+teachersRoutes.get(
+	'/assignable',
+	authMiddleware,
+	requireRoleMiddleware(['ADMIN', 'TEACHER', 'STUDENT']),
+	async (c) => {
+		const teachers = await db.userProfile.findMany({
+			where: { role: { in: ['ADMIN', 'TEACHER'] }, isActive: true },
+			select: { id: true, name: true, role: true },
+			orderBy: { name: 'asc' },
+		});
+		return c.json({ teachers });
 	},
 );
 
@@ -47,7 +71,7 @@ teachersRoutes.post(
 			return c.json({ error: parsed.error.flatten() }, 422);
 		}
 
-		const { name, email } = parsed.data;
+		const { name, email, hourlyRate } = parsed.data;
 		const tempPassword = generateTempPassword();
 
 		try {
@@ -56,6 +80,7 @@ teachersRoutes.post(
 				name,
 				role: 'TEACHER',
 				tempPassword,
+				hourlyRate,
 			});
 			return c.json(
 				{ success: true, userId: userProfile.id, tempPassword },
@@ -84,7 +109,7 @@ teachersRoutes.patch(
 			return c.json({ error: parsed.error.flatten() }, 422);
 		}
 
-		const { isActive, role, name } = parsed.data;
+		const { isActive, role, name, hourlyRate } = parsed.data;
 
 		const teacher = await db.userProfile.findFirst({
 			where: { id, role: 'TEACHER' },
@@ -107,9 +132,15 @@ teachersRoutes.patch(
 			}
 		}
 
-		const data: { isActive?: boolean; role?: Role; name?: string } = {};
+		const data: {
+			isActive?: boolean;
+			role?: Role;
+			name?: string;
+			hourlyRate?: number | null;
+		} = {};
 		if (typeof isActive === 'boolean') data.isActive = isActive;
 		if (role) data.role = role as Role;
+		if (hourlyRate !== undefined) data.hourlyRate = hourlyRate;
 
 		if (typeof name === 'string') {
 			const trimmed = name.replace(/\s+/g, ' ').trim();

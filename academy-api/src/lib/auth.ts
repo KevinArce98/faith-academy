@@ -35,12 +35,14 @@ export async function createManagedUser({
 	role,
 	tempPassword,
 	phone,
+	hourlyRate,
 }: {
 	email: string;
 	name?: string | null;
 	role: Role;
 	tempPassword: string;
 	phone?: string | null;
+	hourlyRate?: number | null;
 }) {
 	const passwordHash = await hashPassword(tempPassword);
 	return db.userProfile.create({
@@ -51,6 +53,7 @@ export async function createManagedUser({
 			passwordHash,
 			emailVerified: true,
 			phone: phone ?? null,
+			hourlyRate: hourlyRate ?? null,
 		},
 	});
 }

@@ -1,8 +1,10 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
 
+import { getCurrentUser } from '../lib/auth.js';
 import { db } from '../lib/db.js';
 import { parseJsonBody } from '../lib/request.js';
+import { monthPeriod } from '../lib/utils/date.js';
 import { authMiddleware } from '../middleware/auth.js';
 import { requireRoleMiddleware } from '../middleware/requireRole.js';
 import type { AuthVariables } from '../types/auth.js';
@@ -13,15 +15,15 @@ const planSchema = z.object({
 	name: z.string().min(1, 'El nombre es requerido'),
 	description: z.string().optional().nullable(),
 	price: z.number().nonnegative('El precio debe ser un número válido'),
-	credits: z
+	// Clases/semana que da el plan (informativo). 0 = ilimitadas/indefinidas.
+	classesPerWeek: z
 		.number()
 		.int()
-		.nonnegative('Los créditos deben ser un número válido'),
-	intervalType: z.enum(['MONTHLY', 'WEEKLY', 'FIXED_PACKAGE']),
-	intervalValue: z
-		.number()
-		.int()
-		.min(1, 'El valor de intervalo debe ser al menos 1'),
+		.min(0, 'Las clases por semana no pueden ser negativas'),
+	// false = plan oculto tipo beca (solo el admin lo asigna, no lo ven los alumnos).
+	isPublic: z.boolean().default(true),
+	// Plan de una sola clase.
+	isSingleClass: z.boolean().default(false),
 });
 
 const toggleSchema = z.object({
@@ -30,14 +32,23 @@ const toggleSchema = z.object({
 
 // GET /plans
 plansRoutes.get('/', authMiddleware, async (c) => {
+	const user = await getCurrentUser(c);
+	const isAdminUser = user?.role === 'ADMIN';
 	const activeOnly = c.req.query('activeOnly') === 'true';
 
+	// Los no-admin solo ven planes activos y públicos (los beca quedan ocultos).
 	const plans = await db.membershipPlan.findMany({
-		where: activeOnly ? { isActive: true } : undefined,
+		where: isAdminUser
+			? activeOnly
+				? { isActive: true }
+				: undefined
+			: { isActive: true, isPublic: true },
 		orderBy: { name: 'asc' },
 		include: {
 			_count: {
-				select: { orders: { where: { status: 'ACTIVE' } } },
+				select: {
+					subscriptions: { where: { isPaid: true, period: monthPeriod() } },
+				},
 			},
 		},
 	});
@@ -101,14 +112,16 @@ plansRoutes.delete(
 		const plan = await db.membershipPlan.findUnique({
 			where: { id },
 			include: {
-				_count: { select: { orders: { where: { status: 'ACTIVE' } } } },
+				_count: { select: { subscriptions: true } },
 			},
 		});
 
 		if (!plan) return c.json({ error: 'Plan no encontrado.' }, 404);
-		if (plan._count.orders > 0) {
+		if (plan._count.subscriptions > 0) {
 			return c.json(
-				{ error: 'No puedes eliminar un plan con alumnos activos.' },
+				{
+					error: 'No puedes eliminar un plan que tiene mensualidades registradas.',
+				},
 				409,
 			);
 		}

@@ -3,6 +3,7 @@ import { Hono } from 'hono';
 import { createManagedUser } from '../lib/auth.js';
 import { db } from '../lib/db.js';
 import { parseJsonBody } from '../lib/request.js';
+import { monthPeriod } from '../lib/utils/date.js';
 import { generateTempPassword } from '../lib/utils/password.js';
 import {
 	createStudentSchema,
@@ -27,16 +28,12 @@ studentsRoutes.get(
 						family: { select: { name: true } },
 					},
 				},
-				orders: {
-					orderBy: { createdAt: 'desc' },
+				// Mensualidad/plan vigente (modelo flat-fee).
+				subscriptions: {
+					orderBy: { period: 'desc' },
 					take: 1,
 					include: {
-						plan: { select: { id: true, name: true } },
-						ledgerEntries: {
-							orderBy: { createdAt: 'desc' },
-							take: 1,
-							select: { balance: true },
-						},
+						plan: { select: { id: true, name: true, isPublic: true } },
 					},
 				},
 			},
@@ -58,7 +55,7 @@ studentsRoutes.post(
 			return c.json({ success: false, error: parsed.error.flatten() }, 422);
 		}
 
-		const { name, email, notes, phone } = parsed.data;
+		const { name, email, phone, enrollmentFee, enrolledAt } = parsed.data;
 		const planId = parsed.data.planId?.trim() || null;
 
 		try {
@@ -72,15 +69,34 @@ studentsRoutes.post(
 				phone: phone?.trim() || null,
 			});
 
-			if (planId) {
-				await db.membershipOrder.create({
+			// Matrícula (pago único de inscripción).
+			if (enrollmentFee != null || enrolledAt) {
+				await db.userProfile.update({
+					where: { id: created.id },
 					data: {
-						studentId: created.id,
-						planId,
-						status: 'PENDING_REVIEW',
-						notes: notes?.trim() ? notes.trim() : null,
+						enrollmentFee: enrollmentFee ?? null,
+						enrolledAt: enrolledAt ? new Date(enrolledAt) : null,
 					},
 				});
+			}
+
+			// Plan asignado → mensualidad del mes actual.
+			if (planId) {
+				const plan = await db.membershipPlan.findUnique({
+					where: { id: planId },
+					select: { price: true },
+				});
+				if (plan) {
+					await db.monthlySubscription.create({
+						data: {
+							studentId: created.id,
+							planId,
+							period: monthPeriod(),
+							amount: plan.price,
+							isPaid: false,
+						},
+					});
+				}
 			}
 
 			return c.json({ success: true, userId: created.id, tempPassword }, 201);
@@ -108,9 +124,6 @@ studentsRoutes.put(
 		const id = c.req.param('id');
 		const student = await db.userProfile.findFirst({
 			where: { id, role: 'STUDENT' },
-			include: {
-				orders: { orderBy: { createdAt: 'desc' }, take: 1 },
-			},
 		});
 
 		if (!student) {
@@ -121,62 +134,44 @@ studentsRoutes.put(
 		const email = parsed.data.email.trim().toLowerCase();
 		const phone = parsed.data.phone?.trim() || null;
 		const planId = parsed.data.planId?.trim() || null;
-		const notes = parsed.data.notes?.trim() || null;
+		const { enrollmentFee, enrolledAt } = parsed.data;
 
-		const currentName = student.name ?? '';
-		const currentEmail = student.email.trim().toLowerCase();
-		const currentPhone = student.phone?.trim() || null;
-		const latestOrder = student.orders[0] ?? null;
+		// Perfil + matrícula.
+		const updated = await db.userProfile.update({
+			where: { id: student.id },
+			data: {
+				name,
+				email,
+				phone,
+				...(enrollmentFee !== undefined
+					? { enrollmentFee: enrollmentFee ?? null }
+					: {}),
+				...(enrolledAt !== undefined
+					? { enrolledAt: enrolledAt ? new Date(enrolledAt) : null }
+					: {}),
+			},
+		});
 
-		const hasProfileChanges =
-			name !== currentName || email !== currentEmail || phone !== currentPhone;
-		const planChanged = Boolean(planId && latestOrder?.planId !== planId);
-		const notesChanged =
-			latestOrder != null && (latestOrder.notes ?? null) !== notes;
-		const hasMembershipChanges = planChanged || notesChanged;
-
-		if (!hasProfileChanges && !hasMembershipChanges) {
-			return c.json(
-				{ success: false, error: 'No hay cambios para aplicar.' },
-				400,
-			);
-		}
-
-		let updated = student;
-		if (hasProfileChanges) {
-			updated = await db.userProfile.update({
-				where: { id: student.id },
-				data: { name, email, phone },
-				include: { orders: { orderBy: { createdAt: 'desc' }, take: 1 } },
-			});
-		}
-
+		// Plan asignado → upsert de la mensualidad del mes actual.
 		if (planId) {
-			if (latestOrder && latestOrder.status === 'PENDING_REVIEW') {
-				await db.membershipOrder.update({
-					where: { id: latestOrder.id },
-					data: { planId, notes },
-				});
-			} else if (latestOrder && latestOrder.planId === planId) {
-				await db.membershipOrder.update({
-					where: { id: latestOrder.id },
-					data: { notes },
-				});
-			} else {
-				await db.membershipOrder.create({
-					data: {
+			const plan = await db.membershipPlan.findUnique({
+				where: { id: planId },
+				select: { price: true },
+			});
+			if (plan) {
+				const period = monthPeriod();
+				await db.monthlySubscription.upsert({
+					where: { studentId_period: { studentId: student.id, period } },
+					create: {
 						studentId: student.id,
 						planId,
-						status: 'PENDING_REVIEW',
-						notes,
+						period,
+						amount: plan.price,
+						isPaid: false,
 					},
+					update: { planId, amount: plan.price },
 				});
 			}
-		} else if (notesChanged && latestOrder) {
-			await db.membershipOrder.update({
-				where: { id: latestOrder.id },
-				data: { notes },
-			});
 		}
 
 		return c.json({ success: true, student: updated, email });
@@ -199,6 +194,8 @@ studentsRoutes.delete(
 		}
 
 		await db.$transaction([
+			db.monthlyAttendance.deleteMany({ where: { studentId: student.id } }),
+			db.monthlySubscription.deleteMany({ where: { studentId: student.id } }),
 			db.creditLedger.deleteMany({ where: { studentId: student.id } }),
 			db.classWaitlist.deleteMany({ where: { studentId: student.id } }),
 			db.attendance.deleteMany({ where: { studentId: student.id } }),

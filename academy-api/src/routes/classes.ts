@@ -4,48 +4,61 @@ import { z } from 'zod';
 import { getCurrentUser, requireRole } from '../lib/auth.js';
 import { db } from '../lib/db.js';
 import { parseJsonBody } from '../lib/request.js';
+import { monthPeriod } from '../lib/utils/date.js';
+import { formatOneOff, formatSlots } from '../lib/utils/schedule.js';
 import { authMiddleware } from '../middleware/auth.js';
 import { requireRoleMiddleware } from '../middleware/requireRole.js';
 import type { AuthVariables } from '../types/auth.js';
 
-const isValidDate = (v: string) => !isNaN(Date.parse(v));
+// Un slot del horario: día de la semana (1=Lun..7=Dom) + hora inicio/fin "HH:mm".
+const slotSchema = z.object({
+	dayOfWeek: z.number().int().min(1).max(7),
+	startTime: z.string().regex(/^\d{2}:\d{2}$/, 'Hora inválida'),
+	endTime: z.string().regex(/^\d{2}:\d{2}$/, 'Hora inválida'),
+});
 
+// Clase recurrente (Ballet, Jazz…) con su profesor y su horario (slots).
 const createClassSchema = z.object({
 	name: z.string().min(1, 'El nombre es requerido'),
-	skillLevel: z.enum(['BEGINNER', 'INTERMEDIATE', 'ADVANCED', 'MASTER']),
 	teacherId: z.string().min(1, 'El profesor es requerido'),
-	maxCapacity: z.number().int().positive(),
-	cancelWindowHours: z.number().int().nonnegative(),
-	creditCost: z.number().int().positive().optional(),
+	slots: z.array(slotSchema).optional(),
+	skillLevel: z
+		.enum(['BEGINNER', 'INTERMEDIATE', 'ADVANCED', 'MASTER'])
+		.optional(),
+	maxCapacity: z.number().int().nonnegative().optional(),
 	description: z.string().optional(),
-	occurrences: z
-		.array(
-			z.object({
-				startsAt: z.string().refine(isValidDate, 'Fecha de inicio inválida'),
-				endsAt: z.string().refine(isValidDate, 'Fecha de fin inválida'),
-			}),
-		)
-		.min(1),
+	isPrivate: z.boolean().optional(),
+	// Clase única: fecha puntual "YYYY-MM-DD" (con un solo slot para la hora).
+	oneOffDate: z
+		.string()
+		.regex(/^\d{4}-\d{2}-\d{2}$/, 'Fecha inválida')
+		.nullable()
+		.optional(),
 });
 
 const updateClassSchema = z.object({
 	name: z.string().min(1, 'El nombre es requerido').optional(),
+	teacherId: z.string().min(1, 'El profesor es requerido').optional(),
+	slots: z.array(slotSchema).optional(),
 	skillLevel: z
 		.enum(['BEGINNER', 'INTERMEDIATE', 'ADVANCED', 'MASTER'])
 		.optional(),
-	teacherId: z.string().min(1, 'El profesor es requerido').optional(),
-	maxCapacity: z.number().int().positive().optional(),
-	cancelWindowHours: z.number().int().nonnegative().optional(),
-	creditCost: z.number().int().positive().optional(),
+	maxCapacity: z.number().int().nonnegative().optional(),
 	description: z.string().optional(),
-	startsAt: z
+	isPrivate: z.boolean().optional(),
+	oneOffDate: z
 		.string()
-		.refine(isValidDate, 'Fecha de inicio inválida')
+		.regex(/^\d{4}-\d{2}-\d{2}$/, 'Fecha inválida')
+		.nullable()
 		.optional(),
-	endsAt: z.string().refine(isValidDate, 'Fecha de fin inválida').optional(),
 });
 
 const classesRoutes = new Hono<{ Variables: AuthVariables }>();
+
+// "YYYY-MM-DD" → Date a medianoche UTC (para columnas @db.Date).
+function parseDateOnly(s: string): Date {
+	return new Date(`${s}T00:00:00.000Z`);
+}
 
 classesRoutes.get('/', authMiddleware, async (c) => {
 	const user = await getCurrentUser(c);
@@ -65,6 +78,7 @@ classesRoutes.get('/', authMiddleware, async (c) => {
 		where,
 		orderBy: { startsAt: 'asc' },
 		include: {
+			slots: { orderBy: [{ dayOfWeek: 'asc' }, { startTime: 'asc' }] },
 			_count: {
 				select: {
 					attendances: {
@@ -77,25 +91,35 @@ classesRoutes.get('/', authMiddleware, async (c) => {
 	});
 
 	if (user?.role === 'STUDENT') {
+		// Inscripciones del mes (modelo flat-fee) → estado + visibilidad de privadas.
+		const period = monthPeriod();
 		const classIds = classes.map((cls) => cls.id);
-		const enrollments = await db.attendance.findMany({
-			where: {
-				studentId: user.id,
-				classId: { in: classIds },
-				status: { in: ['RESERVED', 'ATTENDED'] },
-			},
+		const enrollments = await db.monthlyAttendance.findMany({
+			where: { studentId: user.id, classId: { in: classIds }, period },
 			select: { classId: true },
 		});
 		const enrolledSet = new Set(enrollments.map((e) => e.classId));
+		// Las clases privadas (compañía/audición) se ocultan a quien no esté asignado.
+		const visible = classes.filter(
+			(cls) => !cls.isPrivate || enrolledSet.has(cls.id),
+		);
 		return c.json({
-			classes: classes.map((cls) => ({
+			classes: visible.map((cls) => ({
 				...cls,
+				schedule: cls.oneOffDate
+					? formatOneOff(cls.oneOffDate, cls.slots)
+					: formatSlots(cls.slots),
 				isEnrolled: enrolledSet.has(cls.id),
 			})),
 		});
 	}
 
-	return c.json({ classes });
+	return c.json({
+		classes: classes.map((cls) => ({
+			...cls,
+			schedule: formatSlots(cls.slots),
+		})),
+	});
 });
 
 classesRoutes.post(
@@ -111,34 +135,40 @@ classesRoutes.post(
 
 		const {
 			name,
-			skillLevel,
 			teacherId,
+			slots,
+			skillLevel,
 			maxCapacity,
-			cancelWindowHours,
-			creditCost,
 			description,
-			occurrences,
+			isPrivate,
+			oneOffDate,
 		} = parsed.data;
 
-		const classes = await db.$transaction(
-			occurrences.map((occ) =>
-				db.class.create({
-					data: {
-						name,
-						skillLevel,
-						teacherId,
-						maxCapacity,
-						cancelWindowHours,
-						creditCost: creditCost ?? 1,
-						description: description || null,
-						startsAt: new Date(occ.startsAt),
-						endsAt: new Date(occ.endsAt),
-					},
-				}),
-			),
-		);
+		// startsAt/endsAt son placeholders del modelo viejo; el horario real va en slots.
+		const now = new Date();
+		const cls = await db.class.create({
+			data: {
+				name,
+				teacherId,
+				skillLevel: skillLevel ?? 'BEGINNER',
+				maxCapacity: maxCapacity ?? 0,
+				cancelWindowHours: 24,
+				creditCost: 1,
+				description: description || null,
+				isPrivate: isPrivate ?? false,
+				oneOffDate: oneOffDate ? parseDateOnly(oneOffDate) : null,
+				startsAt: now,
+				endsAt: new Date(now.getTime() + 60 * 60 * 1000),
+				slots: slots?.length
+					? { create: slots.map((s) => ({ ...s })) }
+					: undefined,
+			},
+			include: {
+				slots: { orderBy: [{ dayOfWeek: 'asc' }, { startTime: 'asc' }] },
+			},
+		});
 
-		return c.json({ classes }, 201);
+		return c.json({ class: cls }, 201);
 	},
 );
 
@@ -161,43 +191,42 @@ classesRoutes.put(
 
 		const {
 			name,
-			skillLevel,
 			teacherId,
+			slots,
+			skillLevel,
 			maxCapacity,
-			cancelWindowHours,
-			creditCost,
 			description,
-			startsAt,
-			endsAt,
+			isPrivate,
+			oneOffDate,
 		} = parsed.data;
-
-		// Validate merged start/end using existing values as fallback
-		const effectiveStart =
-			startsAt !== undefined ? new Date(startsAt) : existingClass.startsAt;
-		const effectiveEnd =
-			endsAt !== undefined ? new Date(endsAt) : existingClass.endsAt;
-		if (effectiveEnd <= effectiveStart) {
-			return c.json(
-				{ error: 'La hora de fin debe ser posterior a la hora de inicio' },
-				400,
-			);
-		}
 
 		const updateData: Record<string, unknown> = {};
 		if (name !== undefined) updateData.name = name;
-		if (skillLevel !== undefined) updateData.skillLevel = skillLevel;
 		if (teacherId !== undefined) updateData.teacherId = teacherId;
+		if (skillLevel !== undefined) updateData.skillLevel = skillLevel;
 		if (maxCapacity !== undefined) updateData.maxCapacity = maxCapacity;
-		if (cancelWindowHours !== undefined)
-			updateData.cancelWindowHours = cancelWindowHours;
-		if (creditCost !== undefined) updateData.creditCost = creditCost;
 		if (description !== undefined) updateData.description = description || null;
-		if (startsAt !== undefined) updateData.startsAt = new Date(startsAt);
-		if (endsAt !== undefined) updateData.endsAt = new Date(endsAt);
+		if (isPrivate !== undefined) updateData.isPrivate = isPrivate;
+		if (oneOffDate !== undefined)
+			updateData.oneOffDate = oneOffDate ? parseDateOnly(oneOffDate) : null;
 
-		const updatedClass = await db.class.update({
-			where: { id },
-			data: updateData,
+		const updatedClass = await db.$transaction(async (tx) => {
+			// Si vienen slots, se reemplaza el horario completo.
+			if (slots !== undefined) {
+				await tx.classSlot.deleteMany({ where: { classId: id } });
+				if (slots.length) {
+					await tx.classSlot.createMany({
+						data: slots.map((s) => ({ classId: id, ...s })),
+					});
+				}
+			}
+			return tx.class.update({
+				where: { id },
+				data: updateData,
+				include: {
+					slots: { orderBy: [{ dayOfWeek: 'asc' }, { startTime: 'asc' }] },
+				},
+			});
 		});
 
 		return c.json({ class: updatedClass });
@@ -214,7 +243,7 @@ classesRoutes.delete(
 			where: { id },
 			include: {
 				_count: {
-					select: { attendances: true },
+					select: { attendances: true, monthlyAttendance: true },
 				},
 			},
 		});
@@ -223,11 +252,14 @@ classesRoutes.delete(
 			return c.json({ error: 'Clase no encontrada' }, 404);
 		}
 
-		if (existingClass._count.attendances > 0) {
+		if (
+			existingClass._count.attendances > 0 ||
+			existingClass._count.monthlyAttendance > 0
+		) {
 			return c.json(
 				{
 					error:
-						'No se puede eliminar una clase con inscritos. Primero elimine las reservas.',
+						'No se puede eliminar una clase con asistencia registrada. Primero elimina los registros.',
 				},
 				400,
 			);

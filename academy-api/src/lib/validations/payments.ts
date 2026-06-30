@@ -8,6 +8,12 @@ export const uploadUrlSchema = z.object({
 export const createOrderSchema = z.object({
 	planId: z.string().min(1),
 	receiptKey: z.string().min(1),
+	// Reserva de clase suelta: el alumno elige clase + fecha de la sesión.
+	bookingClassId: z.string().min(1).optional(),
+	bookingDate: z
+		.string()
+		.regex(/^\d{4}-\d{2}-\d{2}$/, 'Fecha inválida')
+		.optional(),
 });
 
 export const rejectOrderSchema = z.object({
