@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 
 import { Button } from '@/components/ui/Button';
-import { useAuth } from '@/lib/auth/AuthContext';
+import { useAuth } from '@/lib/auth/useAuth';
 import studioConfig from '@/lib/config/studio.config';
 
 export default function NoAccess() {

@@ -18,9 +18,7 @@ type BadgeVariant =
 
 interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
 	variant?: BadgeVariant;
-	/** Show bullet dot prefix (e.g. • ACTIVO) */
 	dot?: boolean;
-	/** Streak count — used with variant="streak" */
 	count?: number;
 }
 

@@ -51,8 +51,6 @@ export default function MonthlyAttendance() {
 		queryFn: () => apiClient<{ classes: Cls[] }>('/api/v1/classes'),
 	});
 
-	// Solo alumnos con la mensualidad PAGADA ese mes pueden inscribirse
-	// (solo su plata se reparte al profe).
 	const { data: subsData } = useQuery<{ subscriptions: Subscription[] }>({
 		queryKey: ['subscriptions', period],
 		queryFn: () =>

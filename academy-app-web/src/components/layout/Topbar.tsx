@@ -59,7 +59,6 @@ export function Topbar({ userInitials, onMenuClick }: TopbarProps) {
 	const notifications = data?.notifications ?? [];
 	const unreadCount = notifications.filter((n) => !readIds.has(n.id)).length;
 
-	// Build breadcrumbs: "Inicio / Alumnos"
 	const segments = pathname.split('/').filter(Boolean);
 	const breadcrumbs = [
 		{ label: 'Inicio' },
@@ -86,7 +85,7 @@ export function Topbar({ userInitials, onMenuClick }: TopbarProps) {
 				{onMenuClick && (
 					<button
 						onClick={onMenuClick}
-						className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg text-gray-600 active:scale-95 md:hidden"
+						className="flex min-h-11 min-w-11 items-center justify-center rounded-lg text-gray-600 active:scale-95 md:hidden"
 						aria-label="Abrir menu"
 					>
 						<Menu className="h-6 w-6" />

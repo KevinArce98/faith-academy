@@ -18,7 +18,8 @@ import {
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 
 import { Button } from '@/components/ui/Button';
-import { useAuth } from '@/lib/auth/AuthContext';
+import { useApiClient } from '@/lib/api';
+import { useAuth } from '@/lib/auth/useAuth';
 import { cn } from '@/lib/cn';
 import studioConfig from '@/lib/config/studio.config';
 import { type Role, canAccessRoute } from '@/lib/roles';
@@ -48,7 +49,6 @@ function getBaseNavItems(role: Role): NavItem[] {
 		{ href: '/classes', icon: Calendar, label: 'Clases' },
 	);
 
-	// Asistencia real (pasar lista): admin + profes.
 	if (role === 'ADMIN' || role === 'TEACHER') {
 		items.push({
 			href: '/class-attendance',
@@ -57,12 +57,10 @@ function getBaseNavItems(role: Role): NavItem[] {
 		});
 	}
 
-	// Auto-inscripción del alumno.
 	if (role === 'STUDENT') {
 		items.push({ href: '/my-classes', icon: BookOpen, label: 'Mis Clases' });
 	}
 
-	// Inscripciones y pago a profes: solo admin (por seguridad).
 	if (role === 'ADMIN') {
 		items.push(
 			{
@@ -108,6 +106,7 @@ export function Sidebar({ user, onClose }: SidebarProps) {
 	const { pathname } = useLocation();
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
+	const apiClient = useApiClient();
 	const { clearToken } = useAuth();
 
 	const navItems: NavItem[] = [
@@ -122,10 +121,13 @@ export function Sidebar({ user, onClose }: SidebarProps) {
 		return pathname.startsWith(href);
 	}
 
-	function handleLogout() {
+	async function handleLogout() {
+		try {
+			await apiClient('/api/v1/auth/logout', { method: 'POST' });
+		} catch {
+			// noop: se limpia el estado local de todos modos
+		}
 		clearToken();
-		// Limpia datos cacheados del usuario anterior (me/dashboard/clases…)
-		// para que el siguiente login no vea info de la sesión previa.
 		queryClient.clear();
 		navigate('/sign-in');
 	}

@@ -5,7 +5,7 @@ import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { DashboardShell } from '@/components/layout/DashboardShell';
 import { FullPageSpinner } from '@/components/ui/Spinner';
 import { useApiClient } from '@/lib/api';
-import { useAuth } from '@/lib/auth/AuthContext';
+import { useAuth } from '@/lib/auth/useAuth';
 import { type Role, canAccessRoute } from '@/lib/roles';
 import { getInitials } from '@/utils/general';
 

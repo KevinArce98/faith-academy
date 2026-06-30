@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 
 import { useApiClient } from '@/lib/api';
-import { useAuth } from '@/lib/auth/AuthContext';
+import { useAuth } from '@/lib/auth/useAuth';
 import studioConfig from '@/lib/config/studio.config';
 import { type Role, isAdminOrTeacher } from '@/lib/roles';
 
