@@ -29,9 +29,28 @@ usersRoutes.patch(
 
 		const { role } = parsed.data;
 
+		const target = await db.userProfile.findUnique({
+			where: { id },
+			select: { id: true, role: true },
+		});
+		if (!target) return c.json({ error: 'Usuario no encontrado.' }, 404);
+
+		if (target.role === 'ADMIN' && role !== 'ADMIN') {
+			const admins = await db.userProfile.count({
+				where: { role: 'ADMIN', isActive: true },
+			});
+			if (admins <= 1) {
+				return c.json(
+					{ error: 'No se puede quitar el último administrador.' },
+					400,
+				);
+			}
+		}
+
 		const user = await db.userProfile.update({
 			where: { id },
 			data: { role: role as Role },
+			select: { id: true, email: true, name: true, role: true, isActive: true },
 		});
 
 		return c.json({ success: true, user });

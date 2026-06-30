@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 
-import { getCurrentUser, requireRole } from '../lib/auth.js';
+import { getCurrentUser } from '../lib/auth.js';
+import { authorizeRole } from '../lib/authorize.js';
 import { db } from '../lib/db.js';
 import { computePayouts } from '../lib/payouts.js';
 import { monthPeriod } from '../lib/utils/date.js';
@@ -185,27 +186,38 @@ dashboardRoutes.get('/teacher', authMiddleware, async (c) => {
 // GET /dashboard/admin — resumen flat-fee de la academia (mes actual).
 // Solo ADMIN: expone finanzas de toda la academia y datos de todos los alumnos.
 dashboardRoutes.get('/admin', authMiddleware, async (c) => {
-	let user;
-	try {
-		user = await requireRole(c, 'ADMIN');
-	} catch (error) {
-		const status =
-			error instanceof Error && error.message === 'UNAUTHENTICATED' ? 401 : 403;
-		return c.json({ error: 'No autorizado' }, status);
-	}
+	const auth = await authorizeRole(c, 'ADMIN');
+	if (auth.error) return auth.error;
+	const user = auth.user;
 
 	const now = new Date();
 	const period = monthPeriod(now);
 	const weekStart = new Date(now);
 	weekStart.setDate(now.getDate() - 7);
 
-	const [activeStudents, subs, newStudents, payout] = await Promise.all([
+	const [activeStudents, students, newStudents, payout] = await Promise.all([
 		db.userProfile.count({ where: { role: 'STUDENT', isActive: true } }),
-		db.monthlySubscription.findMany({
-			where: { period },
-			include: {
-				student: { select: { id: true, name: true, email: true } },
-				plan: { select: { name: true } },
+		// Alumnos activos + sus mensualidades recientes para calcular el estado
+		// de plan por ciclo de aniversario (no por mes calendario).
+		db.userProfile.findMany({
+			where: { role: 'STUDENT', isActive: true },
+			select: {
+				id: true,
+				name: true,
+				email: true,
+				subscriptions: {
+					orderBy: { period: 'desc' },
+					take: 12,
+					select: {
+						id: true,
+						planId: true,
+						period: true,
+						amount: true,
+						isPaid: true,
+						expiresAt: true,
+						plan: { select: { name: true, isSingleClass: true } },
+					},
+				},
 			},
 		}),
 		db.userProfile.findMany({
@@ -223,22 +235,70 @@ dashboardRoutes.get('/admin', authMiddleware, async (c) => {
 		computePayouts(period),
 	]);
 
-	const pendingPayments = subs
-		.filter((s) => !s.isPaid)
-		.map((s) => ({
-			subscriptionId: s.id,
-			studentId: s.studentId,
-			studentName: s.student?.name ?? '',
-			studentEmail: s.student?.email ?? '',
-			planName: s.plan?.name ?? '',
-			amount: Number(s.amount),
-		}));
+	// Cobranza por estado de plan: un alumno está "pendiente" si NO tiene una
+	// mensualidad vigente (pagada y no vencida). 'pending' = asignada este mes y
+	// sin pagar (se marca pagada); 'expired' = su plan venció (se renueva).
+	const periodMs = period.getTime();
+	type Pending = {
+		subscriptionId: string | null;
+		studentId: string;
+		studentName: string;
+		studentEmail: string;
+		planId: string;
+		planName: string;
+		amount: number;
+		status: 'pending' | 'expired';
+	};
+	const pendingPayments: Pending[] = [];
+	let monthPending = 0;
+
+	for (const s of students) {
+		const subs = s.subscriptions;
+		const active = subs.find((x) => x.isPaid && x.expiresAt && x.expiresAt > now);
+		if (active) continue; // al día
+
+		const currentSub = subs.find((x) => x.period.getTime() === periodMs);
+		// La clase suelta es un pago único, no una mensualidad recurrente: no entra
+		// en la cobranza mensual.
+		if (currentSub && !currentSub.isPaid && !currentSub.plan?.isSingleClass) {
+			pendingPayments.push({
+				subscriptionId: currentSub.id,
+				studentId: s.id,
+				studentName: s.name ?? '',
+				studentEmail: s.email,
+				planId: currentSub.planId,
+				planName: currentSub.plan?.name ?? '',
+				amount: Number(currentSub.amount),
+				status: 'pending',
+			});
+			monthPending += Number(currentSub.amount);
+			continue;
+		}
+
+		// Plan vencido: la última mensualidad pagada (ya expirada) → renovar.
+		// Las de clase suelta no se "renuevan" (no son recurrentes).
+		const lastPaid = subs.find((x) => x.isPaid);
+		if (lastPaid && !lastPaid.plan?.isSingleClass) {
+			pendingPayments.push({
+				subscriptionId: null,
+				studentId: s.id,
+				studentName: s.name ?? '',
+				studentEmail: s.email,
+				planId: lastPaid.planId,
+				planName: lastPaid.plan?.name ?? '',
+				amount: Number(lastPaid.amount),
+				status: 'expired',
+			});
+			monthPending += Number(lastPaid.amount);
+		}
+		// Sin ninguna mensualidad → no tiene plan asignado; no es cobranza.
+	}
 
 	return c.json({
 		userName: user.name ?? '',
 		activeStudents,
 		monthCollected: payout.totals.collected,
-		monthPending: payout.totals.pending,
+		monthPending,
 		teacherPayout: payout.totals.allocated,
 		pendingCount: pendingPayments.length,
 		pendingPayments,
