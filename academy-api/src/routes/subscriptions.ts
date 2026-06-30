@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { z } from 'zod';
 
 import { db } from '../lib/db.js';
+import { invalidatePayouts } from '../lib/payouts.js';
 import { parseJsonBody } from '../lib/request.js';
 import { addMonths, monthPeriod, parseMonthPeriod } from '../lib/utils/date.js';
 import { authMiddleware } from '../middleware/auth.js';
@@ -109,6 +110,7 @@ subscriptionsRoutes.post(
 			include: { plan: { select: { id: true, name: true } } },
 		});
 
+		invalidatePayouts();
 		return c.json({ subscription }, 201);
 	},
 );
@@ -137,6 +139,7 @@ subscriptionsRoutes.patch(
 			},
 		});
 
+		invalidatePayouts();
 		return c.json({ subscription });
 	},
 );

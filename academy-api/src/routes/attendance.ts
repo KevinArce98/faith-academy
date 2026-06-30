@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 
-import { getCurrentUser, requireRole } from '../lib/auth.js';
+import { getCurrentUser } from '../lib/auth.js';
+import { authorizeRole } from '../lib/authorize.js';
 import { type DbClient, db } from '../lib/db.js';
 import { features } from '../lib/features.js';
 import { generateQRPayload, verifyQRPayload } from '../lib/qr.js';
@@ -13,6 +14,9 @@ const attendanceRoutes = new Hono<{ Variables: AuthVariables }>();
 
 // GET /student/qr — generate QR payload for current student
 attendanceRoutes.get('/student/qr', authMiddleware, async (c) => {
+	if (!features.attendanceScanner) {
+		return c.json({ error: 'Módulo no disponible' }, 403);
+	}
 	const user = await getCurrentUser(c);
 	if (!user || user.role !== 'STUDENT') {
 		return c.json({ error: 'UNAUTHORIZED' }, 401);
@@ -47,18 +51,13 @@ attendanceRoutes.get('/student/qr', authMiddleware, async (c) => {
 });
 
 // POST /attendance/scan — teacher scans student QR
-attendanceRoutes.post('/attendance/scan', authMiddleware, async (c) => {
+attendanceRoutes.post('/scan', authMiddleware, async (c) => {
 	if (!features.attendanceScanner) {
 		return c.json({ error: 'Módulo no disponible' }, 403);
 	}
 
-	try {
-		await requireRole(c, 'TEACHER');
-	} catch (error) {
-		const status =
-			error instanceof Error && error.message === 'UNAUTHENTICATED' ? 401 : 403;
-		return c.json({ error: 'No autorizado' }, status);
-	}
+	const auth = await authorizeRole(c, 'TEACHER');
+	if (auth.error) return auth.error;
 
 	const body = await parseJsonBody(c);
 	const token = (body as Record<string, unknown>)?.token;
@@ -196,15 +195,10 @@ attendanceRoutes.post('/attendance/scan', authMiddleware, async (c) => {
 });
 
 // POST /attendances/:id/cancel — cancel a reservation
-attendanceRoutes.post('/attendances/:id/cancel', authMiddleware, async (c) => {
-	let user;
-	try {
-		user = await requireRole(c, ['ADMIN', 'TEACHER', 'STUDENT']);
-	} catch (error) {
-		const status =
-			error instanceof Error && error.message === 'UNAUTHENTICATED' ? 401 : 403;
-		return c.json({ error: 'No autorizado' }, status);
-	}
+attendanceRoutes.post('/:id/cancel', authMiddleware, async (c) => {
+	const auth = await authorizeRole(c, ['ADMIN', 'TEACHER', 'STUDENT']);
+	if (auth.error) return auth.error;
+	const user = auth.user;
 
 	const attendanceId = c.req.param('id');
 

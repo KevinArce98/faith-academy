@@ -22,17 +22,27 @@ studentsRoutes.get(
 	async (c) => {
 		const students = await db.userProfile.findMany({
 			where: { role: 'STUDENT' },
-			include: {
-				familyMember: {
-					include: {
-						family: { select: { name: true } },
-					},
-				},
-				// Mensualidad/plan vigente (modelo flat-fee).
+			select: {
+				id: true,
+				name: true,
+				email: true,
+				phone: true,
+				role: true,
+				createdAt: true,
+				isActive: true,
+				enrollmentFee: true,
+				enrolledAt: true,
 				subscriptions: {
 					orderBy: { period: 'desc' },
 					take: 1,
-					include: {
+					select: {
+						id: true,
+						planId: true,
+						period: true,
+						amount: true,
+						isPaid: true,
+						paidAt: true,
+						expiresAt: true,
 						plan: { select: { id: true, name: true, isPublic: true } },
 					},
 				},
@@ -149,6 +159,16 @@ studentsRoutes.put(
 				...(enrolledAt !== undefined
 					? { enrolledAt: enrolledAt ? new Date(enrolledAt) : null }
 					: {}),
+			},
+			select: {
+				id: true,
+				name: true,
+				email: true,
+				phone: true,
+				role: true,
+				isActive: true,
+				enrollmentFee: true,
+				enrolledAt: true,
 			},
 		});
 

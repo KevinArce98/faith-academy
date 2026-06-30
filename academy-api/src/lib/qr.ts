@@ -17,6 +17,8 @@ export async function generateQRPayload(studentId: string): Promise<string> {
 export async function verifyQRPayload(
 	token: string,
 ): Promise<{ studentId: string }> {
-	const { payload } = await jwtVerify(token, getQRSecret());
+	const { payload } = await jwtVerify(token, getQRSecret(), {
+		algorithms: ['HS256'],
+	});
 	return payload as { studentId: string };
 }

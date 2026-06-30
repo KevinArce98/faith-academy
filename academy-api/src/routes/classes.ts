@@ -1,8 +1,10 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
 
-import { getCurrentUser, requireRole } from '../lib/auth.js';
+import { getCurrentUser } from '../lib/auth.js';
+import { authorizeRole } from '../lib/authorize.js';
 import { db } from '../lib/db.js';
+import { features } from '../lib/features.js';
 import { parseJsonBody } from '../lib/request.js';
 import { monthPeriod } from '../lib/utils/date.js';
 import { formatOneOff, formatSlots } from '../lib/utils/schedule.js';
@@ -271,14 +273,10 @@ classesRoutes.delete(
 );
 
 classesRoutes.post('/:id/reserve', authMiddleware, async (c) => {
-	let user;
-	try {
-		user = await requireRole(c, 'STUDENT');
-	} catch (error) {
-		const status =
-			error instanceof Error && error.message === 'UNAUTHENTICATED' ? 401 : 403;
-		return c.json({ error: 'No autorizado' }, status);
-	}
+	if (!features.credits) return c.json({ error: 'Módulo no disponible' }, 403);
+	const auth = await authorizeRole(c, 'STUDENT');
+	if (auth.error) return auth.error;
+	const user = auth.user;
 
 	const classId = c.req.param('id');
 
@@ -366,14 +364,10 @@ classesRoutes.post('/:id/reserve', authMiddleware, async (c) => {
 
 // DELETE /classes/:id/reserve — student cancels their own reservation
 classesRoutes.delete('/:id/reserve', authMiddleware, async (c) => {
-	let user;
-	try {
-		user = await requireRole(c, 'STUDENT');
-	} catch (error) {
-		const status =
-			error instanceof Error && error.message === 'UNAUTHENTICATED' ? 401 : 403;
-		return c.json({ error: 'No autorizado' }, status);
-	}
+	if (!features.credits) return c.json({ error: 'Módulo no disponible' }, 403);
+	const auth = await authorizeRole(c, 'STUDENT');
+	if (auth.error) return auth.error;
+	const user = auth.user;
 
 	const classId = c.req.param('id');
 	const cls = await db.class.findFirst({
@@ -508,6 +502,7 @@ classesRoutes.delete(
 );
 
 classesRoutes.post('/:id/waitlist', authMiddleware, async (c) => {
+	if (!features.credits) return c.json({ error: 'Módulo no disponible' }, 403);
 	const user = await getCurrentUser(c);
 	if (!user || user.role !== 'STUDENT') {
 		return c.json({ error: 'No autorizado' }, 403);
@@ -572,6 +567,7 @@ classesRoutes.post('/:id/waitlist', authMiddleware, async (c) => {
 });
 
 classesRoutes.delete('/:id/waitlist', authMiddleware, async (c) => {
+	if (!features.credits) return c.json({ error: 'Módulo no disponible' }, 403);
 	const user = await getCurrentUser(c);
 	if (!user || user.role !== 'STUDENT') {
 		return c.json({ error: 'No autorizado' }, 403);

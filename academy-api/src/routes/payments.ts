@@ -2,9 +2,11 @@ import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Hono } from 'hono';
 
-import { getCurrentUser, requireRole } from '../lib/auth.js';
+import { getCurrentUser } from '../lib/auth.js';
+import { authorizeRole } from '../lib/authorize.js';
 import { db } from '../lib/db.js';
 import { Prisma } from '../lib/generated/prisma/client.js';
+import { invalidatePayouts } from '../lib/payouts.js';
 import { parseJsonBody } from '../lib/request.js';
 import { addDays, addMonths, monthPeriod } from '../lib/utils/date.js';
 import {
@@ -72,14 +74,9 @@ paymentsRoutes.get('/orders', authMiddleware, async (c) => {
 });
 
 paymentsRoutes.post('/orders', authMiddleware, async (c) => {
-	let user;
-	try {
-		user = await requireRole(c, 'STUDENT');
-	} catch (error) {
-		const status =
-			error instanceof Error && error.message === 'UNAUTHENTICATED' ? 401 : 403;
-		return c.json({ error: 'No autorizado' }, status);
-	}
+	const auth = await authorizeRole(c, 'STUDENT');
+	if (auth.error) return auth.error;
+	const user = auth.user;
 
 	const body = await parseJsonBody(c);
 	const parsed = createOrderSchema.safeParse(body);
@@ -146,14 +143,9 @@ paymentsRoutes.post('/orders', authMiddleware, async (c) => {
 });
 
 paymentsRoutes.post('/orders/:id/approve', authMiddleware, async (c) => {
-	let admin;
-	try {
-		admin = await requireRole(c, 'ADMIN');
-	} catch (error) {
-		const status =
-			error instanceof Error && error.message === 'UNAUTHENTICATED' ? 401 : 403;
-		return c.json({ error: 'No autorizado' }, status);
-	}
+	const auth = await authorizeRole(c, 'ADMIN');
+	if (auth.error) return auth.error;
+	const admin = auth.user;
 
 	const id = c.req.param('id');
 	const order = await db.membershipOrder.findUnique({
@@ -243,6 +235,7 @@ paymentsRoutes.post('/orders/:id/approve', authMiddleware, async (c) => {
 
 	const [updatedOrder] = await db.$transaction(ops);
 
+	invalidatePayouts();
 	return c.json(updatedOrder);
 });
 

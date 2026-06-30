@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { getCurrentUser } from '../lib/auth.js';
 import { db } from '../lib/db.js';
 import { getPlanStatus } from '../lib/enrollment.js';
+import { invalidatePayouts } from '../lib/payouts.js';
 import { parseJsonBody } from '../lib/request.js';
 import { monthPeriod, parseMonthPeriod } from '../lib/utils/date.js';
 import { authMiddleware } from '../middleware/auth.js';
@@ -124,6 +125,7 @@ monthlyAttendanceRoutes.post('/me', authMiddleware, async (c) => {
 		create: { studentId: user.id, classId: parsed.data.classId, period },
 		update: {},
 	});
+	invalidatePayouts();
 	return c.json({ record }, 201);
 });
 
@@ -159,6 +161,7 @@ monthlyAttendanceRoutes.delete('/me', authMiddleware, async (c) => {
 	await db.monthlyAttendance.deleteMany({
 		where: { studentId: user.id, classId: parsed.data.classId, period },
 	});
+	invalidatePayouts();
 	return c.json({ success: true });
 });
 
@@ -218,6 +221,7 @@ monthlyAttendanceRoutes.post(
 			update: {},
 		});
 
+		invalidatePayouts();
 		return c.json({ record }, 201);
 	},
 );
@@ -243,6 +247,7 @@ monthlyAttendanceRoutes.delete(
 			where: { studentId, classId, period },
 		});
 
+		invalidatePayouts();
 		return c.json({ success: true });
 	},
 );

@@ -20,8 +20,23 @@ function parseMins(time: string): number {
 	return h * 60 + (m ?? 0);
 }
 
-// Trae los datos del mes desde la DB y aplica la lógica pura (reducePayouts).
+const PAYOUTS_TTL_MS = 60_000;
+const payoutsCache = new Map<string, { at: number; data: PayoutResult }>();
+
+export function invalidatePayouts(): void {
+	payoutsCache.clear();
+}
+
 export async function computePayouts(period: Date): Promise<PayoutResult> {
+	const key = period.toISOString();
+	const hit = payoutsCache.get(key);
+	if (hit && Date.now() - hit.at < PAYOUTS_TTL_MS) return hit.data;
+	const data = await computePayoutsUncached(period);
+	payoutsCache.set(key, { at: Date.now(), data });
+	return data;
+}
+
+async function computePayoutsUncached(period: Date): Promise<PayoutResult> {
 	const nextMonthStart = new Date(
 		Date.UTC(period.getUTCFullYear(), period.getUTCMonth() + 1, 1),
 	);

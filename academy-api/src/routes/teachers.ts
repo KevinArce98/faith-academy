@@ -3,6 +3,7 @@ import { z } from 'zod';
 
 import { createManagedUser } from '../lib/auth.js';
 import { db } from '../lib/db.js';
+import { revokeAllForUser } from '../lib/refreshTokens.js';
 import { parseJsonBody } from '../lib/request.js';
 import type { Role } from '../lib/roles.js';
 import { getTeachersWithClasses } from '../lib/teachers.js';
@@ -153,7 +154,23 @@ teachersRoutes.patch(
 			return c.json({ error: 'No hay cambios para aplicar.' }, 400);
 		}
 
-		const updated = await db.userProfile.update({ where: { id }, data });
+		const updated = await db.userProfile.update({
+			where: { id },
+			data,
+			select: {
+				id: true,
+				email: true,
+				name: true,
+				role: true,
+				isActive: true,
+				hourlyRate: true,
+			},
+		});
+
+		// Desactivar un profesor cierra todas sus sesiones activas.
+		if (isActive === false) {
+			await revokeAllForUser(id);
+		}
 
 		return c.json(updated);
 	},

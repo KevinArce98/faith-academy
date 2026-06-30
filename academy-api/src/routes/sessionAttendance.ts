@@ -3,14 +3,13 @@ import { z } from 'zod';
 
 import { getCurrentUser } from '../lib/auth.js';
 import { db } from '../lib/db.js';
+import { invalidatePayouts } from '../lib/payouts.js';
 import { parseJsonBody } from '../lib/request.js';
 import { monthPeriod } from '../lib/utils/date.js';
 import { authMiddleware } from '../middleware/auth.js';
 import { requireRoleMiddleware } from '../middleware/requireRole.js';
 import type { AuthContext, AuthVariables } from '../types/auth.js';
 
-// Asistencia REAL del día: el profe pasa lista por fecha. NO afecta el pago
-// (eso sale de la inscripción). El profe solo gestiona sus propias clases.
 const sessionAttendanceRoutes = new Hono<{ Variables: AuthVariables }>();
 
 async function canManageClass(
@@ -19,7 +18,7 @@ async function canManageClass(
 ): Promise<boolean> {
 	const user = await getCurrentUser(c);
 	if (!user) return false;
-	if (user.role !== 'TEACHER') return true; // admin
+	if (user.role !== 'TEACHER') return true;
 	const cls = await db.class.findUnique({
 		where: { id: classId },
 		select: { teacherId: true },
@@ -27,7 +26,6 @@ async function canManageClass(
 	return !!cls && cls.teacherId === user.id;
 }
 
-// "YYYY-MM-DD" → Date a medianoche UTC (para el tipo Date de Postgres).
 function parseDate(s?: string): Date {
 	if (s && /^\d{4}-\d{2}-\d{2}$/.test(s)) {
 		return new Date(`${s}T00:00:00.000Z`);
@@ -41,11 +39,9 @@ function parseDate(s?: string): Date {
 const markSchema = z.object({
 	studentId: z.string().min(1, 'El alumno es requerido'),
 	classId: z.string().min(1, 'La clase es requerida'),
-	date: z.string().min(1, 'La fecha es requerida'), // "YYYY-MM-DD"
+	date: z.string().min(1, 'La fecha es requerida'),
 });
 
-// GET /session-attendance?classId=&date=YYYY-MM-DD
-// Devuelve el roster (alumnos inscritos en la clase ese mes) y quién asistió ese día.
 sessionAttendanceRoutes.get(
 	'/',
 	authMiddleware,
@@ -59,7 +55,7 @@ sessionAttendanceRoutes.get(
 		const date = parseDate(c.req.query('date'));
 		const period = monthPeriod(date);
 
-		const [records, enrolled, paidSubs] = await Promise.all([
+		const [records, enrolled, activeSubs] = await Promise.all([
 			db.sessionAttendance.findMany({
 				where: { classId, date },
 				select: { studentId: true },
@@ -68,23 +64,19 @@ sessionAttendanceRoutes.get(
 				where: {
 					classId,
 					period,
-					// Mensual (sessionDate null) → todas las sesiones del mes.
-					// Clase suelta (sessionDate seteada) → solo su fecha reservada.
 					OR: [{ sessionDate: null }, { sessionDate: date }],
 				},
 				include: { student: { select: { id: true, name: true } } },
 			}),
-			// Solo alumnos con la mensualidad PAGADA este mes.
 			db.monthlySubscription.findMany({
-				where: { period, isPaid: true },
+				where: { isPaid: true, expiresAt: { gt: date } },
 				select: { studentId: true },
 			}),
 		]);
 
-		// Roster = inscritos (la fecha de clase suelta ya se filtró arriba) con pago al día.
-		const paidSet = new Set(paidSubs.map((s) => s.studentId));
+		const activeSet = new Set(activeSubs.map((s) => s.studentId));
 		const roster = enrolled
-			.filter((e) => paidSet.has(e.student.id))
+			.filter((e) => activeSet.has(e.student.id))
 			.map((e) => ({ id: e.student.id, name: e.student.name }));
 		const rosterIds = new Set(roster.map((r) => r.id));
 
@@ -98,7 +90,6 @@ sessionAttendanceRoutes.get(
 	},
 );
 
-// POST /session-attendance — marca que el alumno asistió ese día.
 sessionAttendanceRoutes.post(
 	'/',
 	authMiddleware,
@@ -116,11 +107,11 @@ sessionAttendanceRoutes.post(
 			create: { classId, studentId, date },
 			update: {},
 		});
+		invalidatePayouts();
 		return c.json({ record }, 201);
 	},
 );
 
-// DELETE /session-attendance — quita la asistencia de ese día.
 sessionAttendanceRoutes.delete(
 	'/',
 	authMiddleware,
@@ -136,6 +127,7 @@ sessionAttendanceRoutes.delete(
 		await db.sessionAttendance.deleteMany({
 			where: { classId, studentId, date },
 		});
+		invalidatePayouts();
 		return c.json({ success: true });
 	},
 );
