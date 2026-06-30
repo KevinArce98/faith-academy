@@ -1,19 +1,46 @@
-import { Hono } from 'hono';
+import { type Context, Hono } from 'hono';
+import { getCookie } from 'hono/cookie';
 import { z } from 'zod';
 
 import { getCurrentUser } from '../lib/auth.js';
+import {
+	REFRESH_COOKIE,
+	clearRefreshCookie,
+	setRefreshCookie,
+} from '../lib/cookies.js';
 import { db } from '../lib/db.js';
 import { signAccessToken } from '../lib/jwt.js';
 import {
 	sendPasswordResetEmail,
 	sendVerificationEmail,
 } from '../lib/mailer.js';
+import {
+	issueRefreshToken,
+	revokeAllForUser,
+	revokeRefreshToken,
+	rotateRefreshToken,
+} from '../lib/refreshTokens.js';
 import { hashPassword, verifyPassword } from '../lib/utils/hash.js';
 import { generateOtpCode } from '../lib/utils/token.js';
 import { authMiddleware, optionalAuthMiddleware } from '../middleware/auth.js';
 import type { AuthVariables } from '../types/auth.js';
 
 const authRoutes = new Hono<{ Variables: AuthVariables }>();
+
+// Inicia sesión: firma el access token corto y emite el refresh token (cookie httpOnly).
+async function startSession(
+	c: Context,
+	user: { id: string; email: string; role: string },
+): Promise<string> {
+	const token = await signAccessToken({
+		sub: user.id,
+		email: user.email,
+		role: user.role,
+	});
+	const refresh = await issueRefreshToken(user.id);
+	setRefreshCookie(c, refresh);
+	return token;
+}
 
 const registerSchema = z.object({
 	email: z.email('Email inválido'),
@@ -139,12 +166,7 @@ authRoutes.post('/verify-email', async (c) => {
 		}),
 	]);
 
-	const token = await signAccessToken({
-		sub: user.id,
-		email: user.email,
-		role: user.role,
-	});
-
+	const token = await startSession(c, user);
 	return c.json({ token });
 });
 
@@ -210,12 +232,7 @@ authRoutes.post('/login', async (c) => {
 		return c.json({ error: 'EMAIL_NOT_VERIFIED', userId: user.id }, 403);
 	}
 
-	const token = await signAccessToken({
-		sub: user.id,
-		email: user.email,
-		role: user.role,
-	});
-
+	const token = await startSession(c, user);
 	return c.json({ token });
 });
 
@@ -285,13 +302,48 @@ authRoutes.post('/reset-password', async (c) => {
 		db.userProfile.update({ where: { id: user.id }, data: { passwordHash } }),
 	]);
 
+	// Resetear contraseña cierra todas las sesiones previas.
+	await revokeAllForUser(user.id);
+
+	const token = await startSession(c, user);
+	return c.json({ token });
+});
+
+// POST /auth/refresh — rota el refresh token (cookie) y entrega un access token nuevo.
+authRoutes.post('/refresh', async (c) => {
+	const current = getCookie(c, REFRESH_COOKIE);
+	if (!current) return c.json({ error: 'NO_REFRESH' }, 401);
+
+	const rotated = await rotateRefreshToken(current);
+	if (!rotated) {
+		clearRefreshCookie(c);
+		return c.json({ error: 'INVALID_REFRESH' }, 401);
+	}
+
+	const user = await db.userProfile.findUnique({
+		where: { id: rotated.userId },
+	});
+	if (!user || !user.isActive) {
+		await revokeAllForUser(rotated.userId);
+		clearRefreshCookie(c);
+		return c.json({ error: 'INVALID_REFRESH' }, 401);
+	}
+
+	setRefreshCookie(c, rotated.token);
 	const token = await signAccessToken({
 		sub: user.id,
 		email: user.email,
 		role: user.role,
 	});
-
 	return c.json({ token });
+});
+
+// POST /auth/logout — revoca el refresh token de esta sesión y limpia la cookie.
+authRoutes.post('/logout', async (c) => {
+	const current = getCookie(c, REFRESH_COOKIE);
+	if (current) await revokeRefreshToken(current);
+	clearRefreshCookie(c);
+	return c.json({ success: true });
 });
 
 export default authRoutes;

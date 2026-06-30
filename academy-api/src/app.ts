@@ -4,6 +4,7 @@ import { rateLimiter } from 'hono-rate-limiter';
 import { cors } from 'hono/cors';
 import { secureHeaders } from 'hono/secure-headers';
 
+import { clientIp } from './lib/clientIp.js';
 import { validateEnv } from './lib/env.js';
 import { logger } from './lib/logger.js';
 import { optionalAuthMiddleware } from './middleware/auth.js';
@@ -50,6 +51,7 @@ app.use(
 	'/api/*',
 	cors({
 		origin: allowedOrigin,
+		credentials: true, // necesario para la cookie httpOnly del refresh token
 		allowHeaders: ['Authorization', 'Content-Type'],
 		allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
 	}),
@@ -72,69 +74,26 @@ app.use(
 				| string
 				| null
 				| undefined;
-			return (
-				userId ??
-				c.req.header('x-forwarded-for') ??
-				c.req.header('x-real-ip') ??
-				'unknown'
-			);
+			return userId ?? clientIp(c);
 		},
 	}),
 );
 
-// Auth endpoints: stricter — 10 req/min per IP (login/register/reset brute-force)
-app.use(
-	'/api/v1/auth/login',
-	rateLimiter({
+function ipLimiter(limit: number) {
+	return rateLimiter({
 		windowMs: 60 * 1000,
-		limit: 10,
+		limit,
 		standardHeaders: 'draft-6',
-		keyGenerator: (c) =>
-			c.req.header('x-forwarded-for') ?? c.req.header('x-real-ip') ?? 'unknown',
-	}),
-);
+		keyGenerator: (c) => clientIp(c),
+	});
+}
 
-app.use(
-	'/api/v1/auth/register',
-	rateLimiter({
-		windowMs: 60 * 1000,
-		limit: 5,
-		standardHeaders: 'draft-6',
-		keyGenerator: (c) =>
-			c.req.header('x-forwarded-for') ?? c.req.header('x-real-ip') ?? 'unknown',
-	}),
-);
-
-app.use(
-	'/api/v1/auth/forgot-password',
-	rateLimiter({
-		windowMs: 60 * 1000,
-		limit: 5,
-		standardHeaders: 'draft-6',
-		keyGenerator: (c) =>
-			c.req.header('x-forwarded-for') ?? c.req.header('x-real-ip') ?? 'unknown',
-	}),
-);
-
-app.use(
-	'/api/v1/attendance/scan',
-	rateLimiter({
-		windowMs: 60 * 1000,
-		limit: 30,
-		standardHeaders: 'draft-6',
-		keyGenerator: (c) => c.req.header('x-forwarded-for') ?? 'unknown',
-	}),
-);
-
-app.use(
-	'/api/v1/payments/upload-url',
-	rateLimiter({
-		windowMs: 60 * 1000,
-		limit: 10,
-		standardHeaders: 'draft-6',
-		keyGenerator: (c) => c.req.header('x-forwarded-for') ?? 'unknown',
-	}),
-);
+app.use('/api/v1/auth/login', ipLimiter(10));
+app.use('/api/v1/auth/refresh', ipLimiter(60));
+app.use('/api/v1/auth/register', ipLimiter(5));
+app.use('/api/v1/auth/forgot-password', ipLimiter(5));
+app.use('/api/v1/attendance/scan', ipLimiter(30));
+app.use('/api/v1/payments/upload-url', ipLimiter(10));
 
 // ── Request logging ────────────────────────────────────────────────────────
 app.use('*', async (c, next) => {
@@ -167,7 +126,7 @@ app.route('/api/v1/dashboard', dashboardRoutes);
 app.route('/api/v1/notifications', notificationsRoutes);
 app.route('/api/v1/reports', reportsRoutes);
 app.route('/api/v1/content', contentRoutes);
-app.route('/api/v1', attendanceRoutes);
+app.route('/api/v1/attendance', attendanceRoutes);
 app.route('/api/v1/users', usersRoutes);
 
 // ── Global error handler ───────────────────────────────────────────────────

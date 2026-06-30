@@ -47,6 +47,11 @@ export { Prisma }
  */
 export type UserProfile = Prisma.UserProfileModel
 /**
+ * Model RefreshToken
+ * 
+ */
+export type RefreshToken = Prisma.RefreshTokenModel
+/**
  * Model EmailToken
  * 
  */

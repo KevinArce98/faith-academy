@@ -76,11 +76,27 @@ model UserProfile {
   skills       UserSkill[]
   familyMember FamilyMember?
   streak       Streak?
-  waitlists    ClassWaitlist[]
-  emailTokens  EmailToken[]
+  waitlists     ClassWaitlist[]
+  emailTokens   EmailToken[]
+  refreshTokens RefreshToken[]
 
   @@index([role])
   @@index([role, isActive])
+}
+
+// Refresh tokens (sesiones) — se guarda solo el hash sha256; revocables y rotativos.
+model RefreshToken {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  user UserProfile @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
 }
 
 enum TokenType {

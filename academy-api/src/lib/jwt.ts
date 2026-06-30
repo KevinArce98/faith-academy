@@ -12,17 +12,22 @@ function getSecret(): Uint8Array {
 	return new TextEncoder().encode(secret);
 }
 
+// Access token de vida corta: se renueva vía el refresh token (cookie httpOnly).
+const ACCESS_TTL = process.env.ACCESS_TOKEN_TTL || '15m';
+
 export async function signAccessToken(payload: JwtPayload): Promise<string> {
 	return new SignJWT({ email: payload.email, role: payload.role })
 		.setProtectedHeader({ alg: 'HS256' })
 		.setSubject(payload.sub)
 		.setIssuedAt()
-		.setExpirationTime('7d')
+		.setExpirationTime(ACCESS_TTL)
 		.sign(getSecret());
 }
 
 export async function verifyAccessToken(token: string): Promise<JwtPayload> {
-	const { payload } = await jwtVerify(token, getSecret());
+	const { payload } = await jwtVerify(token, getSecret(), {
+		algorithms: ['HS256'],
+	});
 	return {
 		sub: payload.sub as string,
 		email: payload['email'] as string,
