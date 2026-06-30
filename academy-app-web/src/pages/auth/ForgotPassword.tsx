@@ -1,12 +1,15 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { useAuth } from '@/lib/auth/AuthContext';
+import { PasswordInput } from '@/components/ui/PasswordInput';
+import { useApiClient } from '@/lib/api';
+import { useAuth } from '@/lib/auth/useAuth';
 import { getErrorMessage } from '@/lib/errorMessages';
 import {
 	type ForgotPasswordFormValues,
@@ -15,12 +18,10 @@ import {
 	resetPasswordSchema,
 } from '@/lib/validations/auth';
 
-const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
-
 export default function ForgotPassword() {
 	const navigate = useNavigate();
 	const { isSignedIn, setToken } = useAuth();
-	const [isPending, setIsPending] = useState(false);
+	const api = useApiClient();
 	const [generalError, setGeneralError] = useState<string | null>(null);
 	const [step, setStep] = useState<'request' | 'reset'>('request');
 	const [requestedEmail, setRequestedEmail] = useState('');
@@ -47,67 +48,56 @@ export default function ForgotPassword() {
 		if (isSignedIn) navigate('/', { replace: true });
 	}, [isSignedIn, navigate]);
 
-	async function onRequestReset(values: ForgotPasswordFormValues) {
-		setGeneralError(null);
-		setIsPending(true);
-		try {
-			await fetch(`${API_URL}/api/v1/auth/forgot-password`, {
+	const requestResetMutation = useMutation({
+		mutationFn: async (values: ForgotPasswordFormValues) => {
+			await api('/api/v1/auth/forgot-password', {
 				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ email: values.email }),
 			});
-			setRequestedEmail(values.email);
+			return values.email;
+		},
+		onSuccess: (email) => {
+			setRequestedEmail(email);
 			setStep('reset');
-		} catch {
-			setGeneralError('No pudimos enviar el código. Intenta de nuevo.');
-		} finally {
-			setIsPending(false);
-		}
-	}
+		},
+		onError: () => setGeneralError('No pudimos enviar el código. Intenta de nuevo.'),
+	});
 
-	async function onResetPassword(values: ResetPasswordFormValues) {
-		setGeneralError(null);
-		setIsPending(true);
-		try {
-			const res = await fetch(`${API_URL}/api/v1/auth/reset-password`, {
+	const resetPasswordMutation = useMutation({
+		mutationFn: (values: ResetPasswordFormValues) =>
+			api<{ token: string }>('/api/v1/auth/reset-password', {
 				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
 					email: requestedEmail,
 					code: values.code,
 					password: values.password,
 				}),
-			});
-
-			const data = await res.json();
-
-			if (!res.ok) {
-				setGeneralError(
-					getErrorMessage(
-						data.error,
-						'No pudimos restablecer la contraseña. Intenta de nuevo.',
-					),
-				);
-				return;
-			}
-
+			}),
+		onSuccess: (data) => {
 			setToken(data.token);
 			navigate('/');
-		} catch {
+		},
+		onError: (err) =>
 			setGeneralError(
-				'No pudimos restablecer la contraseña. Intenta de nuevo.',
-			);
-		} finally {
-			setIsPending(false);
-		}
+				getErrorMessage(err, 'No pudimos restablecer la contraseña. Intenta de nuevo.'),
+			),
+	});
+
+	function onRequestReset(values: ForgotPasswordFormValues) {
+		setGeneralError(null);
+		requestResetMutation.mutate(values);
+	}
+
+	function onResetPassword(values: ResetPasswordFormValues) {
+		setGeneralError(null);
+		resetPasswordMutation.mutate(values);
 	}
 
 	async function handleResendCode() {
 		setGeneralError(null);
 		try {
-			await fetch(`${API_URL}/api/v1/auth/forgot-password`, {
+			await api('/api/v1/auth/forgot-password', {
 				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ email: requestedEmail }),
 			});
 		} catch {
@@ -146,8 +136,7 @@ export default function ForgotPassword() {
 						{...registerReset('code')}
 					/>
 
-					<Input
-						type="password"
+					<PasswordInput
 						label="Nueva contraseña"
 						placeholder="Ingresa una nueva contraseña"
 						autoComplete="new-password"
@@ -155,8 +144,7 @@ export default function ForgotPassword() {
 						{...registerReset('password')}
 					/>
 
-					<Input
-						type="password"
+					<PasswordInput
 						label="Confirmar contraseña"
 						placeholder="Repite la nueva contraseña"
 						autoComplete="new-password"
@@ -168,10 +156,10 @@ export default function ForgotPassword() {
 						type="submit"
 						variant="contained"
 						size="lg"
-						disabled={isPending}
+						disabled={resetPasswordMutation.isPending}
 						className="w-full"
 					>
-						{isPending ? 'Actualizando...' : 'Actualizar contraseña'}
+						{resetPasswordMutation.isPending ? 'Actualizando...' : 'Actualizar contraseña'}
 					</Button>
 				</form>
 
@@ -240,10 +228,10 @@ export default function ForgotPassword() {
 					type="submit"
 					variant="contained"
 					size="lg"
-					disabled={isPending}
+					disabled={requestResetMutation.isPending}
 					className="w-full"
 				>
-					{isPending ? 'Enviando...' : 'Enviar código'}
+					{requestResetMutation.isPending ? 'Enviando...' : 'Enviar código'}
 				</Button>
 			</form>
 

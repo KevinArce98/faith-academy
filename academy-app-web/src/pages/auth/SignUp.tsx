@@ -1,15 +1,17 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Eye, EyeOff } from 'lucide-react';
+import { useMutation } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import { VerificationCodeForm } from '@/components/auth/VerificationCodeForm';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { PasswordInput } from '@/components/ui/PasswordInput';
 import { Spinner } from '@/components/ui/Spinner';
-import { useAuth } from '@/lib/auth/AuthContext';
+import { useApiClient } from '@/lib/api';
+import { useAuth } from '@/lib/auth/useAuth';
 import { getErrorMessage } from '@/lib/errorMessages';
 import {
 	type SignUpFormValues,
@@ -17,14 +19,11 @@ import {
 	signUpSchema,
 } from '@/lib/validations/auth';
 
-const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
-
 export default function SignUp() {
 	const { isSignedIn, setToken } = useAuth();
 	const navigate = useNavigate();
-	const [showPassword, setShowPassword] = useState(false);
+	const api = useApiClient();
 	const [error, setError] = useState<string | null>(null);
-	const [isPending, setIsPending] = useState(false);
 	const [pendingEmail, setPendingEmail] = useState<string | null>(null);
 
 	const {
@@ -40,74 +39,48 @@ export default function SignUp() {
 		if (isSignedIn) navigate('/', { replace: true });
 	}, [isSignedIn, navigate]);
 
-	async function onSignUp(form: SignUpFormValues) {
-		setError(null);
-		setIsPending(true);
-		try {
-			const res = await fetch(`${API_URL}/api/v1/auth/register`, {
+	const signUpMutation = useMutation({
+		mutationFn: async (form: SignUpFormValues) => {
+			await api('/api/v1/auth/register', {
 				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					email: form.email,
-					password: form.password,
-					name: form.name,
-				}),
+				body: JSON.stringify({ email: form.email, password: form.password, name: form.name }),
 			});
+			return { email: form.email };
+		},
+		onSuccess: ({ email }) => setPendingEmail(email),
+		onError: (err) => setError(getErrorMessage(err, 'Error al crear la cuenta. Intenta de nuevo.')),
+	});
 
-			const data = await res.json();
-
-			if (!res.ok) {
-				setError(
-					getErrorMessage(
-						data.error,
-						'Error al crear la cuenta. Intenta de nuevo.',
-					),
-				);
-				return;
-			}
-
-			setPendingEmail(form.email);
-		} catch {
-			setError('Error de conexión. Intenta de nuevo.');
-		} finally {
-			setIsPending(false);
-		}
-	}
-
-	async function onVerify(form: VerifyCodeFormValues) {
-		if (!pendingEmail) return;
-		setError(null);
-		setIsPending(true);
-		try {
-			const res = await fetch(`${API_URL}/api/v1/auth/verify-email`, {
+	const verifyMutation = useMutation({
+		mutationFn: (form: VerifyCodeFormValues) =>
+			api<{ token: string }>('/api/v1/auth/verify-email', {
 				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ email: pendingEmail, code: form.code }),
-			});
-
-			const data = await res.json();
-
-			if (!res.ok) {
-				setError(getErrorMessage(data.error, 'Código inválido o expirado.'));
-				return;
-			}
-
+			}),
+		onSuccess: (data) => {
 			setToken(data.token);
 			navigate('/', { replace: true });
-		} catch {
-			setError('Error de conexión. Intenta de nuevo.');
-		} finally {
-			setIsPending(false);
-		}
+		},
+		onError: (err) => setError(getErrorMessage(err, 'Código inválido o expirado.')),
+	});
+
+	function onSignUp(form: SignUpFormValues) {
+		setError(null);
+		signUpMutation.mutate(form);
+	}
+
+	function onVerify(form: VerifyCodeFormValues) {
+		if (!pendingEmail) return;
+		setError(null);
+		verifyMutation.mutate(form);
 	}
 
 	async function handleResendCode() {
 		if (!pendingEmail) return;
 		setError(null);
 		try {
-			await fetch(`${API_URL}/api/v1/auth/resend-verification`, {
+			await api('/api/v1/auth/resend-verification', {
 				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ email: pendingEmail }),
 			});
 		} catch {
@@ -121,7 +94,7 @@ export default function SignUp() {
 				title="Verifica tu correo"
 				description={`Enviamos un código de 6 dígitos a ${pendingEmail}`}
 				onSubmit={onVerify}
-				isSubmitting={isPending}
+				isSubmitting={verifyMutation.isPending}
 				submitLabel="Verificar cuenta"
 				submittingLabel="Verificando..."
 				generalError={error}
@@ -170,48 +143,21 @@ export default function SignUp() {
 					{...register('email')}
 				/>
 
-				<div className="flex flex-col gap-1">
-					<label htmlFor="password" className="text-dark text-sm font-medium">
-						Contraseña
-					</label>
-					<div className="relative">
-						<input
-							id="password"
-							type={showPassword ? 'text' : 'password'}
-							autoComplete="new-password"
-							className="text-dark focus:border-primary focus:ring-primary/20 h-11 w-full rounded-lg border border-gray-200 px-4 pr-12 text-sm transition-colors outline-none placeholder:text-gray-400 focus:ring-2"
-							{...register('password')}
-						/>
-						<Button
-							type="button"
-							onClick={() => setShowPassword((v) => !v)}
-							variant="text"
-							color="neutral"
-							className="h-auto absolute top-1/2 right-4 -translate-y-1/2 p-0 hover:bg-transparent border-transparent"
-							aria-label={
-								showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'
-							}
-						>
-							{showPassword ? (
-								<EyeOff className="h-5 w-5" />
-							) : (
-								<Eye className="h-5 w-5" />
-							)}
-						</Button>
-					</div>
-					{errors.password && (
-						<p className="text-danger text-xs">{errors.password?.message}</p>
-					)}
-				</div>
+				<PasswordInput
+					label="Contraseña"
+					autoComplete="new-password"
+					error={errors.password?.message}
+					{...register('password')}
+				/>
 
 				<Button
 					type="submit"
 					variant="contained"
 					size="lg"
-					disabled={isPending}
+					disabled={signUpMutation.isPending}
 					className="w-full"
 				>
-					{isPending ? (
+					{signUpMutation.isPending ? (
 						<>
 							<Spinner size="xs" className="border-white/40 border-t-white" />
 							Creando cuenta...

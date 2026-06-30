@@ -1,76 +1,63 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useQueryClient } from '@tanstack/react-query';
-import { Eye, EyeOff } from 'lucide-react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { PasswordInput } from '@/components/ui/PasswordInput';
 import { Spinner } from '@/components/ui/Spinner';
-import { useAuth } from '@/lib/auth/AuthContext';
+import { useApiClient } from '@/lib/api';
+import { useAuth } from '@/lib/auth/useAuth';
 import { getErrorMessage } from '@/lib/errorMessages';
 import { type SignInFormValues, signInSchema } from '@/lib/validations/auth';
-
-const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
 
 export default function SignIn() {
 	const { isSignedIn, setToken } = useAuth();
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
-	const [showPassword, setShowPassword] = useState(false);
+	const api = useApiClient();
 	const [error, setError] = useState<string | null>(null);
-	const [isPending, setIsPending] = useState(false);
 
 	const {
 		register,
 		handleSubmit,
+		getValues,
 		formState: { errors },
 	} = useForm<SignInFormValues>({
 		resolver: zodResolver(signInSchema),
 		defaultValues: { email: '', password: '', remember: false },
 	});
 
+	const loginMutation = useMutation({
+		mutationFn: (form: SignInFormValues) =>
+			api<{ token: string }>('/api/v1/auth/login', {
+				method: 'POST',
+				body: JSON.stringify({ email: form.email, password: form.password }),
+			}),
+		onSuccess: (data) => {
+			queryClient.clear();
+			setToken(data.token);
+			navigate('/', { replace: true });
+		},
+		onError: (err) => {
+			if (err instanceof Error && err.message === 'EMAIL_NOT_VERIFIED') {
+				navigate('/verify-email', { state: { email: getValues('email') } });
+			} else {
+				setError(getErrorMessage(err, 'Error al iniciar sesión. Intenta de nuevo.'));
+			}
+		},
+	});
+
 	useEffect(() => {
 		if (isSignedIn) navigate('/', { replace: true });
 	}, [isSignedIn, navigate]);
 
-	async function onSignIn(form: SignInFormValues) {
+	function onSignIn(form: SignInFormValues) {
 		setError(null);
-		setIsPending(true);
-		try {
-			const res = await fetch(`${API_URL}/api/v1/auth/login`, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ email: form.email, password: form.password }),
-			});
-
-			const data = await res.json();
-
-			if (!res.ok) {
-				if (data.error === 'EMAIL_NOT_VERIFIED') {
-					navigate('/verify-email', { state: { email: form.email } });
-					return;
-				}
-				setError(
-					getErrorMessage(
-						data.error,
-						'Error al iniciar sesión. Intenta de nuevo.',
-					),
-				);
-				return;
-			}
-
-			// Empezar limpio: descarta cualquier dato cacheado de una sesión previa.
-			queryClient.clear();
-			setToken(data.token);
-			navigate('/', { replace: true });
-		} catch {
-			setError('Error de conexión. Intenta de nuevo.');
-		} finally {
-			setIsPending(false);
-		}
+		loginMutation.mutate(form);
 	}
 
 	return (
@@ -101,36 +88,11 @@ export default function SignIn() {
 					{...register('email')}
 				/>
 
-				<div className="flex flex-col gap-1">
-					<label htmlFor="password" className="text-dark text-sm font-medium">
-						Contraseña
-					</label>
-					<div className="relative">
-						<input
-							id="password"
-							type={showPassword ? 'text' : 'password'}
-							autoComplete="current-password"
-							className="text-dark focus:border-primary focus:ring-primary/20 h-11 w-full rounded-lg border border-gray-200 px-4 pr-12 text-sm transition-colors outline-none placeholder:text-gray-400 focus:ring-2"
-							{...register('password')}
-						/>
-						<Button
-							type="button"
-							onClick={() => setShowPassword((v) => !v)}
-							variant="text"
-							color="neutral"
-							className="absolute top-1/2 right-4 h-auto -translate-y-1/2 border-transparent p-0 hover:bg-transparent"
-							aria-label={
-								showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'
-							}
-						>
-							{showPassword ? (
-								<EyeOff className="h-5 w-5" />
-							) : (
-								<Eye className="h-5 w-5" />
-							)}
-						</Button>
-					</div>
-				</div>
+				<PasswordInput
+					label="Contraseña"
+					autoComplete="current-password"
+					{...register('password')}
+				/>
 
 				<div className="flex items-center justify-between">
 					<label className="flex cursor-pointer items-center gap-2 select-none">
@@ -153,10 +115,10 @@ export default function SignIn() {
 					type="submit"
 					variant="contained"
 					size="lg"
-					disabled={isPending}
+					disabled={loginMutation.isPending}
 					className="w-full"
 				>
-					{isPending ? (
+					{loginMutation.isPending ? (
 						<>
 							<Spinner size="xs" className="border-white/40 border-t-white" />
 							Iniciando sesión...
