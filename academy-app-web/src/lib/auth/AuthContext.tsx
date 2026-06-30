@@ -7,7 +7,7 @@ import {
 } from 'react';
 
 import { refreshAccessToken } from '@/lib/api';
-import { AuthContext } from './authContext';
+import { AuthContext } from './auth.context';
 
 type AuthState = {
 	token: string | null;
