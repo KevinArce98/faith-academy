@@ -28,14 +28,14 @@ export type AggregateMembershipPlan = {
 
 export type MembershipPlanAvgAggregateOutputType = {
   price: runtime.Decimal | null
+  classesPerWeek: number | null
   credits: number | null
-  intervalValue: number | null
 }
 
 export type MembershipPlanSumAggregateOutputType = {
   price: runtime.Decimal | null
+  classesPerWeek: number | null
   credits: number | null
-  intervalValue: number | null
 }
 
 export type MembershipPlanMinAggregateOutputType = {
@@ -43,10 +43,11 @@ export type MembershipPlanMinAggregateOutputType = {
   name: string | null
   description: string | null
   price: runtime.Decimal | null
-  credits: number | null
-  intervalType: $Enums.IntervalType | null
-  intervalValue: number | null
   isActive: boolean | null
+  classesPerWeek: number | null
+  isPublic: boolean | null
+  isSingleClass: boolean | null
+  credits: number | null
 }
 
 export type MembershipPlanMaxAggregateOutputType = {
@@ -54,10 +55,11 @@ export type MembershipPlanMaxAggregateOutputType = {
   name: string | null
   description: string | null
   price: runtime.Decimal | null
-  credits: number | null
-  intervalType: $Enums.IntervalType | null
-  intervalValue: number | null
   isActive: boolean | null
+  classesPerWeek: number | null
+  isPublic: boolean | null
+  isSingleClass: boolean | null
+  credits: number | null
 }
 
 export type MembershipPlanCountAggregateOutputType = {
@@ -65,24 +67,25 @@ export type MembershipPlanCountAggregateOutputType = {
   name: number
   description: number
   price: number
-  credits: number
-  intervalType: number
-  intervalValue: number
   isActive: number
+  classesPerWeek: number
+  isPublic: number
+  isSingleClass: number
+  credits: number
   _all: number
 }
 
 
 export type MembershipPlanAvgAggregateInputType = {
   price?: true
+  classesPerWeek?: true
   credits?: true
-  intervalValue?: true
 }
 
 export type MembershipPlanSumAggregateInputType = {
   price?: true
+  classesPerWeek?: true
   credits?: true
-  intervalValue?: true
 }
 
 export type MembershipPlanMinAggregateInputType = {
@@ -90,10 +93,11 @@ export type MembershipPlanMinAggregateInputType = {
   name?: true
   description?: true
   price?: true
-  credits?: true
-  intervalType?: true
-  intervalValue?: true
   isActive?: true
+  classesPerWeek?: true
+  isPublic?: true
+  isSingleClass?: true
+  credits?: true
 }
 
 export type MembershipPlanMaxAggregateInputType = {
@@ -101,10 +105,11 @@ export type MembershipPlanMaxAggregateInputType = {
   name?: true
   description?: true
   price?: true
-  credits?: true
-  intervalType?: true
-  intervalValue?: true
   isActive?: true
+  classesPerWeek?: true
+  isPublic?: true
+  isSingleClass?: true
+  credits?: true
 }
 
 export type MembershipPlanCountAggregateInputType = {
@@ -112,10 +117,11 @@ export type MembershipPlanCountAggregateInputType = {
   name?: true
   description?: true
   price?: true
-  credits?: true
-  intervalType?: true
-  intervalValue?: true
   isActive?: true
+  classesPerWeek?: true
+  isPublic?: true
+  isSingleClass?: true
+  credits?: true
   _all?: true
 }
 
@@ -210,10 +216,11 @@ export type MembershipPlanGroupByOutputType = {
   name: string
   description: string | null
   price: runtime.Decimal
-  credits: number
-  intervalType: $Enums.IntervalType
-  intervalValue: number
   isActive: boolean
+  classesPerWeek: number
+  isPublic: boolean
+  isSingleClass: boolean
+  credits: number
   _count: MembershipPlanCountAggregateOutputType | null
   _avg: MembershipPlanAvgAggregateOutputType | null
   _sum: MembershipPlanSumAggregateOutputType | null
@@ -244,11 +251,13 @@ export type MembershipPlanWhereInput = {
   name?: Prisma.StringFilter<"MembershipPlan"> | string
   description?: Prisma.StringNullableFilter<"MembershipPlan"> | string | null
   price?: Prisma.DecimalFilter<"MembershipPlan"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  credits?: Prisma.IntFilter<"MembershipPlan"> | number
-  intervalType?: Prisma.EnumIntervalTypeFilter<"MembershipPlan"> | $Enums.IntervalType
-  intervalValue?: Prisma.IntFilter<"MembershipPlan"> | number
   isActive?: Prisma.BoolFilter<"MembershipPlan"> | boolean
+  classesPerWeek?: Prisma.IntFilter<"MembershipPlan"> | number
+  isPublic?: Prisma.BoolFilter<"MembershipPlan"> | boolean
+  isSingleClass?: Prisma.BoolFilter<"MembershipPlan"> | boolean
+  credits?: Prisma.IntFilter<"MembershipPlan"> | number
   orders?: Prisma.MembershipOrderListRelationFilter
+  subscriptions?: Prisma.MonthlySubscriptionListRelationFilter
 }
 
 export type MembershipPlanOrderByWithRelationInput = {
@@ -256,11 +265,13 @@ export type MembershipPlanOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   price?: Prisma.SortOrder
-  credits?: Prisma.SortOrder
-  intervalType?: Prisma.SortOrder
-  intervalValue?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  classesPerWeek?: Prisma.SortOrder
+  isPublic?: Prisma.SortOrder
+  isSingleClass?: Prisma.SortOrder
+  credits?: Prisma.SortOrder
   orders?: Prisma.MembershipOrderOrderByRelationAggregateInput
+  subscriptions?: Prisma.MonthlySubscriptionOrderByRelationAggregateInput
 }
 
 export type MembershipPlanWhereUniqueInput = Prisma.AtLeast<{
@@ -271,11 +282,13 @@ export type MembershipPlanWhereUniqueInput = Prisma.AtLeast<{
   name?: Prisma.StringFilter<"MembershipPlan"> | string
   description?: Prisma.StringNullableFilter<"MembershipPlan"> | string | null
   price?: Prisma.DecimalFilter<"MembershipPlan"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  credits?: Prisma.IntFilter<"MembershipPlan"> | number
-  intervalType?: Prisma.EnumIntervalTypeFilter<"MembershipPlan"> | $Enums.IntervalType
-  intervalValue?: Prisma.IntFilter<"MembershipPlan"> | number
   isActive?: Prisma.BoolFilter<"MembershipPlan"> | boolean
+  classesPerWeek?: Prisma.IntFilter<"MembershipPlan"> | number
+  isPublic?: Prisma.BoolFilter<"MembershipPlan"> | boolean
+  isSingleClass?: Prisma.BoolFilter<"MembershipPlan"> | boolean
+  credits?: Prisma.IntFilter<"MembershipPlan"> | number
   orders?: Prisma.MembershipOrderListRelationFilter
+  subscriptions?: Prisma.MonthlySubscriptionListRelationFilter
 }, "id">
 
 export type MembershipPlanOrderByWithAggregationInput = {
@@ -283,10 +296,11 @@ export type MembershipPlanOrderByWithAggregationInput = {
   name?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   price?: Prisma.SortOrder
-  credits?: Prisma.SortOrder
-  intervalType?: Prisma.SortOrder
-  intervalValue?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  classesPerWeek?: Prisma.SortOrder
+  isPublic?: Prisma.SortOrder
+  isSingleClass?: Prisma.SortOrder
+  credits?: Prisma.SortOrder
   _count?: Prisma.MembershipPlanCountOrderByAggregateInput
   _avg?: Prisma.MembershipPlanAvgOrderByAggregateInput
   _max?: Prisma.MembershipPlanMaxOrderByAggregateInput
@@ -302,10 +316,11 @@ export type MembershipPlanScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"MembershipPlan"> | string
   description?: Prisma.StringNullableWithAggregatesFilter<"MembershipPlan"> | string | null
   price?: Prisma.DecimalWithAggregatesFilter<"MembershipPlan"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  credits?: Prisma.IntWithAggregatesFilter<"MembershipPlan"> | number
-  intervalType?: Prisma.EnumIntervalTypeWithAggregatesFilter<"MembershipPlan"> | $Enums.IntervalType
-  intervalValue?: Prisma.IntWithAggregatesFilter<"MembershipPlan"> | number
   isActive?: Prisma.BoolWithAggregatesFilter<"MembershipPlan"> | boolean
+  classesPerWeek?: Prisma.IntWithAggregatesFilter<"MembershipPlan"> | number
+  isPublic?: Prisma.BoolWithAggregatesFilter<"MembershipPlan"> | boolean
+  isSingleClass?: Prisma.BoolWithAggregatesFilter<"MembershipPlan"> | boolean
+  credits?: Prisma.IntWithAggregatesFilter<"MembershipPlan"> | number
 }
 
 export type MembershipPlanCreateInput = {
@@ -313,11 +328,13 @@ export type MembershipPlanCreateInput = {
   name: string
   description?: string | null
   price: runtime.Decimal | runtime.DecimalJsLike | number | string
-  credits: number
-  intervalType: $Enums.IntervalType
-  intervalValue?: number
   isActive?: boolean
+  classesPerWeek?: number
+  isPublic?: boolean
+  isSingleClass?: boolean
+  credits?: number
   orders?: Prisma.MembershipOrderCreateNestedManyWithoutPlanInput
+  subscriptions?: Prisma.MonthlySubscriptionCreateNestedManyWithoutPlanInput
 }
 
 export type MembershipPlanUncheckedCreateInput = {
@@ -325,11 +342,13 @@ export type MembershipPlanUncheckedCreateInput = {
   name: string
   description?: string | null
   price: runtime.Decimal | runtime.DecimalJsLike | number | string
-  credits: number
-  intervalType: $Enums.IntervalType
-  intervalValue?: number
   isActive?: boolean
+  classesPerWeek?: number
+  isPublic?: boolean
+  isSingleClass?: boolean
+  credits?: number
   orders?: Prisma.MembershipOrderUncheckedCreateNestedManyWithoutPlanInput
+  subscriptions?: Prisma.MonthlySubscriptionUncheckedCreateNestedManyWithoutPlanInput
 }
 
 export type MembershipPlanUpdateInput = {
@@ -337,11 +356,13 @@ export type MembershipPlanUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  credits?: Prisma.IntFieldUpdateOperationsInput | number
-  intervalType?: Prisma.EnumIntervalTypeFieldUpdateOperationsInput | $Enums.IntervalType
-  intervalValue?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  classesPerWeek?: Prisma.IntFieldUpdateOperationsInput | number
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isSingleClass?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  credits?: Prisma.IntFieldUpdateOperationsInput | number
   orders?: Prisma.MembershipOrderUpdateManyWithoutPlanNestedInput
+  subscriptions?: Prisma.MonthlySubscriptionUpdateManyWithoutPlanNestedInput
 }
 
 export type MembershipPlanUncheckedUpdateInput = {
@@ -349,11 +370,13 @@ export type MembershipPlanUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  credits?: Prisma.IntFieldUpdateOperationsInput | number
-  intervalType?: Prisma.EnumIntervalTypeFieldUpdateOperationsInput | $Enums.IntervalType
-  intervalValue?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  classesPerWeek?: Prisma.IntFieldUpdateOperationsInput | number
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isSingleClass?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  credits?: Prisma.IntFieldUpdateOperationsInput | number
   orders?: Prisma.MembershipOrderUncheckedUpdateManyWithoutPlanNestedInput
+  subscriptions?: Prisma.MonthlySubscriptionUncheckedUpdateManyWithoutPlanNestedInput
 }
 
 export type MembershipPlanCreateManyInput = {
@@ -361,10 +384,11 @@ export type MembershipPlanCreateManyInput = {
   name: string
   description?: string | null
   price: runtime.Decimal | runtime.DecimalJsLike | number | string
-  credits: number
-  intervalType: $Enums.IntervalType
-  intervalValue?: number
   isActive?: boolean
+  classesPerWeek?: number
+  isPublic?: boolean
+  isSingleClass?: boolean
+  credits?: number
 }
 
 export type MembershipPlanUpdateManyMutationInput = {
@@ -372,10 +396,11 @@ export type MembershipPlanUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  credits?: Prisma.IntFieldUpdateOperationsInput | number
-  intervalType?: Prisma.EnumIntervalTypeFieldUpdateOperationsInput | $Enums.IntervalType
-  intervalValue?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  classesPerWeek?: Prisma.IntFieldUpdateOperationsInput | number
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isSingleClass?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  credits?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type MembershipPlanUncheckedUpdateManyInput = {
@@ -383,10 +408,11 @@ export type MembershipPlanUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  credits?: Prisma.IntFieldUpdateOperationsInput | number
-  intervalType?: Prisma.EnumIntervalTypeFieldUpdateOperationsInput | $Enums.IntervalType
-  intervalValue?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  classesPerWeek?: Prisma.IntFieldUpdateOperationsInput | number
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isSingleClass?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  credits?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type MembershipPlanCountOrderByAggregateInput = {
@@ -394,16 +420,17 @@ export type MembershipPlanCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
   price?: Prisma.SortOrder
-  credits?: Prisma.SortOrder
-  intervalType?: Prisma.SortOrder
-  intervalValue?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  classesPerWeek?: Prisma.SortOrder
+  isPublic?: Prisma.SortOrder
+  isSingleClass?: Prisma.SortOrder
+  credits?: Prisma.SortOrder
 }
 
 export type MembershipPlanAvgOrderByAggregateInput = {
   price?: Prisma.SortOrder
+  classesPerWeek?: Prisma.SortOrder
   credits?: Prisma.SortOrder
-  intervalValue?: Prisma.SortOrder
 }
 
 export type MembershipPlanMaxOrderByAggregateInput = {
@@ -411,10 +438,11 @@ export type MembershipPlanMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
   price?: Prisma.SortOrder
-  credits?: Prisma.SortOrder
-  intervalType?: Prisma.SortOrder
-  intervalValue?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  classesPerWeek?: Prisma.SortOrder
+  isPublic?: Prisma.SortOrder
+  isSingleClass?: Prisma.SortOrder
+  credits?: Prisma.SortOrder
 }
 
 export type MembershipPlanMinOrderByAggregateInput = {
@@ -422,16 +450,17 @@ export type MembershipPlanMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
   price?: Prisma.SortOrder
-  credits?: Prisma.SortOrder
-  intervalType?: Prisma.SortOrder
-  intervalValue?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  classesPerWeek?: Prisma.SortOrder
+  isPublic?: Prisma.SortOrder
+  isSingleClass?: Prisma.SortOrder
+  credits?: Prisma.SortOrder
 }
 
 export type MembershipPlanSumOrderByAggregateInput = {
   price?: Prisma.SortOrder
+  classesPerWeek?: Prisma.SortOrder
   credits?: Prisma.SortOrder
-  intervalValue?: Prisma.SortOrder
 }
 
 export type MembershipPlanScalarRelationFilter = {
@@ -445,10 +474,6 @@ export type DecimalFieldUpdateOperationsInput = {
   decrement?: runtime.Decimal | runtime.DecimalJsLike | number | string
   multiply?: runtime.Decimal | runtime.DecimalJsLike | number | string
   divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
-}
-
-export type EnumIntervalTypeFieldUpdateOperationsInput = {
-  set?: $Enums.IntervalType
 }
 
 export type MembershipPlanCreateNestedOneWithoutOrdersInput = {
@@ -465,15 +490,31 @@ export type MembershipPlanUpdateOneRequiredWithoutOrdersNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.MembershipPlanUpdateToOneWithWhereWithoutOrdersInput, Prisma.MembershipPlanUpdateWithoutOrdersInput>, Prisma.MembershipPlanUncheckedUpdateWithoutOrdersInput>
 }
 
+export type MembershipPlanCreateNestedOneWithoutSubscriptionsInput = {
+  create?: Prisma.XOR<Prisma.MembershipPlanCreateWithoutSubscriptionsInput, Prisma.MembershipPlanUncheckedCreateWithoutSubscriptionsInput>
+  connectOrCreate?: Prisma.MembershipPlanCreateOrConnectWithoutSubscriptionsInput
+  connect?: Prisma.MembershipPlanWhereUniqueInput
+}
+
+export type MembershipPlanUpdateOneRequiredWithoutSubscriptionsNestedInput = {
+  create?: Prisma.XOR<Prisma.MembershipPlanCreateWithoutSubscriptionsInput, Prisma.MembershipPlanUncheckedCreateWithoutSubscriptionsInput>
+  connectOrCreate?: Prisma.MembershipPlanCreateOrConnectWithoutSubscriptionsInput
+  upsert?: Prisma.MembershipPlanUpsertWithoutSubscriptionsInput
+  connect?: Prisma.MembershipPlanWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.MembershipPlanUpdateToOneWithWhereWithoutSubscriptionsInput, Prisma.MembershipPlanUpdateWithoutSubscriptionsInput>, Prisma.MembershipPlanUncheckedUpdateWithoutSubscriptionsInput>
+}
+
 export type MembershipPlanCreateWithoutOrdersInput = {
   id?: string
   name: string
   description?: string | null
   price: runtime.Decimal | runtime.DecimalJsLike | number | string
-  credits: number
-  intervalType: $Enums.IntervalType
-  intervalValue?: number
   isActive?: boolean
+  classesPerWeek?: number
+  isPublic?: boolean
+  isSingleClass?: boolean
+  credits?: number
+  subscriptions?: Prisma.MonthlySubscriptionCreateNestedManyWithoutPlanInput
 }
 
 export type MembershipPlanUncheckedCreateWithoutOrdersInput = {
@@ -481,10 +522,12 @@ export type MembershipPlanUncheckedCreateWithoutOrdersInput = {
   name: string
   description?: string | null
   price: runtime.Decimal | runtime.DecimalJsLike | number | string
-  credits: number
-  intervalType: $Enums.IntervalType
-  intervalValue?: number
   isActive?: boolean
+  classesPerWeek?: number
+  isPublic?: boolean
+  isSingleClass?: boolean
+  credits?: number
+  subscriptions?: Prisma.MonthlySubscriptionUncheckedCreateNestedManyWithoutPlanInput
 }
 
 export type MembershipPlanCreateOrConnectWithoutOrdersInput = {
@@ -508,10 +551,12 @@ export type MembershipPlanUpdateWithoutOrdersInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  credits?: Prisma.IntFieldUpdateOperationsInput | number
-  intervalType?: Prisma.EnumIntervalTypeFieldUpdateOperationsInput | $Enums.IntervalType
-  intervalValue?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  classesPerWeek?: Prisma.IntFieldUpdateOperationsInput | number
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isSingleClass?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  credits?: Prisma.IntFieldUpdateOperationsInput | number
+  subscriptions?: Prisma.MonthlySubscriptionUpdateManyWithoutPlanNestedInput
 }
 
 export type MembershipPlanUncheckedUpdateWithoutOrdersInput = {
@@ -519,10 +564,80 @@ export type MembershipPlanUncheckedUpdateWithoutOrdersInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  credits?: Prisma.IntFieldUpdateOperationsInput | number
-  intervalType?: Prisma.EnumIntervalTypeFieldUpdateOperationsInput | $Enums.IntervalType
-  intervalValue?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  classesPerWeek?: Prisma.IntFieldUpdateOperationsInput | number
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isSingleClass?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  credits?: Prisma.IntFieldUpdateOperationsInput | number
+  subscriptions?: Prisma.MonthlySubscriptionUncheckedUpdateManyWithoutPlanNestedInput
+}
+
+export type MembershipPlanCreateWithoutSubscriptionsInput = {
+  id?: string
+  name: string
+  description?: string | null
+  price: runtime.Decimal | runtime.DecimalJsLike | number | string
+  isActive?: boolean
+  classesPerWeek?: number
+  isPublic?: boolean
+  isSingleClass?: boolean
+  credits?: number
+  orders?: Prisma.MembershipOrderCreateNestedManyWithoutPlanInput
+}
+
+export type MembershipPlanUncheckedCreateWithoutSubscriptionsInput = {
+  id?: string
+  name: string
+  description?: string | null
+  price: runtime.Decimal | runtime.DecimalJsLike | number | string
+  isActive?: boolean
+  classesPerWeek?: number
+  isPublic?: boolean
+  isSingleClass?: boolean
+  credits?: number
+  orders?: Prisma.MembershipOrderUncheckedCreateNestedManyWithoutPlanInput
+}
+
+export type MembershipPlanCreateOrConnectWithoutSubscriptionsInput = {
+  where: Prisma.MembershipPlanWhereUniqueInput
+  create: Prisma.XOR<Prisma.MembershipPlanCreateWithoutSubscriptionsInput, Prisma.MembershipPlanUncheckedCreateWithoutSubscriptionsInput>
+}
+
+export type MembershipPlanUpsertWithoutSubscriptionsInput = {
+  update: Prisma.XOR<Prisma.MembershipPlanUpdateWithoutSubscriptionsInput, Prisma.MembershipPlanUncheckedUpdateWithoutSubscriptionsInput>
+  create: Prisma.XOR<Prisma.MembershipPlanCreateWithoutSubscriptionsInput, Prisma.MembershipPlanUncheckedCreateWithoutSubscriptionsInput>
+  where?: Prisma.MembershipPlanWhereInput
+}
+
+export type MembershipPlanUpdateToOneWithWhereWithoutSubscriptionsInput = {
+  where?: Prisma.MembershipPlanWhereInput
+  data: Prisma.XOR<Prisma.MembershipPlanUpdateWithoutSubscriptionsInput, Prisma.MembershipPlanUncheckedUpdateWithoutSubscriptionsInput>
+}
+
+export type MembershipPlanUpdateWithoutSubscriptionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  classesPerWeek?: Prisma.IntFieldUpdateOperationsInput | number
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isSingleClass?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  credits?: Prisma.IntFieldUpdateOperationsInput | number
+  orders?: Prisma.MembershipOrderUpdateManyWithoutPlanNestedInput
+}
+
+export type MembershipPlanUncheckedUpdateWithoutSubscriptionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  classesPerWeek?: Prisma.IntFieldUpdateOperationsInput | number
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isSingleClass?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  credits?: Prisma.IntFieldUpdateOperationsInput | number
+  orders?: Prisma.MembershipOrderUncheckedUpdateManyWithoutPlanNestedInput
 }
 
 
@@ -532,10 +647,12 @@ export type MembershipPlanUncheckedUpdateWithoutOrdersInput = {
 
 export type MembershipPlanCountOutputType = {
   orders: number
+  subscriptions: number
 }
 
 export type MembershipPlanCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   orders?: boolean | MembershipPlanCountOutputTypeCountOrdersArgs
+  subscriptions?: boolean | MembershipPlanCountOutputTypeCountSubscriptionsArgs
 }
 
 /**
@@ -555,17 +672,26 @@ export type MembershipPlanCountOutputTypeCountOrdersArgs<ExtArgs extends runtime
   where?: Prisma.MembershipOrderWhereInput
 }
 
+/**
+ * MembershipPlanCountOutputType without action
+ */
+export type MembershipPlanCountOutputTypeCountSubscriptionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MonthlySubscriptionWhereInput
+}
+
 
 export type MembershipPlanSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
   description?: boolean
   price?: boolean
-  credits?: boolean
-  intervalType?: boolean
-  intervalValue?: boolean
   isActive?: boolean
+  classesPerWeek?: boolean
+  isPublic?: boolean
+  isSingleClass?: boolean
+  credits?: boolean
   orders?: boolean | Prisma.MembershipPlan$ordersArgs<ExtArgs>
+  subscriptions?: boolean | Prisma.MembershipPlan$subscriptionsArgs<ExtArgs>
   _count?: boolean | Prisma.MembershipPlanCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["membershipPlan"]>
 
@@ -574,10 +700,11 @@ export type MembershipPlanSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   name?: boolean
   description?: boolean
   price?: boolean
-  credits?: boolean
-  intervalType?: boolean
-  intervalValue?: boolean
   isActive?: boolean
+  classesPerWeek?: boolean
+  isPublic?: boolean
+  isSingleClass?: boolean
+  credits?: boolean
 }, ExtArgs["result"]["membershipPlan"]>
 
 export type MembershipPlanSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -585,10 +712,11 @@ export type MembershipPlanSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   name?: boolean
   description?: boolean
   price?: boolean
-  credits?: boolean
-  intervalType?: boolean
-  intervalValue?: boolean
   isActive?: boolean
+  classesPerWeek?: boolean
+  isPublic?: boolean
+  isSingleClass?: boolean
+  credits?: boolean
 }, ExtArgs["result"]["membershipPlan"]>
 
 export type MembershipPlanSelectScalar = {
@@ -596,15 +724,17 @@ export type MembershipPlanSelectScalar = {
   name?: boolean
   description?: boolean
   price?: boolean
-  credits?: boolean
-  intervalType?: boolean
-  intervalValue?: boolean
   isActive?: boolean
+  classesPerWeek?: boolean
+  isPublic?: boolean
+  isSingleClass?: boolean
+  credits?: boolean
 }
 
-export type MembershipPlanOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description" | "price" | "credits" | "intervalType" | "intervalValue" | "isActive", ExtArgs["result"]["membershipPlan"]>
+export type MembershipPlanOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description" | "price" | "isActive" | "classesPerWeek" | "isPublic" | "isSingleClass" | "credits", ExtArgs["result"]["membershipPlan"]>
 export type MembershipPlanInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   orders?: boolean | Prisma.MembershipPlan$ordersArgs<ExtArgs>
+  subscriptions?: boolean | Prisma.MembershipPlan$subscriptionsArgs<ExtArgs>
   _count?: boolean | Prisma.MembershipPlanCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type MembershipPlanIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -614,16 +744,18 @@ export type $MembershipPlanPayload<ExtArgs extends runtime.Types.Extensions.Inte
   name: "MembershipPlan"
   objects: {
     orders: Prisma.$MembershipOrderPayload<ExtArgs>[]
+    subscriptions: Prisma.$MonthlySubscriptionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     name: string
     description: string | null
     price: runtime.Decimal
-    credits: number
-    intervalType: $Enums.IntervalType
-    intervalValue: number
     isActive: boolean
+    classesPerWeek: number
+    isPublic: boolean
+    isSingleClass: boolean
+    credits: number
   }, ExtArgs["result"]["membershipPlan"]>
   composites: {}
 }
@@ -1019,6 +1151,7 @@ readonly fields: MembershipPlanFieldRefs;
 export interface Prisma__MembershipPlanClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   orders<T extends Prisma.MembershipPlan$ordersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MembershipPlan$ordersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MembershipOrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  subscriptions<T extends Prisma.MembershipPlan$subscriptionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MembershipPlan$subscriptionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MonthlySubscriptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1052,10 +1185,11 @@ export interface MembershipPlanFieldRefs {
   readonly name: Prisma.FieldRef<"MembershipPlan", 'String'>
   readonly description: Prisma.FieldRef<"MembershipPlan", 'String'>
   readonly price: Prisma.FieldRef<"MembershipPlan", 'Decimal'>
-  readonly credits: Prisma.FieldRef<"MembershipPlan", 'Int'>
-  readonly intervalType: Prisma.FieldRef<"MembershipPlan", 'IntervalType'>
-  readonly intervalValue: Prisma.FieldRef<"MembershipPlan", 'Int'>
   readonly isActive: Prisma.FieldRef<"MembershipPlan", 'Boolean'>
+  readonly classesPerWeek: Prisma.FieldRef<"MembershipPlan", 'Int'>
+  readonly isPublic: Prisma.FieldRef<"MembershipPlan", 'Boolean'>
+  readonly isSingleClass: Prisma.FieldRef<"MembershipPlan", 'Boolean'>
+  readonly credits: Prisma.FieldRef<"MembershipPlan", 'Int'>
 }
     
 
@@ -1470,6 +1604,30 @@ export type MembershipPlan$ordersArgs<ExtArgs extends runtime.Types.Extensions.I
   take?: number
   skip?: number
   distinct?: Prisma.MembershipOrderScalarFieldEnum | Prisma.MembershipOrderScalarFieldEnum[]
+}
+
+/**
+ * MembershipPlan.subscriptions
+ */
+export type MembershipPlan$subscriptionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MonthlySubscription
+   */
+  select?: Prisma.MonthlySubscriptionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the MonthlySubscription
+   */
+  omit?: Prisma.MonthlySubscriptionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MonthlySubscriptionInclude<ExtArgs> | null
+  where?: Prisma.MonthlySubscriptionWhereInput
+  orderBy?: Prisma.MonthlySubscriptionOrderByWithRelationInput | Prisma.MonthlySubscriptionOrderByWithRelationInput[]
+  cursor?: Prisma.MonthlySubscriptionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.MonthlySubscriptionScalarFieldEnum | Prisma.MonthlySubscriptionScalarFieldEnum[]
 }
 
 /**

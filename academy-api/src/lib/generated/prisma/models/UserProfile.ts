@@ -20,8 +20,20 @@ export type UserProfileModel = runtime.Types.Result.DefaultSelection<Prisma.$Use
 
 export type AggregateUserProfile = {
   _count: UserProfileCountAggregateOutputType | null
+  _avg: UserProfileAvgAggregateOutputType | null
+  _sum: UserProfileSumAggregateOutputType | null
   _min: UserProfileMinAggregateOutputType | null
   _max: UserProfileMaxAggregateOutputType | null
+}
+
+export type UserProfileAvgAggregateOutputType = {
+  enrollmentFee: runtime.Decimal | null
+  hourlyRate: runtime.Decimal | null
+}
+
+export type UserProfileSumAggregateOutputType = {
+  enrollmentFee: runtime.Decimal | null
+  hourlyRate: runtime.Decimal | null
 }
 
 export type UserProfileMinAggregateOutputType = {
@@ -35,6 +47,9 @@ export type UserProfileMinAggregateOutputType = {
   passwordHash: string | null
   emailVerified: boolean | null
   createdAt: Date | null
+  enrollmentFee: runtime.Decimal | null
+  enrolledAt: Date | null
+  hourlyRate: runtime.Decimal | null
 }
 
 export type UserProfileMaxAggregateOutputType = {
@@ -48,6 +63,9 @@ export type UserProfileMaxAggregateOutputType = {
   passwordHash: string | null
   emailVerified: boolean | null
   createdAt: Date | null
+  enrollmentFee: runtime.Decimal | null
+  enrolledAt: Date | null
+  hourlyRate: runtime.Decimal | null
 }
 
 export type UserProfileCountAggregateOutputType = {
@@ -61,9 +79,22 @@ export type UserProfileCountAggregateOutputType = {
   passwordHash: number
   emailVerified: number
   createdAt: number
+  enrollmentFee: number
+  enrolledAt: number
+  hourlyRate: number
   _all: number
 }
 
+
+export type UserProfileAvgAggregateInputType = {
+  enrollmentFee?: true
+  hourlyRate?: true
+}
+
+export type UserProfileSumAggregateInputType = {
+  enrollmentFee?: true
+  hourlyRate?: true
+}
 
 export type UserProfileMinAggregateInputType = {
   id?: true
@@ -76,6 +107,9 @@ export type UserProfileMinAggregateInputType = {
   passwordHash?: true
   emailVerified?: true
   createdAt?: true
+  enrollmentFee?: true
+  enrolledAt?: true
+  hourlyRate?: true
 }
 
 export type UserProfileMaxAggregateInputType = {
@@ -89,6 +123,9 @@ export type UserProfileMaxAggregateInputType = {
   passwordHash?: true
   emailVerified?: true
   createdAt?: true
+  enrollmentFee?: true
+  enrolledAt?: true
+  hourlyRate?: true
 }
 
 export type UserProfileCountAggregateInputType = {
@@ -102,6 +139,9 @@ export type UserProfileCountAggregateInputType = {
   passwordHash?: true
   emailVerified?: true
   createdAt?: true
+  enrollmentFee?: true
+  enrolledAt?: true
+  hourlyRate?: true
   _all?: true
 }
 
@@ -143,6 +183,18 @@ export type UserProfileAggregateArgs<ExtArgs extends runtime.Types.Extensions.In
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: UserProfileAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: UserProfileSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: UserProfileMinAggregateInputType
@@ -173,6 +225,8 @@ export type UserProfileGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   _count?: UserProfileCountAggregateInputType | true
+  _avg?: UserProfileAvgAggregateInputType
+  _sum?: UserProfileSumAggregateInputType
   _min?: UserProfileMinAggregateInputType
   _max?: UserProfileMaxAggregateInputType
 }
@@ -188,7 +242,12 @@ export type UserProfileGroupByOutputType = {
   passwordHash: string
   emailVerified: boolean
   createdAt: Date
+  enrollmentFee: runtime.Decimal | null
+  enrolledAt: Date | null
+  hourlyRate: runtime.Decimal | null
   _count: UserProfileCountAggregateOutputType | null
+  _avg: UserProfileAvgAggregateOutputType | null
+  _sum: UserProfileSumAggregateOutputType | null
   _min: UserProfileMinAggregateOutputType | null
   _max: UserProfileMaxAggregateOutputType | null
 }
@@ -222,6 +281,12 @@ export type UserProfileWhereInput = {
   passwordHash?: Prisma.StringFilter<"UserProfile"> | string
   emailVerified?: Prisma.BoolFilter<"UserProfile"> | boolean
   createdAt?: Prisma.DateTimeFilter<"UserProfile"> | Date | string
+  enrollmentFee?: Prisma.DecimalNullableFilter<"UserProfile"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Prisma.DateTimeNullableFilter<"UserProfile"> | Date | string | null
+  hourlyRate?: Prisma.DecimalNullableFilter<"UserProfile"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  subscriptions?: Prisma.MonthlySubscriptionListRelationFilter
+  monthlyAttendance?: Prisma.MonthlyAttendanceListRelationFilter
+  sessionAttendances?: Prisma.SessionAttendanceListRelationFilter
   orders?: Prisma.MembershipOrderListRelationFilter
   attendances?: Prisma.AttendanceListRelationFilter
   skills?: Prisma.UserSkillListRelationFilter
@@ -242,6 +307,12 @@ export type UserProfileOrderByWithRelationInput = {
   passwordHash?: Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  enrollmentFee?: Prisma.SortOrderInput | Prisma.SortOrder
+  enrolledAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  hourlyRate?: Prisma.SortOrderInput | Prisma.SortOrder
+  subscriptions?: Prisma.MonthlySubscriptionOrderByRelationAggregateInput
+  monthlyAttendance?: Prisma.MonthlyAttendanceOrderByRelationAggregateInput
+  sessionAttendances?: Prisma.SessionAttendanceOrderByRelationAggregateInput
   orders?: Prisma.MembershipOrderOrderByRelationAggregateInput
   attendances?: Prisma.AttendanceOrderByRelationAggregateInput
   skills?: Prisma.UserSkillOrderByRelationAggregateInput
@@ -265,6 +336,12 @@ export type UserProfileWhereUniqueInput = Prisma.AtLeast<{
   passwordHash?: Prisma.StringFilter<"UserProfile"> | string
   emailVerified?: Prisma.BoolFilter<"UserProfile"> | boolean
   createdAt?: Prisma.DateTimeFilter<"UserProfile"> | Date | string
+  enrollmentFee?: Prisma.DecimalNullableFilter<"UserProfile"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Prisma.DateTimeNullableFilter<"UserProfile"> | Date | string | null
+  hourlyRate?: Prisma.DecimalNullableFilter<"UserProfile"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  subscriptions?: Prisma.MonthlySubscriptionListRelationFilter
+  monthlyAttendance?: Prisma.MonthlyAttendanceListRelationFilter
+  sessionAttendances?: Prisma.SessionAttendanceListRelationFilter
   orders?: Prisma.MembershipOrderListRelationFilter
   attendances?: Prisma.AttendanceListRelationFilter
   skills?: Prisma.UserSkillListRelationFilter
@@ -285,9 +362,14 @@ export type UserProfileOrderByWithAggregationInput = {
   passwordHash?: Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  enrollmentFee?: Prisma.SortOrderInput | Prisma.SortOrder
+  enrolledAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  hourlyRate?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.UserProfileCountOrderByAggregateInput
+  _avg?: Prisma.UserProfileAvgOrderByAggregateInput
   _max?: Prisma.UserProfileMaxOrderByAggregateInput
   _min?: Prisma.UserProfileMinOrderByAggregateInput
+  _sum?: Prisma.UserProfileSumOrderByAggregateInput
 }
 
 export type UserProfileScalarWhereWithAggregatesInput = {
@@ -304,6 +386,9 @@ export type UserProfileScalarWhereWithAggregatesInput = {
   passwordHash?: Prisma.StringWithAggregatesFilter<"UserProfile"> | string
   emailVerified?: Prisma.BoolWithAggregatesFilter<"UserProfile"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"UserProfile"> | Date | string
+  enrollmentFee?: Prisma.DecimalNullableWithAggregatesFilter<"UserProfile"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Prisma.DateTimeNullableWithAggregatesFilter<"UserProfile"> | Date | string | null
+  hourlyRate?: Prisma.DecimalNullableWithAggregatesFilter<"UserProfile"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
 }
 
 export type UserProfileCreateInput = {
@@ -317,6 +402,12 @@ export type UserProfileCreateInput = {
   passwordHash: string
   emailVerified?: boolean
   createdAt?: Date | string
+  enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Date | string | null
+  hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  subscriptions?: Prisma.MonthlySubscriptionCreateNestedManyWithoutStudentInput
+  monthlyAttendance?: Prisma.MonthlyAttendanceCreateNestedManyWithoutStudentInput
+  sessionAttendances?: Prisma.SessionAttendanceCreateNestedManyWithoutStudentInput
   orders?: Prisma.MembershipOrderCreateNestedManyWithoutStudentInput
   attendances?: Prisma.AttendanceCreateNestedManyWithoutStudentInput
   skills?: Prisma.UserSkillCreateNestedManyWithoutStudentInput
@@ -337,6 +428,12 @@ export type UserProfileUncheckedCreateInput = {
   passwordHash: string
   emailVerified?: boolean
   createdAt?: Date | string
+  enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Date | string | null
+  hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  subscriptions?: Prisma.MonthlySubscriptionUncheckedCreateNestedManyWithoutStudentInput
+  monthlyAttendance?: Prisma.MonthlyAttendanceUncheckedCreateNestedManyWithoutStudentInput
+  sessionAttendances?: Prisma.SessionAttendanceUncheckedCreateNestedManyWithoutStudentInput
   orders?: Prisma.MembershipOrderUncheckedCreateNestedManyWithoutStudentInput
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutStudentInput
   skills?: Prisma.UserSkillUncheckedCreateNestedManyWithoutStudentInput
@@ -357,6 +454,12 @@ export type UserProfileUpdateInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  subscriptions?: Prisma.MonthlySubscriptionUpdateManyWithoutStudentNestedInput
+  monthlyAttendance?: Prisma.MonthlyAttendanceUpdateManyWithoutStudentNestedInput
+  sessionAttendances?: Prisma.SessionAttendanceUpdateManyWithoutStudentNestedInput
   orders?: Prisma.MembershipOrderUpdateManyWithoutStudentNestedInput
   attendances?: Prisma.AttendanceUpdateManyWithoutStudentNestedInput
   skills?: Prisma.UserSkillUpdateManyWithoutStudentNestedInput
@@ -377,6 +480,12 @@ export type UserProfileUncheckedUpdateInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  subscriptions?: Prisma.MonthlySubscriptionUncheckedUpdateManyWithoutStudentNestedInput
+  monthlyAttendance?: Prisma.MonthlyAttendanceUncheckedUpdateManyWithoutStudentNestedInput
+  sessionAttendances?: Prisma.SessionAttendanceUncheckedUpdateManyWithoutStudentNestedInput
   orders?: Prisma.MembershipOrderUncheckedUpdateManyWithoutStudentNestedInput
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutStudentNestedInput
   skills?: Prisma.UserSkillUncheckedUpdateManyWithoutStudentNestedInput
@@ -397,6 +506,9 @@ export type UserProfileCreateManyInput = {
   passwordHash: string
   emailVerified?: boolean
   createdAt?: Date | string
+  enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Date | string | null
+  hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
 }
 
 export type UserProfileUpdateManyMutationInput = {
@@ -410,6 +522,9 @@ export type UserProfileUpdateManyMutationInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
 }
 
 export type UserProfileUncheckedUpdateManyInput = {
@@ -423,6 +538,9 @@ export type UserProfileUncheckedUpdateManyInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
 }
 
 export type UserProfileCountOrderByAggregateInput = {
@@ -436,6 +554,14 @@ export type UserProfileCountOrderByAggregateInput = {
   passwordHash?: Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  enrollmentFee?: Prisma.SortOrder
+  enrolledAt?: Prisma.SortOrder
+  hourlyRate?: Prisma.SortOrder
+}
+
+export type UserProfileAvgOrderByAggregateInput = {
+  enrollmentFee?: Prisma.SortOrder
+  hourlyRate?: Prisma.SortOrder
 }
 
 export type UserProfileMaxOrderByAggregateInput = {
@@ -449,6 +575,9 @@ export type UserProfileMaxOrderByAggregateInput = {
   passwordHash?: Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  enrollmentFee?: Prisma.SortOrder
+  enrolledAt?: Prisma.SortOrder
+  hourlyRate?: Prisma.SortOrder
 }
 
 export type UserProfileMinOrderByAggregateInput = {
@@ -462,6 +591,14 @@ export type UserProfileMinOrderByAggregateInput = {
   passwordHash?: Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  enrollmentFee?: Prisma.SortOrder
+  enrolledAt?: Prisma.SortOrder
+  hourlyRate?: Prisma.SortOrder
+}
+
+export type UserProfileSumOrderByAggregateInput = {
+  enrollmentFee?: Prisma.SortOrder
+  hourlyRate?: Prisma.SortOrder
 }
 
 export type UserProfileScalarRelationFilter = {
@@ -487,6 +624,18 @@ export type BoolFieldUpdateOperationsInput = {
 
 export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
+}
+
+export type NullableDecimalFieldUpdateOperationsInput = {
+  set?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  increment?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  decrement?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  multiply?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
+}
+
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
 }
 
 export type UserProfileCreateNestedOneWithoutEmailTokensInput = {
@@ -587,6 +736,48 @@ export type UserProfileUpdateOneRequiredWithoutStreakNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserProfileUpdateToOneWithWhereWithoutStreakInput, Prisma.UserProfileUpdateWithoutStreakInput>, Prisma.UserProfileUncheckedUpdateWithoutStreakInput>
 }
 
+export type UserProfileCreateNestedOneWithoutSubscriptionsInput = {
+  create?: Prisma.XOR<Prisma.UserProfileCreateWithoutSubscriptionsInput, Prisma.UserProfileUncheckedCreateWithoutSubscriptionsInput>
+  connectOrCreate?: Prisma.UserProfileCreateOrConnectWithoutSubscriptionsInput
+  connect?: Prisma.UserProfileWhereUniqueInput
+}
+
+export type UserProfileUpdateOneRequiredWithoutSubscriptionsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserProfileCreateWithoutSubscriptionsInput, Prisma.UserProfileUncheckedCreateWithoutSubscriptionsInput>
+  connectOrCreate?: Prisma.UserProfileCreateOrConnectWithoutSubscriptionsInput
+  upsert?: Prisma.UserProfileUpsertWithoutSubscriptionsInput
+  connect?: Prisma.UserProfileWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserProfileUpdateToOneWithWhereWithoutSubscriptionsInput, Prisma.UserProfileUpdateWithoutSubscriptionsInput>, Prisma.UserProfileUncheckedUpdateWithoutSubscriptionsInput>
+}
+
+export type UserProfileCreateNestedOneWithoutMonthlyAttendanceInput = {
+  create?: Prisma.XOR<Prisma.UserProfileCreateWithoutMonthlyAttendanceInput, Prisma.UserProfileUncheckedCreateWithoutMonthlyAttendanceInput>
+  connectOrCreate?: Prisma.UserProfileCreateOrConnectWithoutMonthlyAttendanceInput
+  connect?: Prisma.UserProfileWhereUniqueInput
+}
+
+export type UserProfileUpdateOneRequiredWithoutMonthlyAttendanceNestedInput = {
+  create?: Prisma.XOR<Prisma.UserProfileCreateWithoutMonthlyAttendanceInput, Prisma.UserProfileUncheckedCreateWithoutMonthlyAttendanceInput>
+  connectOrCreate?: Prisma.UserProfileCreateOrConnectWithoutMonthlyAttendanceInput
+  upsert?: Prisma.UserProfileUpsertWithoutMonthlyAttendanceInput
+  connect?: Prisma.UserProfileWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserProfileUpdateToOneWithWhereWithoutMonthlyAttendanceInput, Prisma.UserProfileUpdateWithoutMonthlyAttendanceInput>, Prisma.UserProfileUncheckedUpdateWithoutMonthlyAttendanceInput>
+}
+
+export type UserProfileCreateNestedOneWithoutSessionAttendancesInput = {
+  create?: Prisma.XOR<Prisma.UserProfileCreateWithoutSessionAttendancesInput, Prisma.UserProfileUncheckedCreateWithoutSessionAttendancesInput>
+  connectOrCreate?: Prisma.UserProfileCreateOrConnectWithoutSessionAttendancesInput
+  connect?: Prisma.UserProfileWhereUniqueInput
+}
+
+export type UserProfileUpdateOneRequiredWithoutSessionAttendancesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserProfileCreateWithoutSessionAttendancesInput, Prisma.UserProfileUncheckedCreateWithoutSessionAttendancesInput>
+  connectOrCreate?: Prisma.UserProfileCreateOrConnectWithoutSessionAttendancesInput
+  upsert?: Prisma.UserProfileUpsertWithoutSessionAttendancesInput
+  connect?: Prisma.UserProfileWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserProfileUpdateToOneWithWhereWithoutSessionAttendancesInput, Prisma.UserProfileUpdateWithoutSessionAttendancesInput>, Prisma.UserProfileUncheckedUpdateWithoutSessionAttendancesInput>
+}
+
 export type UserProfileCreateWithoutEmailTokensInput = {
   id?: string
   email: string
@@ -598,6 +789,12 @@ export type UserProfileCreateWithoutEmailTokensInput = {
   passwordHash: string
   emailVerified?: boolean
   createdAt?: Date | string
+  enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Date | string | null
+  hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  subscriptions?: Prisma.MonthlySubscriptionCreateNestedManyWithoutStudentInput
+  monthlyAttendance?: Prisma.MonthlyAttendanceCreateNestedManyWithoutStudentInput
+  sessionAttendances?: Prisma.SessionAttendanceCreateNestedManyWithoutStudentInput
   orders?: Prisma.MembershipOrderCreateNestedManyWithoutStudentInput
   attendances?: Prisma.AttendanceCreateNestedManyWithoutStudentInput
   skills?: Prisma.UserSkillCreateNestedManyWithoutStudentInput
@@ -617,6 +814,12 @@ export type UserProfileUncheckedCreateWithoutEmailTokensInput = {
   passwordHash: string
   emailVerified?: boolean
   createdAt?: Date | string
+  enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Date | string | null
+  hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  subscriptions?: Prisma.MonthlySubscriptionUncheckedCreateNestedManyWithoutStudentInput
+  monthlyAttendance?: Prisma.MonthlyAttendanceUncheckedCreateNestedManyWithoutStudentInput
+  sessionAttendances?: Prisma.SessionAttendanceUncheckedCreateNestedManyWithoutStudentInput
   orders?: Prisma.MembershipOrderUncheckedCreateNestedManyWithoutStudentInput
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutStudentInput
   skills?: Prisma.UserSkillUncheckedCreateNestedManyWithoutStudentInput
@@ -652,6 +855,12 @@ export type UserProfileUpdateWithoutEmailTokensInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  subscriptions?: Prisma.MonthlySubscriptionUpdateManyWithoutStudentNestedInput
+  monthlyAttendance?: Prisma.MonthlyAttendanceUpdateManyWithoutStudentNestedInput
+  sessionAttendances?: Prisma.SessionAttendanceUpdateManyWithoutStudentNestedInput
   orders?: Prisma.MembershipOrderUpdateManyWithoutStudentNestedInput
   attendances?: Prisma.AttendanceUpdateManyWithoutStudentNestedInput
   skills?: Prisma.UserSkillUpdateManyWithoutStudentNestedInput
@@ -671,6 +880,12 @@ export type UserProfileUncheckedUpdateWithoutEmailTokensInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  subscriptions?: Prisma.MonthlySubscriptionUncheckedUpdateManyWithoutStudentNestedInput
+  monthlyAttendance?: Prisma.MonthlyAttendanceUncheckedUpdateManyWithoutStudentNestedInput
+  sessionAttendances?: Prisma.SessionAttendanceUncheckedUpdateManyWithoutStudentNestedInput
   orders?: Prisma.MembershipOrderUncheckedUpdateManyWithoutStudentNestedInput
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutStudentNestedInput
   skills?: Prisma.UserSkillUncheckedUpdateManyWithoutStudentNestedInput
@@ -690,6 +905,12 @@ export type UserProfileCreateWithoutFamilyMemberInput = {
   passwordHash: string
   emailVerified?: boolean
   createdAt?: Date | string
+  enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Date | string | null
+  hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  subscriptions?: Prisma.MonthlySubscriptionCreateNestedManyWithoutStudentInput
+  monthlyAttendance?: Prisma.MonthlyAttendanceCreateNestedManyWithoutStudentInput
+  sessionAttendances?: Prisma.SessionAttendanceCreateNestedManyWithoutStudentInput
   orders?: Prisma.MembershipOrderCreateNestedManyWithoutStudentInput
   attendances?: Prisma.AttendanceCreateNestedManyWithoutStudentInput
   skills?: Prisma.UserSkillCreateNestedManyWithoutStudentInput
@@ -709,6 +930,12 @@ export type UserProfileUncheckedCreateWithoutFamilyMemberInput = {
   passwordHash: string
   emailVerified?: boolean
   createdAt?: Date | string
+  enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Date | string | null
+  hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  subscriptions?: Prisma.MonthlySubscriptionUncheckedCreateNestedManyWithoutStudentInput
+  monthlyAttendance?: Prisma.MonthlyAttendanceUncheckedCreateNestedManyWithoutStudentInput
+  sessionAttendances?: Prisma.SessionAttendanceUncheckedCreateNestedManyWithoutStudentInput
   orders?: Prisma.MembershipOrderUncheckedCreateNestedManyWithoutStudentInput
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutStudentInput
   skills?: Prisma.UserSkillUncheckedCreateNestedManyWithoutStudentInput
@@ -744,6 +971,12 @@ export type UserProfileUpdateWithoutFamilyMemberInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  subscriptions?: Prisma.MonthlySubscriptionUpdateManyWithoutStudentNestedInput
+  monthlyAttendance?: Prisma.MonthlyAttendanceUpdateManyWithoutStudentNestedInput
+  sessionAttendances?: Prisma.SessionAttendanceUpdateManyWithoutStudentNestedInput
   orders?: Prisma.MembershipOrderUpdateManyWithoutStudentNestedInput
   attendances?: Prisma.AttendanceUpdateManyWithoutStudentNestedInput
   skills?: Prisma.UserSkillUpdateManyWithoutStudentNestedInput
@@ -763,6 +996,12 @@ export type UserProfileUncheckedUpdateWithoutFamilyMemberInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  subscriptions?: Prisma.MonthlySubscriptionUncheckedUpdateManyWithoutStudentNestedInput
+  monthlyAttendance?: Prisma.MonthlyAttendanceUncheckedUpdateManyWithoutStudentNestedInput
+  sessionAttendances?: Prisma.SessionAttendanceUncheckedUpdateManyWithoutStudentNestedInput
   orders?: Prisma.MembershipOrderUncheckedUpdateManyWithoutStudentNestedInput
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutStudentNestedInput
   skills?: Prisma.UserSkillUncheckedUpdateManyWithoutStudentNestedInput
@@ -782,6 +1021,12 @@ export type UserProfileCreateWithoutOrdersInput = {
   passwordHash: string
   emailVerified?: boolean
   createdAt?: Date | string
+  enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Date | string | null
+  hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  subscriptions?: Prisma.MonthlySubscriptionCreateNestedManyWithoutStudentInput
+  monthlyAttendance?: Prisma.MonthlyAttendanceCreateNestedManyWithoutStudentInput
+  sessionAttendances?: Prisma.SessionAttendanceCreateNestedManyWithoutStudentInput
   attendances?: Prisma.AttendanceCreateNestedManyWithoutStudentInput
   skills?: Prisma.UserSkillCreateNestedManyWithoutStudentInput
   familyMember?: Prisma.FamilyMemberCreateNestedOneWithoutStudentInput
@@ -801,6 +1046,12 @@ export type UserProfileUncheckedCreateWithoutOrdersInput = {
   passwordHash: string
   emailVerified?: boolean
   createdAt?: Date | string
+  enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Date | string | null
+  hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  subscriptions?: Prisma.MonthlySubscriptionUncheckedCreateNestedManyWithoutStudentInput
+  monthlyAttendance?: Prisma.MonthlyAttendanceUncheckedCreateNestedManyWithoutStudentInput
+  sessionAttendances?: Prisma.SessionAttendanceUncheckedCreateNestedManyWithoutStudentInput
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutStudentInput
   skills?: Prisma.UserSkillUncheckedCreateNestedManyWithoutStudentInput
   familyMember?: Prisma.FamilyMemberUncheckedCreateNestedOneWithoutStudentInput
@@ -836,6 +1087,12 @@ export type UserProfileUpdateWithoutOrdersInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  subscriptions?: Prisma.MonthlySubscriptionUpdateManyWithoutStudentNestedInput
+  monthlyAttendance?: Prisma.MonthlyAttendanceUpdateManyWithoutStudentNestedInput
+  sessionAttendances?: Prisma.SessionAttendanceUpdateManyWithoutStudentNestedInput
   attendances?: Prisma.AttendanceUpdateManyWithoutStudentNestedInput
   skills?: Prisma.UserSkillUpdateManyWithoutStudentNestedInput
   familyMember?: Prisma.FamilyMemberUpdateOneWithoutStudentNestedInput
@@ -855,6 +1112,12 @@ export type UserProfileUncheckedUpdateWithoutOrdersInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  subscriptions?: Prisma.MonthlySubscriptionUncheckedUpdateManyWithoutStudentNestedInput
+  monthlyAttendance?: Prisma.MonthlyAttendanceUncheckedUpdateManyWithoutStudentNestedInput
+  sessionAttendances?: Prisma.SessionAttendanceUncheckedUpdateManyWithoutStudentNestedInput
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutStudentNestedInput
   skills?: Prisma.UserSkillUncheckedUpdateManyWithoutStudentNestedInput
   familyMember?: Prisma.FamilyMemberUncheckedUpdateOneWithoutStudentNestedInput
@@ -874,6 +1137,12 @@ export type UserProfileCreateWithoutAttendancesInput = {
   passwordHash: string
   emailVerified?: boolean
   createdAt?: Date | string
+  enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Date | string | null
+  hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  subscriptions?: Prisma.MonthlySubscriptionCreateNestedManyWithoutStudentInput
+  monthlyAttendance?: Prisma.MonthlyAttendanceCreateNestedManyWithoutStudentInput
+  sessionAttendances?: Prisma.SessionAttendanceCreateNestedManyWithoutStudentInput
   orders?: Prisma.MembershipOrderCreateNestedManyWithoutStudentInput
   skills?: Prisma.UserSkillCreateNestedManyWithoutStudentInput
   familyMember?: Prisma.FamilyMemberCreateNestedOneWithoutStudentInput
@@ -893,6 +1162,12 @@ export type UserProfileUncheckedCreateWithoutAttendancesInput = {
   passwordHash: string
   emailVerified?: boolean
   createdAt?: Date | string
+  enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Date | string | null
+  hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  subscriptions?: Prisma.MonthlySubscriptionUncheckedCreateNestedManyWithoutStudentInput
+  monthlyAttendance?: Prisma.MonthlyAttendanceUncheckedCreateNestedManyWithoutStudentInput
+  sessionAttendances?: Prisma.SessionAttendanceUncheckedCreateNestedManyWithoutStudentInput
   orders?: Prisma.MembershipOrderUncheckedCreateNestedManyWithoutStudentInput
   skills?: Prisma.UserSkillUncheckedCreateNestedManyWithoutStudentInput
   familyMember?: Prisma.FamilyMemberUncheckedCreateNestedOneWithoutStudentInput
@@ -928,6 +1203,12 @@ export type UserProfileUpdateWithoutAttendancesInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  subscriptions?: Prisma.MonthlySubscriptionUpdateManyWithoutStudentNestedInput
+  monthlyAttendance?: Prisma.MonthlyAttendanceUpdateManyWithoutStudentNestedInput
+  sessionAttendances?: Prisma.SessionAttendanceUpdateManyWithoutStudentNestedInput
   orders?: Prisma.MembershipOrderUpdateManyWithoutStudentNestedInput
   skills?: Prisma.UserSkillUpdateManyWithoutStudentNestedInput
   familyMember?: Prisma.FamilyMemberUpdateOneWithoutStudentNestedInput
@@ -947,6 +1228,12 @@ export type UserProfileUncheckedUpdateWithoutAttendancesInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  subscriptions?: Prisma.MonthlySubscriptionUncheckedUpdateManyWithoutStudentNestedInput
+  monthlyAttendance?: Prisma.MonthlyAttendanceUncheckedUpdateManyWithoutStudentNestedInput
+  sessionAttendances?: Prisma.SessionAttendanceUncheckedUpdateManyWithoutStudentNestedInput
   orders?: Prisma.MembershipOrderUncheckedUpdateManyWithoutStudentNestedInput
   skills?: Prisma.UserSkillUncheckedUpdateManyWithoutStudentNestedInput
   familyMember?: Prisma.FamilyMemberUncheckedUpdateOneWithoutStudentNestedInput
@@ -966,6 +1253,12 @@ export type UserProfileCreateWithoutWaitlistsInput = {
   passwordHash: string
   emailVerified?: boolean
   createdAt?: Date | string
+  enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Date | string | null
+  hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  subscriptions?: Prisma.MonthlySubscriptionCreateNestedManyWithoutStudentInput
+  monthlyAttendance?: Prisma.MonthlyAttendanceCreateNestedManyWithoutStudentInput
+  sessionAttendances?: Prisma.SessionAttendanceCreateNestedManyWithoutStudentInput
   orders?: Prisma.MembershipOrderCreateNestedManyWithoutStudentInput
   attendances?: Prisma.AttendanceCreateNestedManyWithoutStudentInput
   skills?: Prisma.UserSkillCreateNestedManyWithoutStudentInput
@@ -985,6 +1278,12 @@ export type UserProfileUncheckedCreateWithoutWaitlistsInput = {
   passwordHash: string
   emailVerified?: boolean
   createdAt?: Date | string
+  enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Date | string | null
+  hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  subscriptions?: Prisma.MonthlySubscriptionUncheckedCreateNestedManyWithoutStudentInput
+  monthlyAttendance?: Prisma.MonthlyAttendanceUncheckedCreateNestedManyWithoutStudentInput
+  sessionAttendances?: Prisma.SessionAttendanceUncheckedCreateNestedManyWithoutStudentInput
   orders?: Prisma.MembershipOrderUncheckedCreateNestedManyWithoutStudentInput
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutStudentInput
   skills?: Prisma.UserSkillUncheckedCreateNestedManyWithoutStudentInput
@@ -1020,6 +1319,12 @@ export type UserProfileUpdateWithoutWaitlistsInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  subscriptions?: Prisma.MonthlySubscriptionUpdateManyWithoutStudentNestedInput
+  monthlyAttendance?: Prisma.MonthlyAttendanceUpdateManyWithoutStudentNestedInput
+  sessionAttendances?: Prisma.SessionAttendanceUpdateManyWithoutStudentNestedInput
   orders?: Prisma.MembershipOrderUpdateManyWithoutStudentNestedInput
   attendances?: Prisma.AttendanceUpdateManyWithoutStudentNestedInput
   skills?: Prisma.UserSkillUpdateManyWithoutStudentNestedInput
@@ -1039,6 +1344,12 @@ export type UserProfileUncheckedUpdateWithoutWaitlistsInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  subscriptions?: Prisma.MonthlySubscriptionUncheckedUpdateManyWithoutStudentNestedInput
+  monthlyAttendance?: Prisma.MonthlyAttendanceUncheckedUpdateManyWithoutStudentNestedInput
+  sessionAttendances?: Prisma.SessionAttendanceUncheckedUpdateManyWithoutStudentNestedInput
   orders?: Prisma.MembershipOrderUncheckedUpdateManyWithoutStudentNestedInput
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutStudentNestedInput
   skills?: Prisma.UserSkillUncheckedUpdateManyWithoutStudentNestedInput
@@ -1058,6 +1369,12 @@ export type UserProfileCreateWithoutSkillsInput = {
   passwordHash: string
   emailVerified?: boolean
   createdAt?: Date | string
+  enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Date | string | null
+  hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  subscriptions?: Prisma.MonthlySubscriptionCreateNestedManyWithoutStudentInput
+  monthlyAttendance?: Prisma.MonthlyAttendanceCreateNestedManyWithoutStudentInput
+  sessionAttendances?: Prisma.SessionAttendanceCreateNestedManyWithoutStudentInput
   orders?: Prisma.MembershipOrderCreateNestedManyWithoutStudentInput
   attendances?: Prisma.AttendanceCreateNestedManyWithoutStudentInput
   familyMember?: Prisma.FamilyMemberCreateNestedOneWithoutStudentInput
@@ -1077,6 +1394,12 @@ export type UserProfileUncheckedCreateWithoutSkillsInput = {
   passwordHash: string
   emailVerified?: boolean
   createdAt?: Date | string
+  enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Date | string | null
+  hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  subscriptions?: Prisma.MonthlySubscriptionUncheckedCreateNestedManyWithoutStudentInput
+  monthlyAttendance?: Prisma.MonthlyAttendanceUncheckedCreateNestedManyWithoutStudentInput
+  sessionAttendances?: Prisma.SessionAttendanceUncheckedCreateNestedManyWithoutStudentInput
   orders?: Prisma.MembershipOrderUncheckedCreateNestedManyWithoutStudentInput
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutStudentInput
   familyMember?: Prisma.FamilyMemberUncheckedCreateNestedOneWithoutStudentInput
@@ -1112,6 +1435,12 @@ export type UserProfileUpdateWithoutSkillsInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  subscriptions?: Prisma.MonthlySubscriptionUpdateManyWithoutStudentNestedInput
+  monthlyAttendance?: Prisma.MonthlyAttendanceUpdateManyWithoutStudentNestedInput
+  sessionAttendances?: Prisma.SessionAttendanceUpdateManyWithoutStudentNestedInput
   orders?: Prisma.MembershipOrderUpdateManyWithoutStudentNestedInput
   attendances?: Prisma.AttendanceUpdateManyWithoutStudentNestedInput
   familyMember?: Prisma.FamilyMemberUpdateOneWithoutStudentNestedInput
@@ -1131,6 +1460,12 @@ export type UserProfileUncheckedUpdateWithoutSkillsInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  subscriptions?: Prisma.MonthlySubscriptionUncheckedUpdateManyWithoutStudentNestedInput
+  monthlyAttendance?: Prisma.MonthlyAttendanceUncheckedUpdateManyWithoutStudentNestedInput
+  sessionAttendances?: Prisma.SessionAttendanceUncheckedUpdateManyWithoutStudentNestedInput
   orders?: Prisma.MembershipOrderUncheckedUpdateManyWithoutStudentNestedInput
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutStudentNestedInput
   familyMember?: Prisma.FamilyMemberUncheckedUpdateOneWithoutStudentNestedInput
@@ -1150,6 +1485,12 @@ export type UserProfileCreateWithoutStreakInput = {
   passwordHash: string
   emailVerified?: boolean
   createdAt?: Date | string
+  enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Date | string | null
+  hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  subscriptions?: Prisma.MonthlySubscriptionCreateNestedManyWithoutStudentInput
+  monthlyAttendance?: Prisma.MonthlyAttendanceCreateNestedManyWithoutStudentInput
+  sessionAttendances?: Prisma.SessionAttendanceCreateNestedManyWithoutStudentInput
   orders?: Prisma.MembershipOrderCreateNestedManyWithoutStudentInput
   attendances?: Prisma.AttendanceCreateNestedManyWithoutStudentInput
   skills?: Prisma.UserSkillCreateNestedManyWithoutStudentInput
@@ -1169,6 +1510,12 @@ export type UserProfileUncheckedCreateWithoutStreakInput = {
   passwordHash: string
   emailVerified?: boolean
   createdAt?: Date | string
+  enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Date | string | null
+  hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  subscriptions?: Prisma.MonthlySubscriptionUncheckedCreateNestedManyWithoutStudentInput
+  monthlyAttendance?: Prisma.MonthlyAttendanceUncheckedCreateNestedManyWithoutStudentInput
+  sessionAttendances?: Prisma.SessionAttendanceUncheckedCreateNestedManyWithoutStudentInput
   orders?: Prisma.MembershipOrderUncheckedCreateNestedManyWithoutStudentInput
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutStudentInput
   skills?: Prisma.UserSkillUncheckedCreateNestedManyWithoutStudentInput
@@ -1204,6 +1551,12 @@ export type UserProfileUpdateWithoutStreakInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  subscriptions?: Prisma.MonthlySubscriptionUpdateManyWithoutStudentNestedInput
+  monthlyAttendance?: Prisma.MonthlyAttendanceUpdateManyWithoutStudentNestedInput
+  sessionAttendances?: Prisma.SessionAttendanceUpdateManyWithoutStudentNestedInput
   orders?: Prisma.MembershipOrderUpdateManyWithoutStudentNestedInput
   attendances?: Prisma.AttendanceUpdateManyWithoutStudentNestedInput
   skills?: Prisma.UserSkillUpdateManyWithoutStudentNestedInput
@@ -1223,10 +1576,364 @@ export type UserProfileUncheckedUpdateWithoutStreakInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  subscriptions?: Prisma.MonthlySubscriptionUncheckedUpdateManyWithoutStudentNestedInput
+  monthlyAttendance?: Prisma.MonthlyAttendanceUncheckedUpdateManyWithoutStudentNestedInput
+  sessionAttendances?: Prisma.SessionAttendanceUncheckedUpdateManyWithoutStudentNestedInput
   orders?: Prisma.MembershipOrderUncheckedUpdateManyWithoutStudentNestedInput
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutStudentNestedInput
   skills?: Prisma.UserSkillUncheckedUpdateManyWithoutStudentNestedInput
   familyMember?: Prisma.FamilyMemberUncheckedUpdateOneWithoutStudentNestedInput
+  waitlists?: Prisma.ClassWaitlistUncheckedUpdateManyWithoutStudentNestedInput
+  emailTokens?: Prisma.EmailTokenUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserProfileCreateWithoutSubscriptionsInput = {
+  id?: string
+  email: string
+  phone?: string | null
+  name?: string | null
+  avatarUrl?: string | null
+  role: $Enums.Role
+  isActive?: boolean
+  passwordHash: string
+  emailVerified?: boolean
+  createdAt?: Date | string
+  enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Date | string | null
+  hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  monthlyAttendance?: Prisma.MonthlyAttendanceCreateNestedManyWithoutStudentInput
+  sessionAttendances?: Prisma.SessionAttendanceCreateNestedManyWithoutStudentInput
+  orders?: Prisma.MembershipOrderCreateNestedManyWithoutStudentInput
+  attendances?: Prisma.AttendanceCreateNestedManyWithoutStudentInput
+  skills?: Prisma.UserSkillCreateNestedManyWithoutStudentInput
+  familyMember?: Prisma.FamilyMemberCreateNestedOneWithoutStudentInput
+  streak?: Prisma.StreakCreateNestedOneWithoutStudentInput
+  waitlists?: Prisma.ClassWaitlistCreateNestedManyWithoutStudentInput
+  emailTokens?: Prisma.EmailTokenCreateNestedManyWithoutUserInput
+}
+
+export type UserProfileUncheckedCreateWithoutSubscriptionsInput = {
+  id?: string
+  email: string
+  phone?: string | null
+  name?: string | null
+  avatarUrl?: string | null
+  role: $Enums.Role
+  isActive?: boolean
+  passwordHash: string
+  emailVerified?: boolean
+  createdAt?: Date | string
+  enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Date | string | null
+  hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  monthlyAttendance?: Prisma.MonthlyAttendanceUncheckedCreateNestedManyWithoutStudentInput
+  sessionAttendances?: Prisma.SessionAttendanceUncheckedCreateNestedManyWithoutStudentInput
+  orders?: Prisma.MembershipOrderUncheckedCreateNestedManyWithoutStudentInput
+  attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutStudentInput
+  skills?: Prisma.UserSkillUncheckedCreateNestedManyWithoutStudentInput
+  familyMember?: Prisma.FamilyMemberUncheckedCreateNestedOneWithoutStudentInput
+  streak?: Prisma.StreakUncheckedCreateNestedOneWithoutStudentInput
+  waitlists?: Prisma.ClassWaitlistUncheckedCreateNestedManyWithoutStudentInput
+  emailTokens?: Prisma.EmailTokenUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserProfileCreateOrConnectWithoutSubscriptionsInput = {
+  where: Prisma.UserProfileWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserProfileCreateWithoutSubscriptionsInput, Prisma.UserProfileUncheckedCreateWithoutSubscriptionsInput>
+}
+
+export type UserProfileUpsertWithoutSubscriptionsInput = {
+  update: Prisma.XOR<Prisma.UserProfileUpdateWithoutSubscriptionsInput, Prisma.UserProfileUncheckedUpdateWithoutSubscriptionsInput>
+  create: Prisma.XOR<Prisma.UserProfileCreateWithoutSubscriptionsInput, Prisma.UserProfileUncheckedCreateWithoutSubscriptionsInput>
+  where?: Prisma.UserProfileWhereInput
+}
+
+export type UserProfileUpdateToOneWithWhereWithoutSubscriptionsInput = {
+  where?: Prisma.UserProfileWhereInput
+  data: Prisma.XOR<Prisma.UserProfileUpdateWithoutSubscriptionsInput, Prisma.UserProfileUncheckedUpdateWithoutSubscriptionsInput>
+}
+
+export type UserProfileUpdateWithoutSubscriptionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  monthlyAttendance?: Prisma.MonthlyAttendanceUpdateManyWithoutStudentNestedInput
+  sessionAttendances?: Prisma.SessionAttendanceUpdateManyWithoutStudentNestedInput
+  orders?: Prisma.MembershipOrderUpdateManyWithoutStudentNestedInput
+  attendances?: Prisma.AttendanceUpdateManyWithoutStudentNestedInput
+  skills?: Prisma.UserSkillUpdateManyWithoutStudentNestedInput
+  familyMember?: Prisma.FamilyMemberUpdateOneWithoutStudentNestedInput
+  streak?: Prisma.StreakUpdateOneWithoutStudentNestedInput
+  waitlists?: Prisma.ClassWaitlistUpdateManyWithoutStudentNestedInput
+  emailTokens?: Prisma.EmailTokenUpdateManyWithoutUserNestedInput
+}
+
+export type UserProfileUncheckedUpdateWithoutSubscriptionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  monthlyAttendance?: Prisma.MonthlyAttendanceUncheckedUpdateManyWithoutStudentNestedInput
+  sessionAttendances?: Prisma.SessionAttendanceUncheckedUpdateManyWithoutStudentNestedInput
+  orders?: Prisma.MembershipOrderUncheckedUpdateManyWithoutStudentNestedInput
+  attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutStudentNestedInput
+  skills?: Prisma.UserSkillUncheckedUpdateManyWithoutStudentNestedInput
+  familyMember?: Prisma.FamilyMemberUncheckedUpdateOneWithoutStudentNestedInput
+  streak?: Prisma.StreakUncheckedUpdateOneWithoutStudentNestedInput
+  waitlists?: Prisma.ClassWaitlistUncheckedUpdateManyWithoutStudentNestedInput
+  emailTokens?: Prisma.EmailTokenUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserProfileCreateWithoutMonthlyAttendanceInput = {
+  id?: string
+  email: string
+  phone?: string | null
+  name?: string | null
+  avatarUrl?: string | null
+  role: $Enums.Role
+  isActive?: boolean
+  passwordHash: string
+  emailVerified?: boolean
+  createdAt?: Date | string
+  enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Date | string | null
+  hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  subscriptions?: Prisma.MonthlySubscriptionCreateNestedManyWithoutStudentInput
+  sessionAttendances?: Prisma.SessionAttendanceCreateNestedManyWithoutStudentInput
+  orders?: Prisma.MembershipOrderCreateNestedManyWithoutStudentInput
+  attendances?: Prisma.AttendanceCreateNestedManyWithoutStudentInput
+  skills?: Prisma.UserSkillCreateNestedManyWithoutStudentInput
+  familyMember?: Prisma.FamilyMemberCreateNestedOneWithoutStudentInput
+  streak?: Prisma.StreakCreateNestedOneWithoutStudentInput
+  waitlists?: Prisma.ClassWaitlistCreateNestedManyWithoutStudentInput
+  emailTokens?: Prisma.EmailTokenCreateNestedManyWithoutUserInput
+}
+
+export type UserProfileUncheckedCreateWithoutMonthlyAttendanceInput = {
+  id?: string
+  email: string
+  phone?: string | null
+  name?: string | null
+  avatarUrl?: string | null
+  role: $Enums.Role
+  isActive?: boolean
+  passwordHash: string
+  emailVerified?: boolean
+  createdAt?: Date | string
+  enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Date | string | null
+  hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  subscriptions?: Prisma.MonthlySubscriptionUncheckedCreateNestedManyWithoutStudentInput
+  sessionAttendances?: Prisma.SessionAttendanceUncheckedCreateNestedManyWithoutStudentInput
+  orders?: Prisma.MembershipOrderUncheckedCreateNestedManyWithoutStudentInput
+  attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutStudentInput
+  skills?: Prisma.UserSkillUncheckedCreateNestedManyWithoutStudentInput
+  familyMember?: Prisma.FamilyMemberUncheckedCreateNestedOneWithoutStudentInput
+  streak?: Prisma.StreakUncheckedCreateNestedOneWithoutStudentInput
+  waitlists?: Prisma.ClassWaitlistUncheckedCreateNestedManyWithoutStudentInput
+  emailTokens?: Prisma.EmailTokenUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserProfileCreateOrConnectWithoutMonthlyAttendanceInput = {
+  where: Prisma.UserProfileWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserProfileCreateWithoutMonthlyAttendanceInput, Prisma.UserProfileUncheckedCreateWithoutMonthlyAttendanceInput>
+}
+
+export type UserProfileUpsertWithoutMonthlyAttendanceInput = {
+  update: Prisma.XOR<Prisma.UserProfileUpdateWithoutMonthlyAttendanceInput, Prisma.UserProfileUncheckedUpdateWithoutMonthlyAttendanceInput>
+  create: Prisma.XOR<Prisma.UserProfileCreateWithoutMonthlyAttendanceInput, Prisma.UserProfileUncheckedCreateWithoutMonthlyAttendanceInput>
+  where?: Prisma.UserProfileWhereInput
+}
+
+export type UserProfileUpdateToOneWithWhereWithoutMonthlyAttendanceInput = {
+  where?: Prisma.UserProfileWhereInput
+  data: Prisma.XOR<Prisma.UserProfileUpdateWithoutMonthlyAttendanceInput, Prisma.UserProfileUncheckedUpdateWithoutMonthlyAttendanceInput>
+}
+
+export type UserProfileUpdateWithoutMonthlyAttendanceInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  subscriptions?: Prisma.MonthlySubscriptionUpdateManyWithoutStudentNestedInput
+  sessionAttendances?: Prisma.SessionAttendanceUpdateManyWithoutStudentNestedInput
+  orders?: Prisma.MembershipOrderUpdateManyWithoutStudentNestedInput
+  attendances?: Prisma.AttendanceUpdateManyWithoutStudentNestedInput
+  skills?: Prisma.UserSkillUpdateManyWithoutStudentNestedInput
+  familyMember?: Prisma.FamilyMemberUpdateOneWithoutStudentNestedInput
+  streak?: Prisma.StreakUpdateOneWithoutStudentNestedInput
+  waitlists?: Prisma.ClassWaitlistUpdateManyWithoutStudentNestedInput
+  emailTokens?: Prisma.EmailTokenUpdateManyWithoutUserNestedInput
+}
+
+export type UserProfileUncheckedUpdateWithoutMonthlyAttendanceInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  subscriptions?: Prisma.MonthlySubscriptionUncheckedUpdateManyWithoutStudentNestedInput
+  sessionAttendances?: Prisma.SessionAttendanceUncheckedUpdateManyWithoutStudentNestedInput
+  orders?: Prisma.MembershipOrderUncheckedUpdateManyWithoutStudentNestedInput
+  attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutStudentNestedInput
+  skills?: Prisma.UserSkillUncheckedUpdateManyWithoutStudentNestedInput
+  familyMember?: Prisma.FamilyMemberUncheckedUpdateOneWithoutStudentNestedInput
+  streak?: Prisma.StreakUncheckedUpdateOneWithoutStudentNestedInput
+  waitlists?: Prisma.ClassWaitlistUncheckedUpdateManyWithoutStudentNestedInput
+  emailTokens?: Prisma.EmailTokenUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserProfileCreateWithoutSessionAttendancesInput = {
+  id?: string
+  email: string
+  phone?: string | null
+  name?: string | null
+  avatarUrl?: string | null
+  role: $Enums.Role
+  isActive?: boolean
+  passwordHash: string
+  emailVerified?: boolean
+  createdAt?: Date | string
+  enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Date | string | null
+  hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  subscriptions?: Prisma.MonthlySubscriptionCreateNestedManyWithoutStudentInput
+  monthlyAttendance?: Prisma.MonthlyAttendanceCreateNestedManyWithoutStudentInput
+  orders?: Prisma.MembershipOrderCreateNestedManyWithoutStudentInput
+  attendances?: Prisma.AttendanceCreateNestedManyWithoutStudentInput
+  skills?: Prisma.UserSkillCreateNestedManyWithoutStudentInput
+  familyMember?: Prisma.FamilyMemberCreateNestedOneWithoutStudentInput
+  streak?: Prisma.StreakCreateNestedOneWithoutStudentInput
+  waitlists?: Prisma.ClassWaitlistCreateNestedManyWithoutStudentInput
+  emailTokens?: Prisma.EmailTokenCreateNestedManyWithoutUserInput
+}
+
+export type UserProfileUncheckedCreateWithoutSessionAttendancesInput = {
+  id?: string
+  email: string
+  phone?: string | null
+  name?: string | null
+  avatarUrl?: string | null
+  role: $Enums.Role
+  isActive?: boolean
+  passwordHash: string
+  emailVerified?: boolean
+  createdAt?: Date | string
+  enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Date | string | null
+  hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  subscriptions?: Prisma.MonthlySubscriptionUncheckedCreateNestedManyWithoutStudentInput
+  monthlyAttendance?: Prisma.MonthlyAttendanceUncheckedCreateNestedManyWithoutStudentInput
+  orders?: Prisma.MembershipOrderUncheckedCreateNestedManyWithoutStudentInput
+  attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutStudentInput
+  skills?: Prisma.UserSkillUncheckedCreateNestedManyWithoutStudentInput
+  familyMember?: Prisma.FamilyMemberUncheckedCreateNestedOneWithoutStudentInput
+  streak?: Prisma.StreakUncheckedCreateNestedOneWithoutStudentInput
+  waitlists?: Prisma.ClassWaitlistUncheckedCreateNestedManyWithoutStudentInput
+  emailTokens?: Prisma.EmailTokenUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserProfileCreateOrConnectWithoutSessionAttendancesInput = {
+  where: Prisma.UserProfileWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserProfileCreateWithoutSessionAttendancesInput, Prisma.UserProfileUncheckedCreateWithoutSessionAttendancesInput>
+}
+
+export type UserProfileUpsertWithoutSessionAttendancesInput = {
+  update: Prisma.XOR<Prisma.UserProfileUpdateWithoutSessionAttendancesInput, Prisma.UserProfileUncheckedUpdateWithoutSessionAttendancesInput>
+  create: Prisma.XOR<Prisma.UserProfileCreateWithoutSessionAttendancesInput, Prisma.UserProfileUncheckedCreateWithoutSessionAttendancesInput>
+  where?: Prisma.UserProfileWhereInput
+}
+
+export type UserProfileUpdateToOneWithWhereWithoutSessionAttendancesInput = {
+  where?: Prisma.UserProfileWhereInput
+  data: Prisma.XOR<Prisma.UserProfileUpdateWithoutSessionAttendancesInput, Prisma.UserProfileUncheckedUpdateWithoutSessionAttendancesInput>
+}
+
+export type UserProfileUpdateWithoutSessionAttendancesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  subscriptions?: Prisma.MonthlySubscriptionUpdateManyWithoutStudentNestedInput
+  monthlyAttendance?: Prisma.MonthlyAttendanceUpdateManyWithoutStudentNestedInput
+  orders?: Prisma.MembershipOrderUpdateManyWithoutStudentNestedInput
+  attendances?: Prisma.AttendanceUpdateManyWithoutStudentNestedInput
+  skills?: Prisma.UserSkillUpdateManyWithoutStudentNestedInput
+  familyMember?: Prisma.FamilyMemberUpdateOneWithoutStudentNestedInput
+  streak?: Prisma.StreakUpdateOneWithoutStudentNestedInput
+  waitlists?: Prisma.ClassWaitlistUpdateManyWithoutStudentNestedInput
+  emailTokens?: Prisma.EmailTokenUpdateManyWithoutUserNestedInput
+}
+
+export type UserProfileUncheckedUpdateWithoutSessionAttendancesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  subscriptions?: Prisma.MonthlySubscriptionUncheckedUpdateManyWithoutStudentNestedInput
+  monthlyAttendance?: Prisma.MonthlyAttendanceUncheckedUpdateManyWithoutStudentNestedInput
+  orders?: Prisma.MembershipOrderUncheckedUpdateManyWithoutStudentNestedInput
+  attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutStudentNestedInput
+  skills?: Prisma.UserSkillUncheckedUpdateManyWithoutStudentNestedInput
+  familyMember?: Prisma.FamilyMemberUncheckedUpdateOneWithoutStudentNestedInput
+  streak?: Prisma.StreakUncheckedUpdateOneWithoutStudentNestedInput
   waitlists?: Prisma.ClassWaitlistUncheckedUpdateManyWithoutStudentNestedInput
   emailTokens?: Prisma.EmailTokenUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -1237,6 +1944,9 @@ export type UserProfileUncheckedUpdateWithoutStreakInput = {
  */
 
 export type UserProfileCountOutputType = {
+  subscriptions: number
+  monthlyAttendance: number
+  sessionAttendances: number
   orders: number
   attendances: number
   skills: number
@@ -1245,6 +1955,9 @@ export type UserProfileCountOutputType = {
 }
 
 export type UserProfileCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  subscriptions?: boolean | UserProfileCountOutputTypeCountSubscriptionsArgs
+  monthlyAttendance?: boolean | UserProfileCountOutputTypeCountMonthlyAttendanceArgs
+  sessionAttendances?: boolean | UserProfileCountOutputTypeCountSessionAttendancesArgs
   orders?: boolean | UserProfileCountOutputTypeCountOrdersArgs
   attendances?: boolean | UserProfileCountOutputTypeCountAttendancesArgs
   skills?: boolean | UserProfileCountOutputTypeCountSkillsArgs
@@ -1260,6 +1973,27 @@ export type UserProfileCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.
    * Select specific fields to fetch from the UserProfileCountOutputType
    */
   select?: Prisma.UserProfileCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * UserProfileCountOutputType without action
+ */
+export type UserProfileCountOutputTypeCountSubscriptionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MonthlySubscriptionWhereInput
+}
+
+/**
+ * UserProfileCountOutputType without action
+ */
+export type UserProfileCountOutputTypeCountMonthlyAttendanceArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MonthlyAttendanceWhereInput
+}
+
+/**
+ * UserProfileCountOutputType without action
+ */
+export type UserProfileCountOutputTypeCountSessionAttendancesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SessionAttendanceWhereInput
 }
 
 /**
@@ -1309,6 +2043,12 @@ export type UserProfileSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   passwordHash?: boolean
   emailVerified?: boolean
   createdAt?: boolean
+  enrollmentFee?: boolean
+  enrolledAt?: boolean
+  hourlyRate?: boolean
+  subscriptions?: boolean | Prisma.UserProfile$subscriptionsArgs<ExtArgs>
+  monthlyAttendance?: boolean | Prisma.UserProfile$monthlyAttendanceArgs<ExtArgs>
+  sessionAttendances?: boolean | Prisma.UserProfile$sessionAttendancesArgs<ExtArgs>
   orders?: boolean | Prisma.UserProfile$ordersArgs<ExtArgs>
   attendances?: boolean | Prisma.UserProfile$attendancesArgs<ExtArgs>
   skills?: boolean | Prisma.UserProfile$skillsArgs<ExtArgs>
@@ -1330,6 +2070,9 @@ export type UserProfileSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   passwordHash?: boolean
   emailVerified?: boolean
   createdAt?: boolean
+  enrollmentFee?: boolean
+  enrolledAt?: boolean
+  hourlyRate?: boolean
 }, ExtArgs["result"]["userProfile"]>
 
 export type UserProfileSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1343,6 +2086,9 @@ export type UserProfileSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   passwordHash?: boolean
   emailVerified?: boolean
   createdAt?: boolean
+  enrollmentFee?: boolean
+  enrolledAt?: boolean
+  hourlyRate?: boolean
 }, ExtArgs["result"]["userProfile"]>
 
 export type UserProfileSelectScalar = {
@@ -1356,10 +2102,16 @@ export type UserProfileSelectScalar = {
   passwordHash?: boolean
   emailVerified?: boolean
   createdAt?: boolean
+  enrollmentFee?: boolean
+  enrolledAt?: boolean
+  hourlyRate?: boolean
 }
 
-export type UserProfileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "phone" | "name" | "avatarUrl" | "role" | "isActive" | "passwordHash" | "emailVerified" | "createdAt", ExtArgs["result"]["userProfile"]>
+export type UserProfileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "phone" | "name" | "avatarUrl" | "role" | "isActive" | "passwordHash" | "emailVerified" | "createdAt" | "enrollmentFee" | "enrolledAt" | "hourlyRate", ExtArgs["result"]["userProfile"]>
 export type UserProfileInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  subscriptions?: boolean | Prisma.UserProfile$subscriptionsArgs<ExtArgs>
+  monthlyAttendance?: boolean | Prisma.UserProfile$monthlyAttendanceArgs<ExtArgs>
+  sessionAttendances?: boolean | Prisma.UserProfile$sessionAttendancesArgs<ExtArgs>
   orders?: boolean | Prisma.UserProfile$ordersArgs<ExtArgs>
   attendances?: boolean | Prisma.UserProfile$attendancesArgs<ExtArgs>
   skills?: boolean | Prisma.UserProfile$skillsArgs<ExtArgs>
@@ -1375,6 +2127,9 @@ export type UserProfileIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.
 export type $UserProfilePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "UserProfile"
   objects: {
+    subscriptions: Prisma.$MonthlySubscriptionPayload<ExtArgs>[]
+    monthlyAttendance: Prisma.$MonthlyAttendancePayload<ExtArgs>[]
+    sessionAttendances: Prisma.$SessionAttendancePayload<ExtArgs>[]
     orders: Prisma.$MembershipOrderPayload<ExtArgs>[]
     attendances: Prisma.$AttendancePayload<ExtArgs>[]
     skills: Prisma.$UserSkillPayload<ExtArgs>[]
@@ -1394,6 +2149,9 @@ export type $UserProfilePayload<ExtArgs extends runtime.Types.Extensions.Interna
     passwordHash: string
     emailVerified: boolean
     createdAt: Date
+    enrollmentFee: runtime.Decimal | null
+    enrolledAt: Date | null
+    hourlyRate: runtime.Decimal | null
   }, ExtArgs["result"]["userProfile"]>
   composites: {}
 }
@@ -1788,6 +2546,9 @@ readonly fields: UserProfileFieldRefs;
  */
 export interface Prisma__UserProfileClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  subscriptions<T extends Prisma.UserProfile$subscriptionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserProfile$subscriptionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MonthlySubscriptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  monthlyAttendance<T extends Prisma.UserProfile$monthlyAttendanceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserProfile$monthlyAttendanceArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MonthlyAttendancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  sessionAttendances<T extends Prisma.UserProfile$sessionAttendancesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserProfile$sessionAttendancesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SessionAttendancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   orders<T extends Prisma.UserProfile$ordersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserProfile$ordersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MembershipOrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   attendances<T extends Prisma.UserProfile$attendancesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserProfile$attendancesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AttendancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   skills<T extends Prisma.UserProfile$skillsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserProfile$skillsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserSkillPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -1834,6 +2595,9 @@ export interface UserProfileFieldRefs {
   readonly passwordHash: Prisma.FieldRef<"UserProfile", 'String'>
   readonly emailVerified: Prisma.FieldRef<"UserProfile", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"UserProfile", 'DateTime'>
+  readonly enrollmentFee: Prisma.FieldRef<"UserProfile", 'Decimal'>
+  readonly enrolledAt: Prisma.FieldRef<"UserProfile", 'DateTime'>
+  readonly hourlyRate: Prisma.FieldRef<"UserProfile", 'Decimal'>
 }
     
 
@@ -2224,6 +2988,78 @@ export type UserProfileDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.I
    * Limit how many UserProfiles to delete.
    */
   limit?: number
+}
+
+/**
+ * UserProfile.subscriptions
+ */
+export type UserProfile$subscriptionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MonthlySubscription
+   */
+  select?: Prisma.MonthlySubscriptionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the MonthlySubscription
+   */
+  omit?: Prisma.MonthlySubscriptionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MonthlySubscriptionInclude<ExtArgs> | null
+  where?: Prisma.MonthlySubscriptionWhereInput
+  orderBy?: Prisma.MonthlySubscriptionOrderByWithRelationInput | Prisma.MonthlySubscriptionOrderByWithRelationInput[]
+  cursor?: Prisma.MonthlySubscriptionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.MonthlySubscriptionScalarFieldEnum | Prisma.MonthlySubscriptionScalarFieldEnum[]
+}
+
+/**
+ * UserProfile.monthlyAttendance
+ */
+export type UserProfile$monthlyAttendanceArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MonthlyAttendance
+   */
+  select?: Prisma.MonthlyAttendanceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the MonthlyAttendance
+   */
+  omit?: Prisma.MonthlyAttendanceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MonthlyAttendanceInclude<ExtArgs> | null
+  where?: Prisma.MonthlyAttendanceWhereInput
+  orderBy?: Prisma.MonthlyAttendanceOrderByWithRelationInput | Prisma.MonthlyAttendanceOrderByWithRelationInput[]
+  cursor?: Prisma.MonthlyAttendanceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.MonthlyAttendanceScalarFieldEnum | Prisma.MonthlyAttendanceScalarFieldEnum[]
+}
+
+/**
+ * UserProfile.sessionAttendances
+ */
+export type UserProfile$sessionAttendancesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SessionAttendance
+   */
+  select?: Prisma.SessionAttendanceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SessionAttendance
+   */
+  omit?: Prisma.SessionAttendanceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SessionAttendanceInclude<ExtArgs> | null
+  where?: Prisma.SessionAttendanceWhereInput
+  orderBy?: Prisma.SessionAttendanceOrderByWithRelationInput | Prisma.SessionAttendanceOrderByWithRelationInput[]
+  cursor?: Prisma.SessionAttendanceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SessionAttendanceScalarFieldEnum | Prisma.SessionAttendanceScalarFieldEnum[]
 }
 
 /**

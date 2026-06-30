@@ -82,6 +82,11 @@ export type CreditLedger = Prisma.CreditLedgerModel
  */
 export type Class = Prisma.ClassModel
 /**
+ * Model ClassSlot
+ * 
+ */
+export type ClassSlot = Prisma.ClassSlotModel
+/**
  * Model Attendance
  * 
  */
@@ -106,3 +111,18 @@ export type Streak = Prisma.StreakModel
  * 
  */
 export type Content = Prisma.ContentModel
+/**
+ * Model MonthlySubscription
+ * 
+ */
+export type MonthlySubscription = Prisma.MonthlySubscriptionModel
+/**
+ * Model MonthlyAttendance
+ * 
+ */
+export type MonthlyAttendance = Prisma.MonthlyAttendanceModel
+/**
+ * Model SessionAttendance
+ * 
+ */
+export type SessionAttendance = Prisma.SessionAttendanceModel

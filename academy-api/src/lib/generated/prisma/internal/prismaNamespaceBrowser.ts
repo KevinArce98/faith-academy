@@ -59,11 +59,15 @@ export const ModelName = {
   MembershipOrder: 'MembershipOrder',
   CreditLedger: 'CreditLedger',
   Class: 'Class',
+  ClassSlot: 'ClassSlot',
   Attendance: 'Attendance',
   ClassWaitlist: 'ClassWaitlist',
   UserSkill: 'UserSkill',
   Streak: 'Streak',
-  Content: 'Content'
+  Content: 'Content',
+  MonthlySubscription: 'MonthlySubscription',
+  MonthlyAttendance: 'MonthlyAttendance',
+  SessionAttendance: 'SessionAttendance'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -92,7 +96,10 @@ export const UserProfileScalarFieldEnum = {
   isActive: 'isActive',
   passwordHash: 'passwordHash',
   emailVerified: 'emailVerified',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  enrollmentFee: 'enrollmentFee',
+  enrolledAt: 'enrolledAt',
+  hourlyRate: 'hourlyRate'
 } as const
 
 export type UserProfileScalarFieldEnum = (typeof UserProfileScalarFieldEnum)[keyof typeof UserProfileScalarFieldEnum]
@@ -135,10 +142,11 @@ export const MembershipPlanScalarFieldEnum = {
   name: 'name',
   description: 'description',
   price: 'price',
-  credits: 'credits',
-  intervalType: 'intervalType',
-  intervalValue: 'intervalValue',
-  isActive: 'isActive'
+  isActive: 'isActive',
+  classesPerWeek: 'classesPerWeek',
+  isPublic: 'isPublic',
+  isSingleClass: 'isSingleClass',
+  credits: 'credits'
 } as const
 
 export type MembershipPlanScalarFieldEnum = (typeof MembershipPlanScalarFieldEnum)[keyof typeof MembershipPlanScalarFieldEnum]
@@ -156,6 +164,8 @@ export const MembershipOrderScalarFieldEnum = {
   approvedById: 'approvedById',
   approvedAt: 'approvedAt',
   notes: 'notes',
+  bookingClassId: 'bookingClassId',
+  bookingDate: 'bookingDate',
   createdAt: 'createdAt'
 } as const
 
@@ -186,6 +196,8 @@ export const ClassScalarFieldEnum = {
   maxCapacity: 'maxCapacity',
   creditCost: 'creditCost',
   cancelWindowHours: 'cancelWindowHours',
+  isPrivate: 'isPrivate',
+  oneOffDate: 'oneOffDate',
   startsAt: 'startsAt',
   endsAt: 'endsAt',
   isActive: 'isActive',
@@ -193,6 +205,17 @@ export const ClassScalarFieldEnum = {
 } as const
 
 export type ClassScalarFieldEnum = (typeof ClassScalarFieldEnum)[keyof typeof ClassScalarFieldEnum]
+
+
+export const ClassSlotScalarFieldEnum = {
+  id: 'id',
+  classId: 'classId',
+  dayOfWeek: 'dayOfWeek',
+  startTime: 'startTime',
+  endTime: 'endTime'
+} as const
+
+export type ClassSlotScalarFieldEnum = (typeof ClassSlotScalarFieldEnum)[keyof typeof ClassSlotScalarFieldEnum]
 
 
 export const AttendanceScalarFieldEnum = {
@@ -256,6 +279,44 @@ export const ContentScalarFieldEnum = {
 } as const
 
 export type ContentScalarFieldEnum = (typeof ContentScalarFieldEnum)[keyof typeof ContentScalarFieldEnum]
+
+
+export const MonthlySubscriptionScalarFieldEnum = {
+  id: 'id',
+  studentId: 'studentId',
+  planId: 'planId',
+  period: 'period',
+  amount: 'amount',
+  isPaid: 'isPaid',
+  paidAt: 'paidAt',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt'
+} as const
+
+export type MonthlySubscriptionScalarFieldEnum = (typeof MonthlySubscriptionScalarFieldEnum)[keyof typeof MonthlySubscriptionScalarFieldEnum]
+
+
+export const MonthlyAttendanceScalarFieldEnum = {
+  id: 'id',
+  studentId: 'studentId',
+  classId: 'classId',
+  period: 'period',
+  sessionDate: 'sessionDate',
+  createdAt: 'createdAt'
+} as const
+
+export type MonthlyAttendanceScalarFieldEnum = (typeof MonthlyAttendanceScalarFieldEnum)[keyof typeof MonthlyAttendanceScalarFieldEnum]
+
+
+export const SessionAttendanceScalarFieldEnum = {
+  id: 'id',
+  classId: 'classId',
+  studentId: 'studentId',
+  date: 'date',
+  createdAt: 'createdAt'
+} as const
+
+export type SessionAttendanceScalarFieldEnum = (typeof SessionAttendanceScalarFieldEnum)[keyof typeof SessionAttendanceScalarFieldEnum]
 
 
 export const SortOrder = {

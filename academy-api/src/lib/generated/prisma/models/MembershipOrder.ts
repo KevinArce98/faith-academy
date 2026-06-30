@@ -46,6 +46,8 @@ export type MembershipOrderMinAggregateOutputType = {
   approvedById: string | null
   approvedAt: Date | null
   notes: string | null
+  bookingClassId: string | null
+  bookingDate: Date | null
   createdAt: Date | null
 }
 
@@ -61,6 +63,8 @@ export type MembershipOrderMaxAggregateOutputType = {
   approvedById: string | null
   approvedAt: Date | null
   notes: string | null
+  bookingClassId: string | null
+  bookingDate: Date | null
   createdAt: Date | null
 }
 
@@ -76,6 +80,8 @@ export type MembershipOrderCountAggregateOutputType = {
   approvedById: number
   approvedAt: number
   notes: number
+  bookingClassId: number
+  bookingDate: number
   createdAt: number
   _all: number
 }
@@ -101,6 +107,8 @@ export type MembershipOrderMinAggregateInputType = {
   approvedById?: true
   approvedAt?: true
   notes?: true
+  bookingClassId?: true
+  bookingDate?: true
   createdAt?: true
 }
 
@@ -116,6 +124,8 @@ export type MembershipOrderMaxAggregateInputType = {
   approvedById?: true
   approvedAt?: true
   notes?: true
+  bookingClassId?: true
+  bookingDate?: true
   createdAt?: true
 }
 
@@ -131,6 +141,8 @@ export type MembershipOrderCountAggregateInputType = {
   approvedById?: true
   approvedAt?: true
   notes?: true
+  bookingClassId?: true
+  bookingDate?: true
   createdAt?: true
   _all?: true
 }
@@ -233,6 +245,8 @@ export type MembershipOrderGroupByOutputType = {
   approvedById: string | null
   approvedAt: Date | null
   notes: string | null
+  bookingClassId: string | null
+  bookingDate: Date | null
   createdAt: Date
   _count: MembershipOrderCountAggregateOutputType | null
   _avg: MembershipOrderAvgAggregateOutputType | null
@@ -271,9 +285,12 @@ export type MembershipOrderWhereInput = {
   approvedById?: Prisma.StringNullableFilter<"MembershipOrder"> | string | null
   approvedAt?: Prisma.DateTimeNullableFilter<"MembershipOrder"> | Date | string | null
   notes?: Prisma.StringNullableFilter<"MembershipOrder"> | string | null
+  bookingClassId?: Prisma.StringNullableFilter<"MembershipOrder"> | string | null
+  bookingDate?: Prisma.DateTimeNullableFilter<"MembershipOrder"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"MembershipOrder"> | Date | string
   student?: Prisma.XOR<Prisma.UserProfileScalarRelationFilter, Prisma.UserProfileWhereInput>
   plan?: Prisma.XOR<Prisma.MembershipPlanScalarRelationFilter, Prisma.MembershipPlanWhereInput>
+  bookingClass?: Prisma.XOR<Prisma.ClassNullableScalarRelationFilter, Prisma.ClassWhereInput> | null
   ledgerEntries?: Prisma.CreditLedgerListRelationFilter
 }
 
@@ -289,9 +306,12 @@ export type MembershipOrderOrderByWithRelationInput = {
   approvedById?: Prisma.SortOrderInput | Prisma.SortOrder
   approvedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
+  bookingClassId?: Prisma.SortOrderInput | Prisma.SortOrder
+  bookingDate?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   student?: Prisma.UserProfileOrderByWithRelationInput
   plan?: Prisma.MembershipPlanOrderByWithRelationInput
+  bookingClass?: Prisma.ClassOrderByWithRelationInput
   ledgerEntries?: Prisma.CreditLedgerOrderByRelationAggregateInput
 }
 
@@ -310,9 +330,12 @@ export type MembershipOrderWhereUniqueInput = Prisma.AtLeast<{
   approvedById?: Prisma.StringNullableFilter<"MembershipOrder"> | string | null
   approvedAt?: Prisma.DateTimeNullableFilter<"MembershipOrder"> | Date | string | null
   notes?: Prisma.StringNullableFilter<"MembershipOrder"> | string | null
+  bookingClassId?: Prisma.StringNullableFilter<"MembershipOrder"> | string | null
+  bookingDate?: Prisma.DateTimeNullableFilter<"MembershipOrder"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"MembershipOrder"> | Date | string
   student?: Prisma.XOR<Prisma.UserProfileScalarRelationFilter, Prisma.UserProfileWhereInput>
   plan?: Prisma.XOR<Prisma.MembershipPlanScalarRelationFilter, Prisma.MembershipPlanWhereInput>
+  bookingClass?: Prisma.XOR<Prisma.ClassNullableScalarRelationFilter, Prisma.ClassWhereInput> | null
   ledgerEntries?: Prisma.CreditLedgerListRelationFilter
 }, "id">
 
@@ -328,6 +351,8 @@ export type MembershipOrderOrderByWithAggregationInput = {
   approvedById?: Prisma.SortOrderInput | Prisma.SortOrder
   approvedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
+  bookingClassId?: Prisma.SortOrderInput | Prisma.SortOrder
+  bookingDate?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.MembershipOrderCountOrderByAggregateInput
   _avg?: Prisma.MembershipOrderAvgOrderByAggregateInput
@@ -351,6 +376,8 @@ export type MembershipOrderScalarWhereWithAggregatesInput = {
   approvedById?: Prisma.StringNullableWithAggregatesFilter<"MembershipOrder"> | string | null
   approvedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"MembershipOrder"> | Date | string | null
   notes?: Prisma.StringNullableWithAggregatesFilter<"MembershipOrder"> | string | null
+  bookingClassId?: Prisma.StringNullableWithAggregatesFilter<"MembershipOrder"> | string | null
+  bookingDate?: Prisma.DateTimeNullableWithAggregatesFilter<"MembershipOrder"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"MembershipOrder"> | Date | string
 }
 
@@ -364,9 +391,11 @@ export type MembershipOrderCreateInput = {
   approvedById?: string | null
   approvedAt?: Date | string | null
   notes?: string | null
+  bookingDate?: Date | string | null
   createdAt?: Date | string
   student: Prisma.UserProfileCreateNestedOneWithoutOrdersInput
   plan: Prisma.MembershipPlanCreateNestedOneWithoutOrdersInput
+  bookingClass?: Prisma.ClassCreateNestedOneWithoutBookingOrdersInput
   ledgerEntries?: Prisma.CreditLedgerCreateNestedManyWithoutOrderInput
 }
 
@@ -382,6 +411,8 @@ export type MembershipOrderUncheckedCreateInput = {
   approvedById?: string | null
   approvedAt?: Date | string | null
   notes?: string | null
+  bookingClassId?: string | null
+  bookingDate?: Date | string | null
   createdAt?: Date | string
   ledgerEntries?: Prisma.CreditLedgerUncheckedCreateNestedManyWithoutOrderInput
 }
@@ -396,9 +427,11 @@ export type MembershipOrderUpdateInput = {
   approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bookingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   student?: Prisma.UserProfileUpdateOneRequiredWithoutOrdersNestedInput
   plan?: Prisma.MembershipPlanUpdateOneRequiredWithoutOrdersNestedInput
+  bookingClass?: Prisma.ClassUpdateOneWithoutBookingOrdersNestedInput
   ledgerEntries?: Prisma.CreditLedgerUpdateManyWithoutOrderNestedInput
 }
 
@@ -414,6 +447,8 @@ export type MembershipOrderUncheckedUpdateInput = {
   approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bookingClassId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bookingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ledgerEntries?: Prisma.CreditLedgerUncheckedUpdateManyWithoutOrderNestedInput
 }
@@ -430,6 +465,8 @@ export type MembershipOrderCreateManyInput = {
   approvedById?: string | null
   approvedAt?: Date | string | null
   notes?: string | null
+  bookingClassId?: string | null
+  bookingDate?: Date | string | null
   createdAt?: Date | string
 }
 
@@ -443,6 +480,7 @@ export type MembershipOrderUpdateManyMutationInput = {
   approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bookingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -458,6 +496,8 @@ export type MembershipOrderUncheckedUpdateManyInput = {
   approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bookingClassId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bookingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -483,6 +523,8 @@ export type MembershipOrderCountOrderByAggregateInput = {
   approvedById?: Prisma.SortOrder
   approvedAt?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  bookingClassId?: Prisma.SortOrder
+  bookingDate?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -502,6 +544,8 @@ export type MembershipOrderMaxOrderByAggregateInput = {
   approvedById?: Prisma.SortOrder
   approvedAt?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  bookingClassId?: Prisma.SortOrder
+  bookingDate?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -517,6 +561,8 @@ export type MembershipOrderMinOrderByAggregateInput = {
   approvedById?: Prisma.SortOrder
   approvedAt?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  bookingClassId?: Prisma.SortOrder
+  bookingDate?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -641,6 +687,48 @@ export type MembershipOrderUpdateOneWithoutLedgerEntriesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.MembershipOrderUpdateToOneWithWhereWithoutLedgerEntriesInput, Prisma.MembershipOrderUpdateWithoutLedgerEntriesInput>, Prisma.MembershipOrderUncheckedUpdateWithoutLedgerEntriesInput>
 }
 
+export type MembershipOrderCreateNestedManyWithoutBookingClassInput = {
+  create?: Prisma.XOR<Prisma.MembershipOrderCreateWithoutBookingClassInput, Prisma.MembershipOrderUncheckedCreateWithoutBookingClassInput> | Prisma.MembershipOrderCreateWithoutBookingClassInput[] | Prisma.MembershipOrderUncheckedCreateWithoutBookingClassInput[]
+  connectOrCreate?: Prisma.MembershipOrderCreateOrConnectWithoutBookingClassInput | Prisma.MembershipOrderCreateOrConnectWithoutBookingClassInput[]
+  createMany?: Prisma.MembershipOrderCreateManyBookingClassInputEnvelope
+  connect?: Prisma.MembershipOrderWhereUniqueInput | Prisma.MembershipOrderWhereUniqueInput[]
+}
+
+export type MembershipOrderUncheckedCreateNestedManyWithoutBookingClassInput = {
+  create?: Prisma.XOR<Prisma.MembershipOrderCreateWithoutBookingClassInput, Prisma.MembershipOrderUncheckedCreateWithoutBookingClassInput> | Prisma.MembershipOrderCreateWithoutBookingClassInput[] | Prisma.MembershipOrderUncheckedCreateWithoutBookingClassInput[]
+  connectOrCreate?: Prisma.MembershipOrderCreateOrConnectWithoutBookingClassInput | Prisma.MembershipOrderCreateOrConnectWithoutBookingClassInput[]
+  createMany?: Prisma.MembershipOrderCreateManyBookingClassInputEnvelope
+  connect?: Prisma.MembershipOrderWhereUniqueInput | Prisma.MembershipOrderWhereUniqueInput[]
+}
+
+export type MembershipOrderUpdateManyWithoutBookingClassNestedInput = {
+  create?: Prisma.XOR<Prisma.MembershipOrderCreateWithoutBookingClassInput, Prisma.MembershipOrderUncheckedCreateWithoutBookingClassInput> | Prisma.MembershipOrderCreateWithoutBookingClassInput[] | Prisma.MembershipOrderUncheckedCreateWithoutBookingClassInput[]
+  connectOrCreate?: Prisma.MembershipOrderCreateOrConnectWithoutBookingClassInput | Prisma.MembershipOrderCreateOrConnectWithoutBookingClassInput[]
+  upsert?: Prisma.MembershipOrderUpsertWithWhereUniqueWithoutBookingClassInput | Prisma.MembershipOrderUpsertWithWhereUniqueWithoutBookingClassInput[]
+  createMany?: Prisma.MembershipOrderCreateManyBookingClassInputEnvelope
+  set?: Prisma.MembershipOrderWhereUniqueInput | Prisma.MembershipOrderWhereUniqueInput[]
+  disconnect?: Prisma.MembershipOrderWhereUniqueInput | Prisma.MembershipOrderWhereUniqueInput[]
+  delete?: Prisma.MembershipOrderWhereUniqueInput | Prisma.MembershipOrderWhereUniqueInput[]
+  connect?: Prisma.MembershipOrderWhereUniqueInput | Prisma.MembershipOrderWhereUniqueInput[]
+  update?: Prisma.MembershipOrderUpdateWithWhereUniqueWithoutBookingClassInput | Prisma.MembershipOrderUpdateWithWhereUniqueWithoutBookingClassInput[]
+  updateMany?: Prisma.MembershipOrderUpdateManyWithWhereWithoutBookingClassInput | Prisma.MembershipOrderUpdateManyWithWhereWithoutBookingClassInput[]
+  deleteMany?: Prisma.MembershipOrderScalarWhereInput | Prisma.MembershipOrderScalarWhereInput[]
+}
+
+export type MembershipOrderUncheckedUpdateManyWithoutBookingClassNestedInput = {
+  create?: Prisma.XOR<Prisma.MembershipOrderCreateWithoutBookingClassInput, Prisma.MembershipOrderUncheckedCreateWithoutBookingClassInput> | Prisma.MembershipOrderCreateWithoutBookingClassInput[] | Prisma.MembershipOrderUncheckedCreateWithoutBookingClassInput[]
+  connectOrCreate?: Prisma.MembershipOrderCreateOrConnectWithoutBookingClassInput | Prisma.MembershipOrderCreateOrConnectWithoutBookingClassInput[]
+  upsert?: Prisma.MembershipOrderUpsertWithWhereUniqueWithoutBookingClassInput | Prisma.MembershipOrderUpsertWithWhereUniqueWithoutBookingClassInput[]
+  createMany?: Prisma.MembershipOrderCreateManyBookingClassInputEnvelope
+  set?: Prisma.MembershipOrderWhereUniqueInput | Prisma.MembershipOrderWhereUniqueInput[]
+  disconnect?: Prisma.MembershipOrderWhereUniqueInput | Prisma.MembershipOrderWhereUniqueInput[]
+  delete?: Prisma.MembershipOrderWhereUniqueInput | Prisma.MembershipOrderWhereUniqueInput[]
+  connect?: Prisma.MembershipOrderWhereUniqueInput | Prisma.MembershipOrderWhereUniqueInput[]
+  update?: Prisma.MembershipOrderUpdateWithWhereUniqueWithoutBookingClassInput | Prisma.MembershipOrderUpdateWithWhereUniqueWithoutBookingClassInput[]
+  updateMany?: Prisma.MembershipOrderUpdateManyWithWhereWithoutBookingClassInput | Prisma.MembershipOrderUpdateManyWithWhereWithoutBookingClassInput[]
+  deleteMany?: Prisma.MembershipOrderScalarWhereInput | Prisma.MembershipOrderScalarWhereInput[]
+}
+
 export type MembershipOrderCreateWithoutStudentInput = {
   id?: string
   status?: $Enums.OrderStatus
@@ -651,8 +739,10 @@ export type MembershipOrderCreateWithoutStudentInput = {
   approvedById?: string | null
   approvedAt?: Date | string | null
   notes?: string | null
+  bookingDate?: Date | string | null
   createdAt?: Date | string
   plan: Prisma.MembershipPlanCreateNestedOneWithoutOrdersInput
+  bookingClass?: Prisma.ClassCreateNestedOneWithoutBookingOrdersInput
   ledgerEntries?: Prisma.CreditLedgerCreateNestedManyWithoutOrderInput
 }
 
@@ -667,6 +757,8 @@ export type MembershipOrderUncheckedCreateWithoutStudentInput = {
   approvedById?: string | null
   approvedAt?: Date | string | null
   notes?: string | null
+  bookingClassId?: string | null
+  bookingDate?: Date | string | null
   createdAt?: Date | string
   ledgerEntries?: Prisma.CreditLedgerUncheckedCreateNestedManyWithoutOrderInput
 }
@@ -712,6 +804,8 @@ export type MembershipOrderScalarWhereInput = {
   approvedById?: Prisma.StringNullableFilter<"MembershipOrder"> | string | null
   approvedAt?: Prisma.DateTimeNullableFilter<"MembershipOrder"> | Date | string | null
   notes?: Prisma.StringNullableFilter<"MembershipOrder"> | string | null
+  bookingClassId?: Prisma.StringNullableFilter<"MembershipOrder"> | string | null
+  bookingDate?: Prisma.DateTimeNullableFilter<"MembershipOrder"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"MembershipOrder"> | Date | string
 }
 
@@ -725,8 +819,10 @@ export type MembershipOrderCreateWithoutPlanInput = {
   approvedById?: string | null
   approvedAt?: Date | string | null
   notes?: string | null
+  bookingDate?: Date | string | null
   createdAt?: Date | string
   student: Prisma.UserProfileCreateNestedOneWithoutOrdersInput
+  bookingClass?: Prisma.ClassCreateNestedOneWithoutBookingOrdersInput
   ledgerEntries?: Prisma.CreditLedgerCreateNestedManyWithoutOrderInput
 }
 
@@ -741,6 +837,8 @@ export type MembershipOrderUncheckedCreateWithoutPlanInput = {
   approvedById?: string | null
   approvedAt?: Date | string | null
   notes?: string | null
+  bookingClassId?: string | null
+  bookingDate?: Date | string | null
   createdAt?: Date | string
   ledgerEntries?: Prisma.CreditLedgerUncheckedCreateNestedManyWithoutOrderInput
 }
@@ -781,9 +879,11 @@ export type MembershipOrderCreateWithoutLedgerEntriesInput = {
   approvedById?: string | null
   approvedAt?: Date | string | null
   notes?: string | null
+  bookingDate?: Date | string | null
   createdAt?: Date | string
   student: Prisma.UserProfileCreateNestedOneWithoutOrdersInput
   plan: Prisma.MembershipPlanCreateNestedOneWithoutOrdersInput
+  bookingClass?: Prisma.ClassCreateNestedOneWithoutBookingOrdersInput
 }
 
 export type MembershipOrderUncheckedCreateWithoutLedgerEntriesInput = {
@@ -798,6 +898,8 @@ export type MembershipOrderUncheckedCreateWithoutLedgerEntriesInput = {
   approvedById?: string | null
   approvedAt?: Date | string | null
   notes?: string | null
+  bookingClassId?: string | null
+  bookingDate?: Date | string | null
   createdAt?: Date | string
 }
 
@@ -827,9 +929,11 @@ export type MembershipOrderUpdateWithoutLedgerEntriesInput = {
   approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bookingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   student?: Prisma.UserProfileUpdateOneRequiredWithoutOrdersNestedInput
   plan?: Prisma.MembershipPlanUpdateOneRequiredWithoutOrdersNestedInput
+  bookingClass?: Prisma.ClassUpdateOneWithoutBookingOrdersNestedInput
 }
 
 export type MembershipOrderUncheckedUpdateWithoutLedgerEntriesInput = {
@@ -844,7 +948,69 @@ export type MembershipOrderUncheckedUpdateWithoutLedgerEntriesInput = {
   approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bookingClassId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bookingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type MembershipOrderCreateWithoutBookingClassInput = {
+  id?: string
+  status?: $Enums.OrderStatus
+  receiptUrl?: string | null
+  creditGranted?: number | null
+  startsAt?: Date | string | null
+  expiresAt?: Date | string | null
+  approvedById?: string | null
+  approvedAt?: Date | string | null
+  notes?: string | null
+  bookingDate?: Date | string | null
+  createdAt?: Date | string
+  student: Prisma.UserProfileCreateNestedOneWithoutOrdersInput
+  plan: Prisma.MembershipPlanCreateNestedOneWithoutOrdersInput
+  ledgerEntries?: Prisma.CreditLedgerCreateNestedManyWithoutOrderInput
+}
+
+export type MembershipOrderUncheckedCreateWithoutBookingClassInput = {
+  id?: string
+  studentId: string
+  planId: string
+  status?: $Enums.OrderStatus
+  receiptUrl?: string | null
+  creditGranted?: number | null
+  startsAt?: Date | string | null
+  expiresAt?: Date | string | null
+  approvedById?: string | null
+  approvedAt?: Date | string | null
+  notes?: string | null
+  bookingDate?: Date | string | null
+  createdAt?: Date | string
+  ledgerEntries?: Prisma.CreditLedgerUncheckedCreateNestedManyWithoutOrderInput
+}
+
+export type MembershipOrderCreateOrConnectWithoutBookingClassInput = {
+  where: Prisma.MembershipOrderWhereUniqueInput
+  create: Prisma.XOR<Prisma.MembershipOrderCreateWithoutBookingClassInput, Prisma.MembershipOrderUncheckedCreateWithoutBookingClassInput>
+}
+
+export type MembershipOrderCreateManyBookingClassInputEnvelope = {
+  data: Prisma.MembershipOrderCreateManyBookingClassInput | Prisma.MembershipOrderCreateManyBookingClassInput[]
+  skipDuplicates?: boolean
+}
+
+export type MembershipOrderUpsertWithWhereUniqueWithoutBookingClassInput = {
+  where: Prisma.MembershipOrderWhereUniqueInput
+  update: Prisma.XOR<Prisma.MembershipOrderUpdateWithoutBookingClassInput, Prisma.MembershipOrderUncheckedUpdateWithoutBookingClassInput>
+  create: Prisma.XOR<Prisma.MembershipOrderCreateWithoutBookingClassInput, Prisma.MembershipOrderUncheckedCreateWithoutBookingClassInput>
+}
+
+export type MembershipOrderUpdateWithWhereUniqueWithoutBookingClassInput = {
+  where: Prisma.MembershipOrderWhereUniqueInput
+  data: Prisma.XOR<Prisma.MembershipOrderUpdateWithoutBookingClassInput, Prisma.MembershipOrderUncheckedUpdateWithoutBookingClassInput>
+}
+
+export type MembershipOrderUpdateManyWithWhereWithoutBookingClassInput = {
+  where: Prisma.MembershipOrderScalarWhereInput
+  data: Prisma.XOR<Prisma.MembershipOrderUpdateManyMutationInput, Prisma.MembershipOrderUncheckedUpdateManyWithoutBookingClassInput>
 }
 
 export type MembershipOrderCreateManyStudentInput = {
@@ -858,6 +1024,8 @@ export type MembershipOrderCreateManyStudentInput = {
   approvedById?: string | null
   approvedAt?: Date | string | null
   notes?: string | null
+  bookingClassId?: string | null
+  bookingDate?: Date | string | null
   createdAt?: Date | string
 }
 
@@ -871,8 +1039,10 @@ export type MembershipOrderUpdateWithoutStudentInput = {
   approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bookingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   plan?: Prisma.MembershipPlanUpdateOneRequiredWithoutOrdersNestedInput
+  bookingClass?: Prisma.ClassUpdateOneWithoutBookingOrdersNestedInput
   ledgerEntries?: Prisma.CreditLedgerUpdateManyWithoutOrderNestedInput
 }
 
@@ -887,6 +1057,8 @@ export type MembershipOrderUncheckedUpdateWithoutStudentInput = {
   approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bookingClassId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bookingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ledgerEntries?: Prisma.CreditLedgerUncheckedUpdateManyWithoutOrderNestedInput
 }
@@ -902,6 +1074,8 @@ export type MembershipOrderUncheckedUpdateManyWithoutStudentInput = {
   approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bookingClassId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bookingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -916,6 +1090,8 @@ export type MembershipOrderCreateManyPlanInput = {
   approvedById?: string | null
   approvedAt?: Date | string | null
   notes?: string | null
+  bookingClassId?: string | null
+  bookingDate?: Date | string | null
   createdAt?: Date | string
 }
 
@@ -929,8 +1105,10 @@ export type MembershipOrderUpdateWithoutPlanInput = {
   approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bookingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   student?: Prisma.UserProfileUpdateOneRequiredWithoutOrdersNestedInput
+  bookingClass?: Prisma.ClassUpdateOneWithoutBookingOrdersNestedInput
   ledgerEntries?: Prisma.CreditLedgerUpdateManyWithoutOrderNestedInput
 }
 
@@ -945,6 +1123,8 @@ export type MembershipOrderUncheckedUpdateWithoutPlanInput = {
   approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bookingClassId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bookingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ledgerEntries?: Prisma.CreditLedgerUncheckedUpdateManyWithoutOrderNestedInput
 }
@@ -960,6 +1140,74 @@ export type MembershipOrderUncheckedUpdateManyWithoutPlanInput = {
   approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bookingClassId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bookingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type MembershipOrderCreateManyBookingClassInput = {
+  id?: string
+  studentId: string
+  planId: string
+  status?: $Enums.OrderStatus
+  receiptUrl?: string | null
+  creditGranted?: number | null
+  startsAt?: Date | string | null
+  expiresAt?: Date | string | null
+  approvedById?: string | null
+  approvedAt?: Date | string | null
+  notes?: string | null
+  bookingDate?: Date | string | null
+  createdAt?: Date | string
+}
+
+export type MembershipOrderUpdateWithoutBookingClassInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+  receiptUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creditGranted?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  startsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bookingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  student?: Prisma.UserProfileUpdateOneRequiredWithoutOrdersNestedInput
+  plan?: Prisma.MembershipPlanUpdateOneRequiredWithoutOrdersNestedInput
+  ledgerEntries?: Prisma.CreditLedgerUpdateManyWithoutOrderNestedInput
+}
+
+export type MembershipOrderUncheckedUpdateWithoutBookingClassInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  studentId?: Prisma.StringFieldUpdateOperationsInput | string
+  planId?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+  receiptUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creditGranted?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  startsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bookingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ledgerEntries?: Prisma.CreditLedgerUncheckedUpdateManyWithoutOrderNestedInput
+}
+
+export type MembershipOrderUncheckedUpdateManyWithoutBookingClassInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  studentId?: Prisma.StringFieldUpdateOperationsInput | string
+  planId?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+  receiptUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creditGranted?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  startsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bookingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -1006,9 +1254,12 @@ export type MembershipOrderSelect<ExtArgs extends runtime.Types.Extensions.Inter
   approvedById?: boolean
   approvedAt?: boolean
   notes?: boolean
+  bookingClassId?: boolean
+  bookingDate?: boolean
   createdAt?: boolean
   student?: boolean | Prisma.UserProfileDefaultArgs<ExtArgs>
   plan?: boolean | Prisma.MembershipPlanDefaultArgs<ExtArgs>
+  bookingClass?: boolean | Prisma.MembershipOrder$bookingClassArgs<ExtArgs>
   ledgerEntries?: boolean | Prisma.MembershipOrder$ledgerEntriesArgs<ExtArgs>
   _count?: boolean | Prisma.MembershipOrderCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["membershipOrder"]>
@@ -1025,9 +1276,12 @@ export type MembershipOrderSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   approvedById?: boolean
   approvedAt?: boolean
   notes?: boolean
+  bookingClassId?: boolean
+  bookingDate?: boolean
   createdAt?: boolean
   student?: boolean | Prisma.UserProfileDefaultArgs<ExtArgs>
   plan?: boolean | Prisma.MembershipPlanDefaultArgs<ExtArgs>
+  bookingClass?: boolean | Prisma.MembershipOrder$bookingClassArgs<ExtArgs>
 }, ExtArgs["result"]["membershipOrder"]>
 
 export type MembershipOrderSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1042,9 +1296,12 @@ export type MembershipOrderSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   approvedById?: boolean
   approvedAt?: boolean
   notes?: boolean
+  bookingClassId?: boolean
+  bookingDate?: boolean
   createdAt?: boolean
   student?: boolean | Prisma.UserProfileDefaultArgs<ExtArgs>
   plan?: boolean | Prisma.MembershipPlanDefaultArgs<ExtArgs>
+  bookingClass?: boolean | Prisma.MembershipOrder$bookingClassArgs<ExtArgs>
 }, ExtArgs["result"]["membershipOrder"]>
 
 export type MembershipOrderSelectScalar = {
@@ -1059,23 +1316,28 @@ export type MembershipOrderSelectScalar = {
   approvedById?: boolean
   approvedAt?: boolean
   notes?: boolean
+  bookingClassId?: boolean
+  bookingDate?: boolean
   createdAt?: boolean
 }
 
-export type MembershipOrderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "studentId" | "planId" | "status" | "receiptUrl" | "creditGranted" | "startsAt" | "expiresAt" | "approvedById" | "approvedAt" | "notes" | "createdAt", ExtArgs["result"]["membershipOrder"]>
+export type MembershipOrderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "studentId" | "planId" | "status" | "receiptUrl" | "creditGranted" | "startsAt" | "expiresAt" | "approvedById" | "approvedAt" | "notes" | "bookingClassId" | "bookingDate" | "createdAt", ExtArgs["result"]["membershipOrder"]>
 export type MembershipOrderInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   student?: boolean | Prisma.UserProfileDefaultArgs<ExtArgs>
   plan?: boolean | Prisma.MembershipPlanDefaultArgs<ExtArgs>
+  bookingClass?: boolean | Prisma.MembershipOrder$bookingClassArgs<ExtArgs>
   ledgerEntries?: boolean | Prisma.MembershipOrder$ledgerEntriesArgs<ExtArgs>
   _count?: boolean | Prisma.MembershipOrderCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type MembershipOrderIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   student?: boolean | Prisma.UserProfileDefaultArgs<ExtArgs>
   plan?: boolean | Prisma.MembershipPlanDefaultArgs<ExtArgs>
+  bookingClass?: boolean | Prisma.MembershipOrder$bookingClassArgs<ExtArgs>
 }
 export type MembershipOrderIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   student?: boolean | Prisma.UserProfileDefaultArgs<ExtArgs>
   plan?: boolean | Prisma.MembershipPlanDefaultArgs<ExtArgs>
+  bookingClass?: boolean | Prisma.MembershipOrder$bookingClassArgs<ExtArgs>
 }
 
 export type $MembershipOrderPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1083,6 +1345,7 @@ export type $MembershipOrderPayload<ExtArgs extends runtime.Types.Extensions.Int
   objects: {
     student: Prisma.$UserProfilePayload<ExtArgs>
     plan: Prisma.$MembershipPlanPayload<ExtArgs>
+    bookingClass: Prisma.$ClassPayload<ExtArgs> | null
     ledgerEntries: Prisma.$CreditLedgerPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -1097,6 +1360,8 @@ export type $MembershipOrderPayload<ExtArgs extends runtime.Types.Extensions.Int
     approvedById: string | null
     approvedAt: Date | null
     notes: string | null
+    bookingClassId: string | null
+    bookingDate: Date | null
     createdAt: Date
   }, ExtArgs["result"]["membershipOrder"]>
   composites: {}
@@ -1494,6 +1759,7 @@ export interface Prisma__MembershipOrderClient<T, Null = never, ExtArgs extends 
   readonly [Symbol.toStringTag]: "PrismaPromise"
   student<T extends Prisma.UserProfileDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserProfileDefaultArgs<ExtArgs>>): Prisma.Prisma__UserProfileClient<runtime.Types.Result.GetResult<Prisma.$UserProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   plan<T extends Prisma.MembershipPlanDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MembershipPlanDefaultArgs<ExtArgs>>): Prisma.Prisma__MembershipPlanClient<runtime.Types.Result.GetResult<Prisma.$MembershipPlanPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  bookingClass<T extends Prisma.MembershipOrder$bookingClassArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MembershipOrder$bookingClassArgs<ExtArgs>>): Prisma.Prisma__ClassClient<runtime.Types.Result.GetResult<Prisma.$ClassPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   ledgerEntries<T extends Prisma.MembershipOrder$ledgerEntriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MembershipOrder$ledgerEntriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CreditLedgerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1535,6 +1801,8 @@ export interface MembershipOrderFieldRefs {
   readonly approvedById: Prisma.FieldRef<"MembershipOrder", 'String'>
   readonly approvedAt: Prisma.FieldRef<"MembershipOrder", 'DateTime'>
   readonly notes: Prisma.FieldRef<"MembershipOrder", 'String'>
+  readonly bookingClassId: Prisma.FieldRef<"MembershipOrder", 'String'>
+  readonly bookingDate: Prisma.FieldRef<"MembershipOrder", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"MembershipOrder", 'DateTime'>
 }
     
@@ -1934,6 +2202,25 @@ export type MembershipOrderDeleteManyArgs<ExtArgs extends runtime.Types.Extensio
    * Limit how many MembershipOrders to delete.
    */
   limit?: number
+}
+
+/**
+ * MembershipOrder.bookingClass
+ */
+export type MembershipOrder$bookingClassArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Class
+   */
+  select?: Prisma.ClassSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Class
+   */
+  omit?: Prisma.ClassOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ClassInclude<ExtArgs> | null
+  where?: Prisma.ClassWhereInput
 }
 
 /**

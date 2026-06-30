@@ -14,12 +14,6 @@ enum Role {
   STUDENT
 }
 
-enum IntervalType {
-  WEEKLY
-  MONTHLY
-  FIXED_PACKAGE
-}
-
 enum OrderStatus {
   PENDING_REVIEW
   ACTIVE
@@ -66,6 +60,16 @@ model UserProfile {
   passwordHash  String
   emailVerified Boolean  @default(false)
   createdAt     DateTime @default(now())
+
+  enrollmentFee Decimal?  @db.Decimal(10, 2)
+  enrolledAt    DateTime?
+
+  // Costo por hora del profesor: lo que la academia le paga por hora dada.
+  hourlyRate Decimal? @db.Decimal(10, 2)
+
+  subscriptions      MonthlySubscription[]
+  monthlyAttendance  MonthlyAttendance[]
+  sessionAttendances SessionAttendance[]
 
   orders       MembershipOrder[]
   attendances  Attendance[]
@@ -117,16 +121,20 @@ model FamilyMember {
 }
 
 model MembershipPlan {
-  id            String       @id @default(cuid())
-  name          String
-  description   String?
-  price         Decimal      @db.Decimal(10, 2)
-  credits       Int
-  intervalType  IntervalType
-  intervalValue Int          @default(1)
-  isActive      Boolean      @default(true)
+  id          String  @id @default(cuid())
+  name        String
+  description String?
+  price       Decimal @db.Decimal(10, 2)
+  isActive    Boolean @default(true)
 
-  orders MembershipOrder[]
+  classesPerWeek Int     @default(1)
+  isPublic       Boolean @default(true)
+  isSingleClass  Boolean @default(false)
+
+  credits Int @default(0)
+
+  orders        MembershipOrder[]
+  subscriptions MonthlySubscription[]
 }
 
 model MembershipOrder {
@@ -141,11 +149,15 @@ model MembershipOrder {
   approvedById  String?
   approvedAt    DateTime?
   notes         String?
+  // Reserva de clase suelta: el alumno elige clase + fecha al pagar.
+  bookingClassId String?
+  bookingDate    DateTime? @db.Date
   createdAt     DateTime    @default(now())
 
-  student       UserProfile    @relation(fields: [studentId], references: [id])
-  plan          MembershipPlan @relation(fields: [planId], references: [id])
-  ledgerEntries CreditLedger[]
+  student        UserProfile    @relation(fields: [studentId], references: [id])
+  plan           MembershipPlan @relation(fields: [planId], references: [id])
+  bookingClass   Class?         @relation("OrderBookingClass", fields: [bookingClassId], references: [id])
+  ledgerEntries  CreditLedger[]
 
   @@index([studentId])
   @@index([status])
@@ -175,17 +187,36 @@ model Class {
   name              String
   description       String?
   skillLevel        SkillLevel
-  maxCapacity       Int
+  maxCapacity       Int        @default(0)
   creditCost        Int        @default(1)
   cancelWindowHours Int        @default(24)
-  startsAt          DateTime
+  isPrivate         Boolean    @default(false) // compañía/audición: solo el admin inscribe; oculta para alumnos no asignados
+  oneOffDate        DateTime?  @db.Date // clase única: ocurre una sola vez en esta fecha (la hora va en el único slot). null = recurrente semanal
+  startsAt          DateTime // placeholder (modelo viejo); el horario real está en `slots`
   endsAt            DateTime
   isActive          Boolean    @default(true)
   createdAt         DateTime   @default(now())
 
-  attendances Attendance[]
-  waitlist    ClassWaitlist[]
-  content     Content[]
+  slots              ClassSlot[]
+  attendances        Attendance[]
+  monthlyAttendance  MonthlyAttendance[]
+  sessionAttendances SessionAttendance[]
+  waitlist           ClassWaitlist[]
+  content            Content[]
+  bookingOrders      MembershipOrder[]   @relation("OrderBookingClass")
+}
+
+// Horario de una clase: un slot por día de la semana, con su hora propia.
+model ClassSlot {
+  id        String @id @default(cuid())
+  classId   String
+  dayOfWeek Int // 1 = Lunes … 7 = Domingo
+  startTime String // "HH:mm" (hora del día)
+  endTime   String // "HH:mm"
+
+  class Class @relation(fields: [classId], references: [id], onDelete: Cascade)
+
+  @@index([classId])
 }
 
 model Attendance {
@@ -253,4 +284,56 @@ model Content {
   createdAt   DateTime    @default(now())
 
   class Class? @relation(fields: [classId], references: [id])
+}
+
+model MonthlySubscription {
+  id        String    @id @default(cuid())
+  studentId String
+  planId    String
+  period    DateTime
+  amount    Decimal   @db.Decimal(10, 2)
+  isPaid    Boolean   @default(false)
+  paidAt    DateTime?
+  expiresAt DateTime? // mensual: vence el día equivalente del mes siguiente; clase suelta: fin del día de la sesión elegida
+  createdAt DateTime  @default(now())
+
+  student UserProfile    @relation(fields: [studentId], references: [id])
+  plan    MembershipPlan @relation(fields: [planId], references: [id])
+
+  @@unique([studentId, period])
+  @@index([period])
+  @@index([studentId])
+  @@index([studentId, isPaid, expiresAt])
+}
+
+model MonthlyAttendance {
+  id        String    @id @default(cuid())
+  studentId String
+  classId   String
+  period    DateTime
+  sessionDate DateTime? @db.Date // clase suelta: solo vale esa fecha; null = mensual (todas las sesiones)
+  createdAt DateTime  @default(now())
+
+  student UserProfile @relation(fields: [studentId], references: [id])
+  class   Class       @relation(fields: [classId], references: [id])
+
+  @@unique([studentId, classId, period])
+  @@index([classId, period])
+  @@index([period])
+}
+
+// Asistencia REAL del día: el profe pasa lista por fecha. Es solo registro
+// operativo — NO afecta el pago (eso sale de la inscripción / MonthlyAttendance).
+model SessionAttendance {
+  id        String   @id @default(cuid())
+  classId   String
+  studentId String
+  date      DateTime @db.Date // día de la sesión
+  createdAt DateTime @default(now())
+
+  class   Class       @relation(fields: [classId], references: [id])
+  student UserProfile @relation(fields: [studentId], references: [id])
+
+  @@unique([classId, studentId, date])
+  @@index([classId, date])
 }

@@ -18,15 +18,6 @@ export const Role = {
 export type Role = (typeof Role)[keyof typeof Role]
 
 
-export const IntervalType = {
-  WEEKLY: 'WEEKLY',
-  MONTHLY: 'MONTHLY',
-  FIXED_PACKAGE: 'FIXED_PACKAGE'
-} as const
-
-export type IntervalType = (typeof IntervalType)[keyof typeof IntervalType]
-
-
 export const OrderStatus = {
   PENDING_REVIEW: 'PENDING_REVIEW',
   ACTIVE: 'ACTIVE',

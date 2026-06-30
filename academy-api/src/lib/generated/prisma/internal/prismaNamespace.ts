@@ -392,11 +392,15 @@ export const ModelName = {
   MembershipOrder: 'MembershipOrder',
   CreditLedger: 'CreditLedger',
   Class: 'Class',
+  ClassSlot: 'ClassSlot',
   Attendance: 'Attendance',
   ClassWaitlist: 'ClassWaitlist',
   UserSkill: 'UserSkill',
   Streak: 'Streak',
-  Content: 'Content'
+  Content: 'Content',
+  MonthlySubscription: 'MonthlySubscription',
+  MonthlyAttendance: 'MonthlyAttendance',
+  SessionAttendance: 'SessionAttendance'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -412,7 +416,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "userProfile" | "emailToken" | "family" | "familyMember" | "membershipPlan" | "membershipOrder" | "creditLedger" | "class" | "attendance" | "classWaitlist" | "userSkill" | "streak" | "content"
+    modelProps: "userProfile" | "emailToken" | "family" | "familyMember" | "membershipPlan" | "membershipOrder" | "creditLedger" | "class" | "classSlot" | "attendance" | "classWaitlist" | "userSkill" | "streak" | "content" | "monthlySubscription" | "monthlyAttendance" | "sessionAttendance"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1008,6 +1012,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ClassSlot: {
+      payload: Prisma.$ClassSlotPayload<ExtArgs>
+      fields: Prisma.ClassSlotFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ClassSlotFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClassSlotPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ClassSlotFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClassSlotPayload>
+        }
+        findFirst: {
+          args: Prisma.ClassSlotFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClassSlotPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ClassSlotFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClassSlotPayload>
+        }
+        findMany: {
+          args: Prisma.ClassSlotFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClassSlotPayload>[]
+        }
+        create: {
+          args: Prisma.ClassSlotCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClassSlotPayload>
+        }
+        createMany: {
+          args: Prisma.ClassSlotCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ClassSlotCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClassSlotPayload>[]
+        }
+        delete: {
+          args: Prisma.ClassSlotDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClassSlotPayload>
+        }
+        update: {
+          args: Prisma.ClassSlotUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClassSlotPayload>
+        }
+        deleteMany: {
+          args: Prisma.ClassSlotDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ClassSlotUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ClassSlotUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClassSlotPayload>[]
+        }
+        upsert: {
+          args: Prisma.ClassSlotUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClassSlotPayload>
+        }
+        aggregate: {
+          args: Prisma.ClassSlotAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateClassSlot>
+        }
+        groupBy: {
+          args: Prisma.ClassSlotGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ClassSlotGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ClassSlotCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ClassSlotCountAggregateOutputType> | number
+        }
+      }
+    }
     Attendance: {
       payload: Prisma.$AttendancePayload<ExtArgs>
       fields: Prisma.AttendanceFieldRefs
@@ -1378,6 +1456,228 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    MonthlySubscription: {
+      payload: Prisma.$MonthlySubscriptionPayload<ExtArgs>
+      fields: Prisma.MonthlySubscriptionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MonthlySubscriptionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlySubscriptionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MonthlySubscriptionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlySubscriptionPayload>
+        }
+        findFirst: {
+          args: Prisma.MonthlySubscriptionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlySubscriptionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MonthlySubscriptionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlySubscriptionPayload>
+        }
+        findMany: {
+          args: Prisma.MonthlySubscriptionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlySubscriptionPayload>[]
+        }
+        create: {
+          args: Prisma.MonthlySubscriptionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlySubscriptionPayload>
+        }
+        createMany: {
+          args: Prisma.MonthlySubscriptionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.MonthlySubscriptionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlySubscriptionPayload>[]
+        }
+        delete: {
+          args: Prisma.MonthlySubscriptionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlySubscriptionPayload>
+        }
+        update: {
+          args: Prisma.MonthlySubscriptionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlySubscriptionPayload>
+        }
+        deleteMany: {
+          args: Prisma.MonthlySubscriptionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MonthlySubscriptionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.MonthlySubscriptionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlySubscriptionPayload>[]
+        }
+        upsert: {
+          args: Prisma.MonthlySubscriptionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlySubscriptionPayload>
+        }
+        aggregate: {
+          args: Prisma.MonthlySubscriptionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMonthlySubscription>
+        }
+        groupBy: {
+          args: Prisma.MonthlySubscriptionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MonthlySubscriptionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MonthlySubscriptionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MonthlySubscriptionCountAggregateOutputType> | number
+        }
+      }
+    }
+    MonthlyAttendance: {
+      payload: Prisma.$MonthlyAttendancePayload<ExtArgs>
+      fields: Prisma.MonthlyAttendanceFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MonthlyAttendanceFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyAttendancePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MonthlyAttendanceFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyAttendancePayload>
+        }
+        findFirst: {
+          args: Prisma.MonthlyAttendanceFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyAttendancePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MonthlyAttendanceFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyAttendancePayload>
+        }
+        findMany: {
+          args: Prisma.MonthlyAttendanceFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyAttendancePayload>[]
+        }
+        create: {
+          args: Prisma.MonthlyAttendanceCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyAttendancePayload>
+        }
+        createMany: {
+          args: Prisma.MonthlyAttendanceCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.MonthlyAttendanceCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyAttendancePayload>[]
+        }
+        delete: {
+          args: Prisma.MonthlyAttendanceDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyAttendancePayload>
+        }
+        update: {
+          args: Prisma.MonthlyAttendanceUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyAttendancePayload>
+        }
+        deleteMany: {
+          args: Prisma.MonthlyAttendanceDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MonthlyAttendanceUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.MonthlyAttendanceUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyAttendancePayload>[]
+        }
+        upsert: {
+          args: Prisma.MonthlyAttendanceUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyAttendancePayload>
+        }
+        aggregate: {
+          args: Prisma.MonthlyAttendanceAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMonthlyAttendance>
+        }
+        groupBy: {
+          args: Prisma.MonthlyAttendanceGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MonthlyAttendanceGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MonthlyAttendanceCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MonthlyAttendanceCountAggregateOutputType> | number
+        }
+      }
+    }
+    SessionAttendance: {
+      payload: Prisma.$SessionAttendancePayload<ExtArgs>
+      fields: Prisma.SessionAttendanceFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SessionAttendanceFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SessionAttendancePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SessionAttendanceFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SessionAttendancePayload>
+        }
+        findFirst: {
+          args: Prisma.SessionAttendanceFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SessionAttendancePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SessionAttendanceFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SessionAttendancePayload>
+        }
+        findMany: {
+          args: Prisma.SessionAttendanceFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SessionAttendancePayload>[]
+        }
+        create: {
+          args: Prisma.SessionAttendanceCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SessionAttendancePayload>
+        }
+        createMany: {
+          args: Prisma.SessionAttendanceCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SessionAttendanceCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SessionAttendancePayload>[]
+        }
+        delete: {
+          args: Prisma.SessionAttendanceDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SessionAttendancePayload>
+        }
+        update: {
+          args: Prisma.SessionAttendanceUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SessionAttendancePayload>
+        }
+        deleteMany: {
+          args: Prisma.SessionAttendanceDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SessionAttendanceUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SessionAttendanceUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SessionAttendancePayload>[]
+        }
+        upsert: {
+          args: Prisma.SessionAttendanceUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SessionAttendancePayload>
+        }
+        aggregate: {
+          args: Prisma.SessionAttendanceAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSessionAttendance>
+        }
+        groupBy: {
+          args: Prisma.SessionAttendanceGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SessionAttendanceGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SessionAttendanceCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SessionAttendanceCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1427,7 +1727,10 @@ export const UserProfileScalarFieldEnum = {
   isActive: 'isActive',
   passwordHash: 'passwordHash',
   emailVerified: 'emailVerified',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  enrollmentFee: 'enrollmentFee',
+  enrolledAt: 'enrolledAt',
+  hourlyRate: 'hourlyRate'
 } as const
 
 export type UserProfileScalarFieldEnum = (typeof UserProfileScalarFieldEnum)[keyof typeof UserProfileScalarFieldEnum]
@@ -1470,10 +1773,11 @@ export const MembershipPlanScalarFieldEnum = {
   name: 'name',
   description: 'description',
   price: 'price',
-  credits: 'credits',
-  intervalType: 'intervalType',
-  intervalValue: 'intervalValue',
-  isActive: 'isActive'
+  isActive: 'isActive',
+  classesPerWeek: 'classesPerWeek',
+  isPublic: 'isPublic',
+  isSingleClass: 'isSingleClass',
+  credits: 'credits'
 } as const
 
 export type MembershipPlanScalarFieldEnum = (typeof MembershipPlanScalarFieldEnum)[keyof typeof MembershipPlanScalarFieldEnum]
@@ -1491,6 +1795,8 @@ export const MembershipOrderScalarFieldEnum = {
   approvedById: 'approvedById',
   approvedAt: 'approvedAt',
   notes: 'notes',
+  bookingClassId: 'bookingClassId',
+  bookingDate: 'bookingDate',
   createdAt: 'createdAt'
 } as const
 
@@ -1521,6 +1827,8 @@ export const ClassScalarFieldEnum = {
   maxCapacity: 'maxCapacity',
   creditCost: 'creditCost',
   cancelWindowHours: 'cancelWindowHours',
+  isPrivate: 'isPrivate',
+  oneOffDate: 'oneOffDate',
   startsAt: 'startsAt',
   endsAt: 'endsAt',
   isActive: 'isActive',
@@ -1528,6 +1836,17 @@ export const ClassScalarFieldEnum = {
 } as const
 
 export type ClassScalarFieldEnum = (typeof ClassScalarFieldEnum)[keyof typeof ClassScalarFieldEnum]
+
+
+export const ClassSlotScalarFieldEnum = {
+  id: 'id',
+  classId: 'classId',
+  dayOfWeek: 'dayOfWeek',
+  startTime: 'startTime',
+  endTime: 'endTime'
+} as const
+
+export type ClassSlotScalarFieldEnum = (typeof ClassSlotScalarFieldEnum)[keyof typeof ClassSlotScalarFieldEnum]
 
 
 export const AttendanceScalarFieldEnum = {
@@ -1591,6 +1910,44 @@ export const ContentScalarFieldEnum = {
 } as const
 
 export type ContentScalarFieldEnum = (typeof ContentScalarFieldEnum)[keyof typeof ContentScalarFieldEnum]
+
+
+export const MonthlySubscriptionScalarFieldEnum = {
+  id: 'id',
+  studentId: 'studentId',
+  planId: 'planId',
+  period: 'period',
+  amount: 'amount',
+  isPaid: 'isPaid',
+  paidAt: 'paidAt',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt'
+} as const
+
+export type MonthlySubscriptionScalarFieldEnum = (typeof MonthlySubscriptionScalarFieldEnum)[keyof typeof MonthlySubscriptionScalarFieldEnum]
+
+
+export const MonthlyAttendanceScalarFieldEnum = {
+  id: 'id',
+  studentId: 'studentId',
+  classId: 'classId',
+  period: 'period',
+  sessionDate: 'sessionDate',
+  createdAt: 'createdAt'
+} as const
+
+export type MonthlyAttendanceScalarFieldEnum = (typeof MonthlyAttendanceScalarFieldEnum)[keyof typeof MonthlyAttendanceScalarFieldEnum]
+
+
+export const SessionAttendanceScalarFieldEnum = {
+  id: 'id',
+  classId: 'classId',
+  studentId: 'studentId',
+  date: 'date',
+  createdAt: 'createdAt'
+} as const
+
+export type SessionAttendanceScalarFieldEnum = (typeof SessionAttendanceScalarFieldEnum)[keyof typeof SessionAttendanceScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1673,6 +2030,20 @@ export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaM
 
 
 /**
+ * Reference to a field of type 'Decimal'
+ */
+export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal'>
+    
+
+
+/**
+ * Reference to a field of type 'Decimal[]'
+ */
+export type ListDecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal[]'>
+    
+
+
+/**
  * Reference to a field of type 'TokenType'
  */
 export type EnumTokenTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TokenType'>
@@ -1697,34 +2068,6 @@ export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'In
  * Reference to a field of type 'Int[]'
  */
 export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
-    
-
-
-/**
- * Reference to a field of type 'Decimal'
- */
-export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal'>
-    
-
-
-/**
- * Reference to a field of type 'Decimal[]'
- */
-export type ListDecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal[]'>
-    
-
-
-/**
- * Reference to a field of type 'IntervalType'
- */
-export type EnumIntervalTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'IntervalType'>
-    
-
-
-/**
- * Reference to a field of type 'IntervalType[]'
- */
-export type ListEnumIntervalTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'IntervalType[]'>
     
 
 
@@ -1929,11 +2272,15 @@ export type GlobalOmitConfig = {
   membershipOrder?: Prisma.MembershipOrderOmit
   creditLedger?: Prisma.CreditLedgerOmit
   class?: Prisma.ClassOmit
+  classSlot?: Prisma.ClassSlotOmit
   attendance?: Prisma.AttendanceOmit
   classWaitlist?: Prisma.ClassWaitlistOmit
   userSkill?: Prisma.UserSkillOmit
   streak?: Prisma.StreakOmit
   content?: Prisma.ContentOmit
+  monthlySubscription?: Prisma.MonthlySubscriptionOmit
+  monthlyAttendance?: Prisma.MonthlyAttendanceOmit
+  sessionAttendance?: Prisma.SessionAttendanceOmit
 }
 
 /* Types for Logging */
