@@ -39,6 +39,7 @@ import {
 	type Student,
 	type Subscription,
 	currentSubscription,
+	isSubscriptionExpired,
 } from '@/lib/interfaces/students';
 import { formatPrice, getInitials } from '@/utils/general';
 
@@ -111,7 +112,6 @@ export function StudentsClient({
 
 	const pagination = usePagination(filtered, { pageSize: 10 });
 
-	// Reset to page 1 when search or filters change
 	useEffect(() => {
 		pagination.reset();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -142,7 +142,6 @@ export function StudentsClient({
 				method: 'PATCH',
 				body: JSON.stringify({ isPaid: !sub.isPaid }),
 			});
-			// Esperamos el refetch para que el spinner dure hasta ver el estado nuevo.
 			await queryClient.invalidateQueries({ queryKey: ['students'] });
 		} catch (err) {
 			setToast({
@@ -157,11 +156,15 @@ export function StudentsClient({
 	function PaymentBadge({ sub }: { sub: Subscription | null }) {
 		if (!sub) return <span className="text-xs text-gray-300">Sin plan</span>;
 		const loading = loadingId === sub.id;
+		const expired = isSubscriptionExpired(sub);
+		const state = expired ? 'expired' : sub.isPaid ? 'paid' : 'pending';
 		return (
 			<Tooltip
 				label={
 					sub.isPaid
-						? 'Clic para marcar como pendiente'
+						? expired
+							? 'Plan vencido — clic para renovar (marcar pagado)'
+							: 'Clic para marcar como pendiente'
 						: 'Clic para marcar como pagado'
 				}
 			>
@@ -169,24 +172,33 @@ export function StudentsClient({
 					type="button"
 					onClick={(e) => {
 						e.stopPropagation();
-						togglePaid(sub);
+						togglePaid(expired ? { ...sub, isPaid: false } : sub);
 					}}
 					disabled={loading}
 					className={cn(
 						'inline-flex cursor-pointer items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-semibold transition-all hover:shadow-sm active:scale-95 disabled:cursor-wait disabled:opacity-60',
-						sub.isPaid
-							? 'border-success/30 bg-success/10 text-success hover:bg-success/20'
-							: 'border-warning/40 bg-warning/10 text-warning hover:bg-warning/20',
+						state === 'paid' &&
+							'border-success/30 bg-success/10 text-success hover:bg-success/20',
+						state === 'pending' &&
+							'border-warning/40 bg-warning/10 text-warning hover:bg-warning/20',
+						state === 'expired' &&
+							'border-danger/30 bg-danger/10 text-danger hover:bg-danger/20',
 					)}
 				>
 					{loading ? (
 						<Loader2 className="h-3 w-3 animate-spin" />
-					) : sub.isPaid ? (
+					) : state === 'paid' ? (
 						<Check className="h-3 w-3" />
 					) : (
 						<Clock className="h-3 w-3" />
 					)}
-					{loading ? 'Guardando…' : sub.isPaid ? 'Pagado' : 'Pendiente'}
+					{loading
+						? 'Guardando…'
+						: state === 'expired'
+							? 'Vencido'
+							: state === 'paid'
+								? 'Pagado'
+								: 'Pendiente'}
 				</button>
 			</Tooltip>
 		);

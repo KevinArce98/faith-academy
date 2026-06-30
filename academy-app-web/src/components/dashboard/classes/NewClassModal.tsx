@@ -58,7 +58,6 @@ export function NewClassModal({ teachers, onClose }: NewClassModalProps) {
 			return;
 		}
 
-		// Clase única: un solo slot con la hora elegida y el día derivado de la fecha.
 		const finalSlots: Slot[] = isOneOff
 			? [
 					{

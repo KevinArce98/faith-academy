@@ -60,7 +60,6 @@ export function PlanModal({ plan, onClose, onSuccess }: PlanModalProps) {
 
 	const unlimited = watch('unlimited');
 
-	// Al marcar ilimitadas, limpia el campo de clases/semana (muestra "Ilimitadas").
 	useEffect(() => {
 		if (unlimited) setValue('classesPerWeek', '');
 	}, [unlimited, setValue]);

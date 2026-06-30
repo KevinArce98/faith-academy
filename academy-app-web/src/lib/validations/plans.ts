@@ -10,12 +10,10 @@ export const planFormSchema = z
 				message: 'El precio debe ser un número válido.',
 			}),
 		classesPerWeek: z.string(),
-		// Clases ilimitadas/indefinidas (se guarda como classesPerWeek = 0).
 		unlimited: z.boolean(),
 		isPublic: z.boolean(),
 		isSingleClass: z.boolean(),
 	})
-	// Las clases/semana solo se validan si el plan NO es ilimitado.
 	.refine(
 		(d) =>
 			d.unlimited ||

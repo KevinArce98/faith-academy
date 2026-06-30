@@ -25,11 +25,8 @@ export function getErrorMessage(error: unknown, fallback: string): string {
 	const raw = (error instanceof Error ? error.message : String(error)).trim();
 	if (!raw) return fallback;
 
-	// 1. Código conocido → mensaje amigable traducido.
 	if (ERROR_MESSAGES[raw]) return ERROR_MESSAGES[raw];
 
-	// 2. Código en MAYÚSCULAS sin mapear, o error técnico → no se lo mostramos
-	//    al usuario; usamos el fallback con contexto.
 	const isCodeLike = /^[A-Z][A-Z0-9_]+$/.test(raw);
 	const isTechnical =
 		/^HTTP \d+$/.test(raw) ||
@@ -38,6 +35,5 @@ export function getErrorMessage(error: unknown, fallback: string): string {
 		/load failed/i.test(raw);
 	if (isCodeLike || isTechnical) return fallback;
 
-	// 3. Mensaje humano del API (ya viene en español) → mostrarlo tal cual.
 	return raw;
 }

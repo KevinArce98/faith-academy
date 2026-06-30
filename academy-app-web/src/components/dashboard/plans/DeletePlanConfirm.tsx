@@ -1,6 +1,6 @@
+import { useMutation } from '@tanstack/react-query';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AlertTriangle, X } from 'lucide-react';
-import { useState } from 'react';
 
 import { Button } from '@/components/ui/Button';
 import { modalVariants, overlayVariants } from '@/lib/animations';
@@ -22,28 +22,24 @@ export function DeletePlanConfirm({
 	onError,
 }: DeletePlanConfirmProps) {
 	const apiClient = useApiClient();
-	const [isPending, setIsPending] = useState(false);
 
-	async function handleDelete() {
-		setIsPending(true);
-		try {
+	const deleteMutation = useMutation({
+		mutationFn: async () => {
 			const result = await apiClient<{ error?: string }>(
 				`/api/v1/plans/${plan.id}`,
 				{ method: 'DELETE' },
 			);
-			if (result?.error) {
-				onError(result.error);
-				onClose();
-				return;
-			}
-			onSuccess(plan.id);
-		} catch (err) {
-			onError(getErrorMessage(err, 'Error al eliminar el plan'));
+			if (result?.error) throw { error: result.error };
+			return plan.id;
+		},
+		onSuccess: (planId) => {
+			onSuccess(planId);
+		},
+		onError: (err: any) => {
+			onError(err.error ?? getErrorMessage(err, 'Error al eliminar el plan'));
 			onClose();
-		} finally {
-			setIsPending(false);
-		}
-	}
+		},
+	});
 
 	return (
 		<AnimatePresence>
@@ -109,7 +105,7 @@ export function DeletePlanConfirm({
 							color="neutral"
 							variant="text"
 							onClick={onClose}
-							disabled={isPending}
+							disabled={deleteMutation.isPending}
 							className="rounded-xl"
 						>
 							Cancelar
@@ -117,11 +113,11 @@ export function DeletePlanConfirm({
 						<Button
 							type="button"
 							color="danger"
-							onClick={handleDelete}
-							disabled={isPending || plan._count.subscriptions > 0}
+							onClick={() => deleteMutation.mutate()}
+							disabled={deleteMutation.isPending || plan._count.subscriptions > 0}
 							className="rounded-xl px-6"
 						>
-							{isPending ? 'Eliminando…' : 'Eliminar'}
+							{deleteMutation.isPending ? 'Eliminando…' : 'Eliminar'}
 						</Button>
 					</div>
 				</motion.div>

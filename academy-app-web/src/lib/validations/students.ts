@@ -6,7 +6,6 @@ export const createStudentSchema = z.object({
 	phone: z.string().optional(),
 	planId: z.string().min(1).optional().or(z.literal('')),
 	notes: z.string().optional(),
-	// Matrícula (pago único de inscripción).
 	enrollmentFee: z.string().optional(),
 	enrolledAt: z.string().optional(),
 });

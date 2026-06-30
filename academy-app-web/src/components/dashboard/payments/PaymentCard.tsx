@@ -1,4 +1,4 @@
-import { useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { AnimatePresence } from 'framer-motion';
 import { Check, X } from 'lucide-react';
 import { useState } from 'react';
@@ -16,7 +16,6 @@ type PaymentCardProps = {
 	isAdmin?: boolean;
 };
 
-// "YYYY-MM-DD" (DATE) → fecha local sin corrimiento de zona horaria.
 function formatBookingDate(iso: string): string {
 	const [y, m, d] = iso.slice(0, 10).split('-').map(Number);
 	return new Date(y, m - 1, d).toLocaleDateString('es-CR', {
@@ -29,7 +28,6 @@ function formatBookingDate(iso: string): string {
 export function PaymentCard({ order, isAdmin = false }: PaymentCardProps) {
 	const apiClient = useApiClient();
 	const queryClient = useQueryClient();
-	const [isPending, setIsPending] = useState(false);
 	const [status, setStatus] = useState(order.status);
 	const [approvedAt, setApprovedAt] = useState<Date | string | null>(
 		order.approvedAt,
@@ -41,28 +39,36 @@ export function PaymentCard({ order, isAdmin = false }: PaymentCardProps) {
 	const statusDate =
 		approved || rejected ? (approvedAt ?? order.createdAt) : order.createdAt;
 
-	const handleApprove = async () => {
-		await apiClient(`/api/v1/payments/orders/${order.id}/approve`, {
-			method: 'POST',
-		});
-		setStatus('ACTIVE');
-		setApprovedAt(new Date());
-		// Aprobar marca la mensualidad del mes como pagada → refrescar también
-		// alumnos, mensualidades y dashboard, no solo la lista de pagos.
-		for (const key of ['payments', 'students', 'subscriptions', 'dashboard']) {
-			queryClient.invalidateQueries({ queryKey: [key] });
-		}
-	};
+	const approveMutation = useMutation({
+		mutationFn: async () => {
+			await apiClient(`/api/v1/payments/orders/${order.id}/approve`, {
+				method: 'POST',
+			});
+		},
+		onSuccess: () => {
+			setStatus('ACTIVE');
+			setApprovedAt(new Date());
+			for (const key of ['payments', 'students', 'subscriptions', 'dashboard']) {
+				queryClient.invalidateQueries({ queryKey: [key] });
+			}
+		},
+	});
 
-	const handleReject = async () => {
-		await apiClient(`/api/v1/payments/orders/${order.id}/reject`, {
-			method: 'POST',
-			body: JSON.stringify({ notes: '' }),
-		});
-		setStatus('REJECTED');
-		setApprovedAt(new Date());
-		queryClient.invalidateQueries({ queryKey: ['payments'] });
-	};
+	const rejectMutation = useMutation({
+		mutationFn: async () => {
+			await apiClient(`/api/v1/payments/orders/${order.id}/reject`, {
+				method: 'POST',
+				body: JSON.stringify({ notes: '' }),
+			});
+		},
+		onSuccess: () => {
+			setStatus('REJECTED');
+			setApprovedAt(new Date());
+			queryClient.invalidateQueries({ queryKey: ['payments'] });
+		},
+	});
+
+	const isPending = approveMutation.isPending || rejectMutation.isPending;
 
 	return (
 		<>
@@ -165,14 +171,7 @@ export function PaymentCard({ order, isAdmin = false }: PaymentCardProps) {
 						<Button
 							variant="contained"
 							color="success"
-							onClick={async () => {
-								setIsPending(true);
-								try {
-									await handleApprove();
-								} finally {
-									setIsPending(false);
-								}
-							}}
+							onClick={() => approveMutation.mutate()}
 							disabled={isPending}
 							className="h-11 gap-1.5 rounded-xl"
 						>
@@ -181,14 +180,7 @@ export function PaymentCard({ order, isAdmin = false }: PaymentCardProps) {
 						<Button
 							variant="outlined"
 							color="danger"
-							onClick={async () => {
-								setIsPending(true);
-								try {
-									await handleReject();
-								} finally {
-									setIsPending(false);
-								}
-							}}
+							onClick={() => rejectMutation.mutate()}
 							disabled={isPending}
 							className="h-11 gap-1.5 rounded-xl"
 						>
@@ -211,8 +203,8 @@ export function PaymentCard({ order, isAdmin = false }: PaymentCardProps) {
 						price={order.plan.price}
 						status={status}
 						onClose={() => setReceiptOpen(false)}
-						onApprove={handleApprove}
-						onReject={handleReject}
+						onApprove={() => approveMutation.mutateAsync()}
+						onReject={() => rejectMutation.mutateAsync()}
 						isAdmin={isAdmin}
 					/>
 				)}

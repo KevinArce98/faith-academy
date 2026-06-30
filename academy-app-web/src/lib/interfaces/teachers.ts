@@ -13,6 +13,7 @@ export type TeacherProfile = {
 	avatarUrl: string | null;
 	role: 'TEACHER';
 	isActive: boolean;
+	hourlyRate: number | null;
 	createdAt: string;
 	classes: TeacherClass[];
 };

@@ -1,6 +1,5 @@
 export type Plan = { id: string; name: string };
 
-// Mensualidad de un mes concreto (modelo flat-fee).
 export type Subscription = {
 	id: string;
 	planId: string;
@@ -8,8 +7,19 @@ export type Subscription = {
 	amount: number;
 	isPaid: boolean;
 	paidAt: string | null;
+	expiresAt: string | null;
 	plan: { id: string; name: string; isPublic?: boolean };
 };
+
+export function isSubscriptionActive(sub: Subscription | null): boolean {
+	if (!sub || !sub.isPaid || !sub.expiresAt) return false;
+	return new Date(sub.expiresAt).getTime() > Date.now();
+}
+
+export function isSubscriptionExpired(sub: Subscription | null): boolean {
+	if (!sub || !sub.isPaid || !sub.expiresAt) return false;
+	return new Date(sub.expiresAt).getTime() <= Date.now();
+}
 
 export type Student = {
 	id: string;
@@ -24,7 +34,6 @@ export type Student = {
 	subscriptions: Subscription[];
 };
 
-// La mensualidad vigente del alumno = la suscripción más reciente.
 export function currentSubscription(student: Student): Subscription | null {
 	return student.subscriptions[0] ?? null;
 }

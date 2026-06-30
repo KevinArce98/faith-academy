@@ -1,4 +1,4 @@
-import { useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Check, CircleCheckBig, Copy } from 'lucide-react';
 import { type SubmitEvent, useState } from 'react';
 
@@ -34,7 +34,6 @@ export function NewTeacherModal({
 	const [error, setError] = useState<string | null>(null);
 	const [result, setResult] = useState<{ tempPassword: string } | null>(null);
 	const [copied, setCopied] = useState(false);
-	const [isPending, setIsPending] = useState(false);
 
 	function resetState() {
 		setForm(initialForm);
@@ -48,7 +47,27 @@ export function NewTeacherModal({
 		onClose();
 	}
 
-	async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
+	const createMutation = useMutation({
+		mutationFn: async ({ name, email, hourlyRate }: { name: string; email: string; hourlyRate?: number }) => {
+			return await apiClient<{ tempPassword: string }>(
+				'/api/v1/teachers',
+				{
+					method: 'POST',
+					body: JSON.stringify({ name, email, hourlyRate }),
+				},
+			);
+		},
+		onSuccess: (res) => {
+			setResult({ tempPassword: res.tempPassword });
+			onCreated?.('Profesor creado exitosamente.');
+			queryClient.invalidateQueries({ queryKey: ['teachers'] });
+		},
+		onError: (err) => {
+			setError(getErrorMessage(err, 'Error al crear el profesor.'));
+		},
+	});
+
+	function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
 		event.preventDefault();
 		setError(null);
 
@@ -66,23 +85,7 @@ export function NewTeacherModal({
 			return;
 		}
 
-		setIsPending(true);
-		try {
-			const res = await apiClient<{ tempPassword: string }>(
-				'/api/v1/teachers',
-				{
-					method: 'POST',
-					body: JSON.stringify({ name, email, hourlyRate }),
-				},
-			);
-			setResult({ tempPassword: res.tempPassword });
-			onCreated?.('Profesor creado exitosamente.');
-			queryClient.invalidateQueries({ queryKey: ['teachers'] });
-		} catch (err) {
-			setError(getErrorMessage(err, 'Error al crear el profesor.'));
-		} finally {
-			setIsPending(false);
-		}
+		createMutation.mutate({ name, email, hourlyRate });
 	}
 
 	function handleCopy() {
@@ -184,9 +187,9 @@ export function NewTeacherModal({
 					<Button
 						type="submit"
 						className="h-11 w-full rounded-xl"
-						disabled={!canSubmit || isPending}
+						disabled={!canSubmit || createMutation.isPending}
 					>
-						{isPending ? 'Creando...' : 'Crear Profesor'}
+						{createMutation.isPending ? 'Creando...' : 'Crear Profesor'}
 					</Button>
 				</form>
 			)}

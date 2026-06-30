@@ -31,12 +31,14 @@ import { formatSlotRange } from '@/utils/schedule';
 // ─── Types ──────────────────────────────────────────────────────────────────
 
 type PendingPayment = {
-	subscriptionId: string;
+	subscriptionId: string | null;
 	studentId: string;
 	studentName: string;
 	studentEmail: string;
+	planId: string;
 	planName: string;
 	amount: number;
+	status: 'pending' | 'expired';
 };
 
 type ClassStat = {
@@ -75,7 +77,7 @@ type TeacherClass = {
 	skillLevel: string;
 	schedule: string | null;
 	slots: TeacherSlot[];
-	oneOffDate: string | null; // "YYYY-MM-DD" si es clase única
+	oneOffDate: string | null;
 	students: number;
 	sessionsGiven: number;
 	avgAttendance: number;
@@ -145,13 +147,28 @@ function AdminDashboard({ data }: { data: AdminDashboardData }) {
 	const queryClient = useQueryClient();
 	const now = new Date();
 
+	// 'pending' → marca pagada la mensualidad de este mes; 'expired' → crea/renueva
+	// la mensualidad del mes actual con su plan (nuevo ciclo de aniversario).
 	const payMutation = useMutation({
-		mutationFn: (subscriptionId: string) =>
-			apiClient(`/api/v1/subscriptions/${subscriptionId}/pay`, {
-				method: 'PATCH',
-				body: JSON.stringify({ isPaid: true }),
-			}),
-		onSuccess: () => queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
+		mutationFn: (p: PendingPayment) =>
+			p.subscriptionId
+				? apiClient(`/api/v1/subscriptions/${p.subscriptionId}/pay`, {
+						method: 'PATCH',
+						body: JSON.stringify({ isPaid: true }),
+					})
+				: apiClient('/api/v1/subscriptions', {
+						method: 'POST',
+						body: JSON.stringify({
+							studentId: p.studentId,
+							planId: p.planId,
+							isPaid: true,
+						}),
+					}),
+		onSuccess: () => {
+			for (const key of ['dashboard', 'students', 'subscriptions']) {
+				queryClient.invalidateQueries({ queryKey: [key] });
+			}
+		},
 	});
 
 	return (
@@ -219,13 +236,18 @@ function AdminDashboard({ data }: { data: AdminDashboardData }) {
 						<div className="space-y-2">
 							{data.pendingPayments.slice(0, 8).map((p) => (
 								<div
-									key={p.subscriptionId}
+									key={p.studentId}
 									className="flex items-center gap-3 rounded-xl bg-gray-50 p-3"
 								>
 									<StudentInitials name={p.studentName} />
 									<div className="min-w-0 flex-1">
-										<p className="text-dark truncate text-sm font-medium">
+										<p className="text-dark flex items-center gap-2 truncate text-sm font-medium">
 											{p.studentName}
+											{p.status === 'expired' && (
+												<span className="bg-danger/10 text-danger shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-semibold uppercase">
+													Vencido
+												</span>
+											)}
 										</p>
 										<p className="truncate text-xs text-gray-400">
 											{p.planName} · {formatPrice(p.amount)}
@@ -237,9 +259,10 @@ function AdminDashboard({ data }: { data: AdminDashboardData }) {
 										color="success"
 										className="shrink-0 rounded-lg px-3 py-1 text-xs"
 										disabled={payMutation.isPending}
-										onClick={() => payMutation.mutate(p.subscriptionId)}
+										onClick={() => payMutation.mutate(p)}
 									>
-										<CheckCircle2 className="h-3.5 w-3.5" /> Pagado
+										<CheckCircle2 className="h-3.5 w-3.5" />{' '}
+										{p.status === 'expired' ? 'Renovar' : 'Pagado'}
 									</Button>
 								</div>
 							))}
