@@ -31,6 +31,9 @@ function currentMonth(): string {
 describe.runIf(RUN_DB)('flujo de plata (integración)', () => {
 	const period = currentMonth();
 	let adminToken = '';
+	// La DB de test puede compartir datos reales (Neon dev): los totales se
+	// comparan contra este baseline, no en absoluto.
+	let baselineCollected = 0;
 	const ids = {
 		admin: '',
 		teacher: '',
@@ -77,6 +80,13 @@ describe.runIf(RUN_DB)('flujo de plata (integración)', () => {
 			},
 		});
 		ids.teacher = teacher.id;
+
+		const { computePayouts } = await import('./lib/payouts');
+		const now = new Date();
+		const baseline = await computePayouts(
+			new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)),
+		);
+		baselineCollected = baseline.totals.collected;
 	});
 
 	afterAll(async () => {
@@ -181,7 +191,7 @@ describe.runIf(RUN_DB)('flujo de plata (integración)', () => {
 		expect(res.status).toBe(200);
 		const data = await res.json();
 
-		expect(data.totals.collected).toBe(40000);
+		expect(data.totals.collected - baselineCollected).toBe(40000);
 		const marta = data.payouts.find(
 			(p: { teacherId: string }) => p.teacherId === ids.teacher,
 		);

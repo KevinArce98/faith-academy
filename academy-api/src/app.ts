@@ -9,7 +9,6 @@ import { validateEnv } from './lib/env.js';
 import { logger } from './lib/logger.js';
 import { optionalAuthMiddleware } from './middleware/auth.js';
 import { errorHandler } from './middleware/errorHandler.js';
-import attendanceRoutes from './routes/attendance.js';
 import authRoutes from './routes/auth.js';
 import classesRoutes from './routes/classes.js';
 import contentRoutes from './routes/content.js';
@@ -92,7 +91,6 @@ app.use('/api/v1/auth/login', ipLimiter(10));
 app.use('/api/v1/auth/refresh', ipLimiter(60));
 app.use('/api/v1/auth/register', ipLimiter(5));
 app.use('/api/v1/auth/forgot-password', ipLimiter(5));
-app.use('/api/v1/attendance/scan', ipLimiter(30));
 app.use('/api/v1/payments/upload-url', ipLimiter(10));
 
 // ── Request logging ────────────────────────────────────────────────────────
@@ -126,7 +124,6 @@ app.route('/api/v1/dashboard', dashboardRoutes);
 app.route('/api/v1/notifications', notificationsRoutes);
 app.route('/api/v1/reports', reportsRoutes);
 app.route('/api/v1/content', contentRoutes);
-app.route('/api/v1/attendance', attendanceRoutes);
 app.route('/api/v1/users', usersRoutes);
 
 // ── Global error handler ───────────────────────────────────────────────────
