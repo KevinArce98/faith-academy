@@ -3,8 +3,6 @@ import { db } from './db.js';
 import type { Role } from './roles.js';
 import { hashPassword } from './utils/hash.js';
 
-type RoleInput = Role | Role[];
-
 export async function createUserProfile({
 	email,
 	name,
@@ -71,16 +69,3 @@ export async function getCurrentUser(c: AuthContext) {
 	return user;
 }
 
-export async function requireRole(c: AuthContext, role: RoleInput) {
-	const user = await getCurrentUser(c);
-	if (!user) throw new Error('UNAUTHENTICATED');
-
-	const roles = Array.isArray(role) ? role : [role];
-	if (!roles.includes(user.role as Role)) throw new Error('UNAUTHORIZED');
-
-	return user;
-}
-
-export function unauthorized() {
-	return { error: 'UNAUTHORIZED' };
-}

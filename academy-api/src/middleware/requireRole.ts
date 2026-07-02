@@ -1,24 +1,33 @@
 import type { MiddlewareHandler } from 'hono';
 
-import { requireRole } from '../lib/auth.js';
+import { db } from '../lib/db.js';
+import { forbidden, unauthenticated } from '../lib/errors.js';
 import type { Role } from '../lib/roles.js';
 import type { AuthVariables } from '../types/auth.js';
 
-type RoleInput = Role | Role[];
-
-export function requireRoleMiddleware(
-	role: RoleInput,
+// Único middleware de autorización: valida sesión, opcionalmente exige rol y
+// deja el usuario en el contexto (c.get('user')) para que los handlers no
+// vuelvan a consultarlo.
+export function requireRole(
+	...roles: Role[]
 ): MiddlewareHandler<{ Variables: AuthVariables }> {
 	return async (c, next) => {
-		try {
-			await requireRole(c, role);
-		} catch (error) {
-			const status =
-				error instanceof Error && error.message === 'UNAUTHENTICATED'
-					? 401
-					: 403;
-			return c.json({ error: 'No autorizado' }, status);
+		const auth = c.get('auth');
+		if (!auth?.userId) throw unauthenticated();
+
+		const user = await db.userProfile.findUnique({
+			where: { id: auth.userId },
+		});
+		if (!user || !user.isActive) throw unauthenticated();
+
+		if (roles.length > 0 && !roles.includes(user.role as Role)) {
+			throw forbidden();
 		}
+
+		c.set('user', user);
 		await next();
 	};
 }
+
+// Cualquier usuario autenticado, sin restricción de rol.
+export const requireAuth = requireRole();
