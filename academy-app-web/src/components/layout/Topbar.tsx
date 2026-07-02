@@ -1,5 +1,5 @@
 import { useAutoAnimate } from '@formkit/auto-animate/react';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Bell, Menu, X } from 'lucide-react';
 import { useState } from 'react';
@@ -10,6 +10,7 @@ import { Spinner } from '@/components/ui/Spinner';
 import { overlayVariants, slideInRight } from '@/lib/animations';
 import { useApiClient } from '@/lib/api';
 import { cn } from '@/lib/cn';
+import { qk } from '@/lib/queryKeys';
 import { timeAgo } from '@/utils/general';
 
 const ROUTE_LABELS: Record<string, string> = {
@@ -33,6 +34,7 @@ type ApiNotification = {
   type: string;
   title: string;
   body: string;
+  read: boolean;
   createdAt: string;
 };
 
@@ -43,20 +45,31 @@ type TopbarProps = {
 
 export function Topbar({ userInitials, onMenuClick }: TopbarProps) {
   const [notifOpen, setNotifOpen] = useState(false);
-  const [readIds, setReadIds] = useState<Set<string>>(new Set());
   const [listRef] = useAutoAnimate<HTMLDivElement>();
   const { pathname } = useLocation();
   const apiClient = useApiClient();
+  const queryClient = useQueryClient();
 
-  const { data, isLoading } = useQuery<{ notifications: ApiNotification[] }>({
-    queryKey: ['notifications'],
-    queryFn: () => apiClient<{ notifications: ApiNotification[] }>('/api/v1/notifications'),
+  const { data, isLoading } = useQuery<{
+    notifications: ApiNotification[];
+    unreadCount: number;
+  }>({
+    queryKey: qk.notifications,
+    queryFn: () =>
+      apiClient<{ notifications: ApiNotification[]; unreadCount: number }>(
+        '/api/v1/notifications',
+      ),
     staleTime: 2 * 60 * 1000,
     refetchInterval: 5 * 60 * 1000,
   });
 
   const notifications = data?.notifications ?? [];
-  const unreadCount = notifications.filter((n) => !readIds.has(n.id)).length;
+  const unreadCount = data?.unreadCount ?? 0;
+
+  const markReadMutation = useMutation({
+    mutationFn: () => apiClient('/api/v1/notifications/read', { method: 'POST', body: '{}' }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: qk.notifications }),
+  });
 
   const segments = pathname.split('/').filter(Boolean);
   const breadcrumbs = [
@@ -69,7 +82,7 @@ export function Topbar({ userInitials, onMenuClick }: TopbarProps) {
   ];
 
   function markAllRead() {
-    setReadIds(new Set(notifications.map((n) => n.id)));
+    markReadMutation.mutate();
   }
 
   function handleOpen() {
@@ -192,7 +205,7 @@ export function Topbar({ userInitials, onMenuClick }: TopbarProps) {
                   </div>
                 ) : (
                   notifications.map((n) => {
-                    const unread = !readIds.has(n.id);
+                    const unread = !n.read;
                     return (
                       <div key={n.id} className={cn('px-5 py-4', unread && 'bg-primary/5')}>
                         <div className="flex items-start gap-2">

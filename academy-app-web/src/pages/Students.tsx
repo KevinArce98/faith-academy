@@ -1,39 +1,20 @@
-import { useQuery } from '@tanstack/react-query';
-
 import { StudentsClient } from '@/components/dashboard/students/StudentsClient';
 import { InlineSpinner } from '@/components/ui/Spinner';
-import { useApiClient } from '@/lib/api';
-import type { Plan, Student } from '@/lib/interfaces/students';
-
-type StudentsResponse = { students: Student[] };
-type PlansResponse = { plans: Plan[] } | Plan[];
+import { usePlans, useStudents } from '@/lib/queries';
 
 export default function Students() {
-  const apiClient = useApiClient();
-
   const {
-    data: studentsData,
+    data: students,
     isLoading: studentsLoading,
     isError: studentsError,
-  } = useQuery<StudentsResponse>({
-    queryKey: ['students'],
-    queryFn: () => apiClient<StudentsResponse>('/api/v1/students'),
-  });
-
-  const {
-    data: plansData,
-    isLoading: plansLoading,
-    isError: plansError,
-  } = useQuery<PlansResponse>({
-    queryKey: ['plans'],
-    queryFn: () => apiClient<PlansResponse>('/api/v1/plans'),
-  });
+  } = useStudents();
+  const { data: plans, isLoading: plansLoading, isError: plansError } = usePlans();
 
   if (studentsLoading || plansLoading) {
     return <InlineSpinner />;
   }
 
-  if (studentsError || plansError || !studentsData) {
+  if (studentsError || plansError || !students) {
     return (
       <div className="p-6">
         <p className="text-danger text-sm">
@@ -43,15 +24,7 @@ export default function Students() {
     );
   }
 
-  const plans = Array.isArray(plansData)
-    ? plansData
-    : ((plansData as { plans: Plan[] })?.plans ?? []);
-
   return (
-    <StudentsClient
-      students={studentsData.students}
-      plans={plans}
-      total={studentsData.students.length}
-    />
+    <StudentsClient students={students} plans={plans ?? []} total={students.length} />
   );
 }

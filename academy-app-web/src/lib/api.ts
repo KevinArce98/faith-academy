@@ -10,15 +10,24 @@ function extractErrorMessage(body: unknown, status: number): string {
     const err = (body as Record<string, unknown>).error;
     if (typeof err === 'string' && err.trim()) return err;
     if (err && typeof err === 'object') {
-      const fieldErrors = (err as { fieldErrors?: Record<string, string[]> }).fieldErrors;
-      const firstField = fieldErrors
-        ? Object.values(fieldErrors)
-            .flat()
-            .find((m) => !!m)
+      const e = err as {
+        code?: string;
+        message?: string;
+        fields?: Record<string, string[]>;
+        fieldErrors?: Record<string, string[]>;
+        formErrors?: string[];
+      };
+      const firstField = e.fields
+        ? Object.values(e.fields).flat().find(Boolean)
         : undefined;
       if (firstField) return firstField;
-      const formErrors = (err as { formErrors?: string[] }).formErrors;
-      if (formErrors?.length) return formErrors[0];
+      if (typeof e.message === 'string' && e.message.trim()) return e.message;
+      const firstLegacy = e.fieldErrors
+        ? Object.values(e.fieldErrors).flat().find(Boolean)
+        : undefined;
+      if (firstLegacy) return firstLegacy;
+      if (e.formErrors?.length) return e.formErrors[0];
+      if (typeof e.code === 'string' && e.code.trim()) return e.code;
     }
     const message = (body as Record<string, unknown>).message;
     if (typeof message === 'string' && message.trim()) return message;

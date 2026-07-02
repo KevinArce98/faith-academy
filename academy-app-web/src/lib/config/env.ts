@@ -12,8 +12,7 @@ function optionalEnv(key: string, fallback: string): string {
 
 export const env = {
   APP_NAME: optionalEnv('VITE_APP_NAME', 'StudioFlow Academy'),
-  API_URL: optionalEnv('VITE_API_URL', 'http://localhost:3000'),
+  API_URL: import.meta.env.PROD
+    ? requiredEnv('VITE_API_URL')
+    : optionalEnv('VITE_API_URL', 'http://localhost:3000'),
 } as const;
-
-// Ensure requiredEnv is available for future use
-void requiredEnv;

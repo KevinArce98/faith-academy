@@ -1,48 +1,11 @@
-import { useQuery } from '@tanstack/react-query';
 import { ChevronDown, GraduationCap, User, Users } from 'lucide-react';
 import { useState } from 'react';
 
 import { MonthPicker } from '@/components/ui/MonthPicker';
 import { InlineSpinner } from '@/components/ui/Spinner';
-import { useApiClient } from '@/lib/api';
 import { cn } from '@/lib/cn';
+import { usePayouts } from '@/lib/queries';
 import { formatPrice } from '@/utils/general';
-
-type StudentContribution = {
-  studentId: string;
-  studentName: string;
-  planName: string;
-  amount: number;
-};
-
-type ClassLine = {
-  classId: string;
-  className: string;
-  amount: number;
-  students: number;
-  studentList: StudentContribution[];
-};
-
-type TeacherPayout = {
-  teacherId: string;
-  teacherName: string;
-  total: number;
-  hoursWorked: number;
-  cost: number;
-  net: number;
-  classes: ClassLine[];
-};
-
-type PayoutsResponse = {
-  period: string;
-  totals: {
-    collected: number;
-    pending: number;
-    allocated: number;
-    unallocated: number;
-  };
-  payouts: TeacherPayout[];
-};
 
 function currentMonth(): string {
   const now = new Date();
@@ -78,7 +41,6 @@ function StatCard({
 }
 
 export default function Payouts() {
-  const apiClient = useApiClient();
   const [period, setPeriod] = useState(currentMonth());
   const [openClasses, setOpenClasses] = useState<Set<string>>(new Set());
 
@@ -91,10 +53,7 @@ export default function Payouts() {
     });
   }
 
-  const { data, isLoading, isError } = useQuery<PayoutsResponse>({
-    queryKey: ['payouts', period],
-    queryFn: () => apiClient<PayoutsResponse>(`/api/v1/payouts?period=${period}`),
-  });
+  const { data, isLoading, isError } = usePayouts(period);
 
   return (
     <div className="space-y-6">

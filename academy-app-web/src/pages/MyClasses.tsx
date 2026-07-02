@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { AlertTriangle, Check, Clock, Loader2, Plus } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -9,23 +9,8 @@ import { InlineSpinner } from '@/components/ui/Spinner';
 import { useApiClient } from '@/lib/api';
 import { cn } from '@/lib/cn';
 import { getErrorMessage } from '@/lib/errorMessages';
-
-type Cls = {
-  id: string;
-  name: string;
-  skillLevel: string;
-  schedule?: string | null;
-  isPrivate?: boolean;
-};
-
-type EnrollData = {
-  enrolledClassIds: string[];
-  active: boolean;
-  allowance: number | null; // null = ilimitado
-  needsRenewal: boolean;
-  singleClass: boolean; // clase suelta → la clase ya está reservada
-  expiresAt: string | null;
-};
+import { useClasses, useMyEnrollments } from '@/lib/queries';
+import { qk } from '@/lib/queryKeys';
 
 function formatExpiry(iso: string | null): string {
   if (!iso) return '';
@@ -42,17 +27,8 @@ export default function MyClasses() {
   const [savingId, setSavingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const { data: classesData, isLoading: classesLoading } = useQuery<{
-    classes: Cls[];
-  }>({
-    queryKey: ['classes'],
-    queryFn: () => apiClient<{ classes: Cls[] }>('/api/v1/classes'),
-  });
-
-  const { data: enrollData, isLoading: enrollLoading } = useQuery<EnrollData>({
-    queryKey: ['my-enrollments'],
-    queryFn: () => apiClient<EnrollData>('/api/v1/monthly-attendance/me'),
-  });
+  const { data: classesData, isLoading: classesLoading } = useClasses();
+  const { data: enrollData, isLoading: enrollLoading } = useMyEnrollments();
 
   const enrolled = new Set(enrollData?.enrolledClassIds ?? []);
   const active = enrollData?.active ?? false;
@@ -76,14 +52,14 @@ export default function MyClasses() {
     onError: (err) => setError(getErrorMessage(err, 'No se pudo actualizar la inscripción.')),
     onSettled: async () => {
       setSavingId(null);
-      await queryClient.invalidateQueries({ queryKey: ['my-enrollments'] });
+      await queryClient.invalidateQueries({ queryKey: qk.myEnrollments });
     },
   });
 
   if (classesLoading || enrollLoading) return <InlineSpinner />;
 
   // Las clases privadas (compañía/audición) no se auto-inscriben.
-  const classes = (classesData?.classes ?? []).filter((c) => !c.isPrivate);
+  const classes = (classesData ?? []).filter((c) => !c.isPrivate);
 
   return (
     <div className="space-y-6">

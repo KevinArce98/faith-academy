@@ -1,9 +1,12 @@
+import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { X } from 'lucide-react';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/Button';
+import { Spinner } from '@/components/ui/Spinner';
 import { useScrollLock } from '@/hooks/useScrollLock';
+import { useApiClient } from '@/lib/api';
 import { slideInRight } from '@/lib/animations';
 import { cn } from '@/lib/cn';
 import { type Student, currentSubscription } from '@/lib/interfaces/students';
@@ -15,8 +18,31 @@ const monthLabel = (iso: string) =>
     year: 'numeric',
   }).format(new Date(iso));
 
+// "YYYY-MM" → "junio 2026"
+const periodLabel = (period: string) => {
+  const [y, m] = period.split('-').map(Number);
+  const label = new Intl.DateTimeFormat('es-CR', { month: 'long', year: 'numeric' }).format(
+    new Date(y, m - 1, 1),
+  );
+  return label.charAt(0).toUpperCase() + label.slice(1);
+};
+
+type HistoryMonth = {
+  period: string;
+  subscription: { planName: string; amount: number; isPaid: boolean } | null;
+  enrolledClasses: { classId: string; className: string }[];
+  sessions: { date: string; className: string }[];
+};
+
 export function StudentDrawer({ student, onClose }: { student: Student; onClose: () => void }) {
   const [tab, setTab] = useState<'info' | 'pagos' | 'asistencia' | 'progreso'>('info');
+  const apiClient = useApiClient();
+
+  const { data: history, isLoading: historyLoading } = useQuery<{ months: HistoryMonth[] }>({
+    queryKey: ['student-history', student.id],
+    queryFn: () => apiClient<{ months: HistoryMonth[] }>(`/api/v1/students/${student.id}/history`),
+    enabled: tab === 'asistencia',
+  });
 
   const sub = currentSubscription(student);
 
@@ -162,11 +188,51 @@ export function StudentDrawer({ student, onClose }: { student: Student; onClose:
             )}
           </div>
         )}
-        {tab === 'asistencia' && (
-          <p className="py-12 text-center text-sm text-gray-400">
-            Historial de asistencia disponible pronto
-          </p>
-        )}
+        {tab === 'asistencia' &&
+          (historyLoading ? (
+            <div className="flex justify-center py-12">
+              <Spinner size="sm" />
+            </div>
+          ) : !history || history.months.length === 0 ? (
+            <p className="py-12 text-center text-sm text-gray-400">Sin historial todavía</p>
+          ) : (
+            <div className="space-y-3">
+              {history.months.map((m) => (
+                <div key={m.period} className="rounded-xl border border-gray-100 p-3">
+                  <p className="text-dark text-sm font-bold">{periodLabel(m.period)}</p>
+
+                  {m.subscription ? (
+                    <p className="mt-0.5 text-xs text-gray-500">
+                      {m.subscription.planName} · {formatPrice(m.subscription.amount)} ·{' '}
+                      <span className={m.subscription.isPaid ? 'text-success' : 'text-warning'}>
+                        {m.subscription.isPaid ? 'Pagado' : 'Pendiente'}
+                      </span>
+                    </p>
+                  ) : (
+                    <p className="mt-0.5 text-xs text-gray-400">Sin mensualidad este mes</p>
+                  )}
+
+                  {m.enrolledClasses.length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {m.enrolledClasses.map((c) => (
+                        <span
+                          key={c.classId}
+                          className="bg-primary/10 text-primary rounded-full px-2.5 py-1 text-xs font-medium"
+                        >
+                          {c.className}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  <p className="mt-2 text-xs text-gray-400">
+                    {m.sessions.length}{' '}
+                    {m.sessions.length === 1 ? 'asistencia registrada' : 'asistencias registradas'}
+                  </p>
+                </div>
+              ))}
+            </div>
+          ))}
         {tab === 'progreso' && (
           <p className="py-12 text-center text-sm text-gray-400">Progreso disponible pronto</p>
         )}

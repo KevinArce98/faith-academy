@@ -24,7 +24,6 @@ const Payments = lazy(() => import('@/pages/Payments'));
 const Plans = lazy(() => import('@/pages/Plans'));
 const Reports = lazy(() => import('@/pages/Reports'));
 const VideoLibrary = lazy(() => import('@/pages/VideoLibrary'));
-const Scanner = lazy(() => import('@/pages/Scanner'));
 const Settings = lazy(() => import('@/pages/Settings'));
 
 export default function App() {
@@ -41,9 +40,6 @@ export default function App() {
 
           {/* ── No access ────────────────────────────────────── */}
           <Route path="/no-access" element={<NoAccess />} />
-
-          {/* ── Scanner (layout propio) ───────────────────────── */}
-          <Route path="/teacher/scanner" element={<Scanner />} />
 
           {/* ── Dashboard (protegido) ────────────────────────── */}
           <Route element={<DashboardLayout />}>

@@ -34,6 +34,7 @@ export function PaymentCard({ order, isAdmin = false }: PaymentCardProps) {
 
   const approved = status === 'ACTIVE';
   const rejected = status === 'REJECTED';
+  const expired = status === 'EXPIRED';
   const statusDate = approved || rejected ? (approvedAt ?? order.createdAt) : order.createdAt;
 
   const approveMutation = useMutation({
@@ -159,6 +160,10 @@ export function PaymentCard({ order, isAdmin = false }: PaymentCardProps) {
         ) : rejected ? (
           <div className="bg-danger/5 border-danger/20 text-danger rounded-xl border px-4 py-3 text-center text-sm font-semibold">
             Rechazado
+          </div>
+        ) : expired ? (
+          <div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-center text-sm font-semibold text-gray-500">
+            Vencido
           </div>
         ) : isAdmin ? (
           <div className="grid grid-cols-2 gap-3">

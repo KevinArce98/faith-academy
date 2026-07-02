@@ -40,11 +40,7 @@ export type StudioConfig = {
   };
   features: {
     lms: boolean;
-    attendanceScanner: boolean;
-    streaks: boolean;
-    familyAccounts: boolean;
     reports: boolean;
-    waitlist: boolean;
   };
   familyDiscounts: FamilyDiscountRule[];
   metadata: {
@@ -85,11 +81,7 @@ const studioConfig: StudioConfig = {
   },
   features: {
     lms: false,
-    attendanceScanner: false,
-    streaks: false,
-    familyAccounts: false,
     reports: false,
-    waitlist: false,
   },
   familyDiscounts: [
     { position: 2, pct: 10 },
