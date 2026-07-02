@@ -1,5 +1,6 @@
 import { forwardRef, useState } from 'react';
 import { Pressable, Text, TextInput, type TextInputProps, View } from 'react-native';
+import { theme } from '@/theme';
 import { cn } from '@/utils/cn';
 
 type PasswordInputProps = TextInputProps & {
@@ -25,7 +26,7 @@ export const PasswordInput = forwardRef<TextInput, PasswordInputProps>(
               error && 'border-danger',
               className,
             )}
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor={theme.colors.placeholder}
             {...props}
           />
           <Pressable

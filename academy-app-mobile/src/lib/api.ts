@@ -4,7 +4,18 @@ import { useCallback } from 'react';
 import { useAuth } from './auth/useAuth';
 
 const REFRESH_KEY = 'refresh_token';
-const API_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000';
+
+// En desarrollo cae a localhost; en un build de release la variable es
+// obligatoria — sin esto un binario mal configurado apuntaría en silencio
+// a localhost.
+function resolveApiUrl(): string {
+  const url = process.env.EXPO_PUBLIC_API_URL;
+  if (url) return url;
+  if (__DEV__) return 'http://localhost:3000';
+  throw new Error('EXPO_PUBLIC_API_URL no está configurada en este build.');
+}
+
+const API_URL = resolveApiUrl();
 
 export const MOBILE_HEADERS = { 'X-Client': 'mobile' } as const;
 
@@ -52,11 +63,24 @@ function extractErrorMessage(body: unknown, status: number): string {
     const err = (body as Record<string, unknown>).error;
     if (typeof err === 'string' && err.trim()) return err;
     if (err && typeof err === 'object') {
-      const fieldErrors = (err as { fieldErrors?: Record<string, string[]> }).fieldErrors;
-      const first = fieldErrors
-        ? Object.values(fieldErrors).flat().find(Boolean)
+      const e = err as {
+        code?: string;
+        message?: string;
+        fields?: Record<string, string[]>;
+        fieldErrors?: Record<string, string[]>;
+      };
+      // Contrato del API: { error: { code, message, fields? } }.
+      const firstField = e.fields
+        ? Object.values(e.fields).flat().find(Boolean)
         : undefined;
-      if (first) return first;
+      if (firstField) return firstField;
+      if (typeof e.message === 'string' && e.message.trim()) return e.message;
+      // Legacy (rutas de auth): zod flatten { fieldErrors }.
+      const firstLegacy = e.fieldErrors
+        ? Object.values(e.fieldErrors).flat().find(Boolean)
+        : undefined;
+      if (firstLegacy) return firstLegacy;
+      if (typeof e.code === 'string' && e.code.trim()) return e.code;
     }
     const msg = (body as Record<string, unknown>).message;
     if (typeof msg === 'string') return msg;

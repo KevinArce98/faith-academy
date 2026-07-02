@@ -1,5 +1,3 @@
-export type Plan = { id: string; name: string };
-
 export type Subscription = {
   id: string;
   planId: string;

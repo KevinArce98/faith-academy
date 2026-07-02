@@ -1,11 +1,19 @@
+import { Ionicons } from '@expo/vector-icons';
 import { Text, View } from 'react-native';
+import { theme } from '@/theme';
 
-type EmptyStateProps = { message: string; emoji?: string };
+type IoniconName = keyof typeof Ionicons.glyphMap;
 
-export function EmptyState({ message, emoji }: EmptyStateProps) {
+type EmptyStateProps = { message: string; icon?: IoniconName };
+
+export function EmptyState({ message, icon }: EmptyStateProps) {
   return (
     <View className="flex-1 items-center justify-center py-16 px-6">
-      {emoji && <Text className="text-4xl mb-3">{emoji}</Text>}
+      {icon && (
+        <View className="mb-3 h-14 w-14 items-center justify-center rounded-2xl bg-gray-100">
+          <Ionicons name={icon} size={26} color={theme.colors.textMuted} />
+        </View>
+      )}
       <Text className="text-center text-sm text-gray-400">{message}</Text>
     </View>
   );

@@ -11,10 +11,12 @@ export const ROLE_SCREEN_ACCESS: Record<Role, string[]> = {
     '/payouts',
     '/plans',
     '/monthly-attendance',
+    '/notifications',
+    '/student-history',
     '/more',
   ],
-  TEACHER: ['/', '/classes', '/class-attendance'],
-  STUDENT: ['/', '/my-classes', '/plans', '/payments'],
+  TEACHER: ['/', '/classes', '/class-attendance', '/notifications'],
+  STUDENT: ['/', '/my-classes', '/plans', '/payments', '/notifications'],
 };
 
 export function canAccess(role: Role, screen: string): boolean {

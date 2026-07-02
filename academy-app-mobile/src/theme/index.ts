@@ -1,6 +1,17 @@
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const tokens = require('./tokens') as {
   studio: { name: string; tagline: string; logoText: string; logoImage: number | null };
+  app: {
+    slug: string;
+    scheme: string;
+    bundleId: string;
+    version: string;
+    easProjectId: string | null;
+    owner: string | null;
+  };
+  locale: string;
+  currency: string;
+  currencySymbol: string;
   colors: {
     primary: string;
     primaryLight: string;
@@ -12,6 +23,8 @@ const tokens = require('./tokens') as {
     surface: string;
     textPrimary: string;
     textMuted: string;
+    border: string;
+    placeholder: string;
     success: string;
     warning: string;
     danger: string;

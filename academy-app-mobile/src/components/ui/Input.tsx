@@ -1,5 +1,6 @@
 import { forwardRef } from 'react';
 import { Text, TextInput, type TextInputProps, View } from 'react-native';
+import { theme } from '@/theme';
 import { cn } from '@/utils/cn';
 
 type InputProps = TextInputProps & {
@@ -23,7 +24,7 @@ export const Input = forwardRef<TextInput, InputProps>(
             error && 'border-danger',
             className,
           )}
-          placeholderTextColor="#9CA3AF"
+          placeholderTextColor={theme.colors.placeholder}
           {...props}
         />
         {error && <Text className="text-xs text-danger">{error}</Text>}
