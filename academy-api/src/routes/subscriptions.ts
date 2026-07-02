@@ -2,11 +2,11 @@ import { Hono } from 'hono';
 import { z } from 'zod';
 
 import { db } from '../lib/db.js';
+import { notFound } from '../lib/errors.js';
 import { invalidatePayouts } from '../lib/payouts.js';
-import { parseJsonBody } from '../lib/request.js';
+import { parseBody } from '../lib/request.js';
 import { addMonths, monthPeriod, parseMonthPeriod } from '../lib/utils/date.js';
-import { authMiddleware } from '../middleware/auth.js';
-import { requireRoleMiddleware } from '../middleware/requireRole.js';
+import { requireRole } from '../middleware/requireRole.js';
 import type { AuthVariables } from '../types/auth.js';
 
 const subscriptionsRoutes = new Hono<{ Variables: AuthVariables }>();
@@ -26,8 +26,7 @@ const paySchema = z.object({
 // Histórico de mensualidades/planes de un alumno (o de un mes concreto).
 subscriptionsRoutes.get(
 	'/',
-	authMiddleware,
-	requireRoleMiddleware(['ADMIN', 'TEACHER']),
+	requireRole('ADMIN', 'TEACHER'),
 	async (c) => {
 		const studentId = c.req.query('studentId');
 		const periodParam = c.req.query('period');
@@ -66,25 +65,20 @@ subscriptionsRoutes.get(
 // El monto es el precio del plan (snapshot), así una beca de ₡0 aporta ₡0.
 subscriptionsRoutes.post(
 	'/',
-	authMiddleware,
-	requireRoleMiddleware(['ADMIN', 'TEACHER']),
+	requireRole('ADMIN', 'TEACHER'),
 	async (c) => {
-		const body = await parseJsonBody(c);
-		const parsed = upsertSchema.safeParse(body);
-		if (!parsed.success) {
-			return c.json({ error: parsed.error.flatten() }, 422);
-		}
+		const parsed = await parseBody(c, upsertSchema);
 
-		const { studentId, planId, isPaid } = parsed.data;
-		const period = parsed.data.period
-			? parseMonthPeriod(parsed.data.period)
+		const { studentId, planId, isPaid } = parsed;
+		const period = parsed.period
+			? parseMonthPeriod(parsed.period)
 			: monthPeriod();
 
 		const plan = await db.membershipPlan.findUnique({
 			where: { id: planId },
 			select: { price: true },
 		});
-		if (!plan) return c.json({ error: 'Plan no encontrado.' }, 404);
+		if (!plan) throw notFound('Plan no encontrado.');
 
 		const now = new Date();
 		const paidFields = (paid: boolean) => ({
@@ -118,24 +112,19 @@ subscriptionsRoutes.post(
 // PATCH /subscriptions/:id/pay — marca la mensualidad como pagada / pendiente.
 subscriptionsRoutes.patch(
 	'/:id/pay',
-	authMiddleware,
-	requireRoleMiddleware(['ADMIN', 'TEACHER']),
+	requireRole('ADMIN', 'TEACHER'),
 	async (c) => {
 		const id = c.req.param('id');
-		const body = await parseJsonBody(c);
-		const parsed = paySchema.safeParse(body);
-		if (!parsed.success) {
-			return c.json({ error: parsed.error.flatten() }, 422);
-		}
+		const parsed = await parseBody(c, paySchema);
 
 		const now = new Date();
 		const subscription = await db.monthlySubscription.update({
 			where: { id },
 			data: {
-				isPaid: parsed.data.isPaid,
-				paidAt: parsed.data.isPaid ? now : null,
+				isPaid: parsed.isPaid,
+				paidAt: parsed.isPaid ? now : null,
 				// Ciclo por aniversario: vence 1 mes después del pago.
-				expiresAt: parsed.data.isPaid ? addMonths(now, 1) : null,
+				expiresAt: parsed.isPaid ? addMonths(now, 1) : null,
 			},
 		});
 

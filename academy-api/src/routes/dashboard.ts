@@ -1,22 +1,17 @@
 import { Hono } from 'hono';
 
-import { getCurrentUser } from '../lib/auth.js';
-import { authorizeRole } from '../lib/authorize.js';
 import { db } from '../lib/db.js';
 import { computePayouts } from '../lib/payouts.js';
 import { monthPeriod } from '../lib/utils/date.js';
 import { formatOneOff, formatSlots } from '../lib/utils/schedule.js';
-import { authMiddleware } from '../middleware/auth.js';
+import { requireRole } from '../middleware/requireRole.js';
 import type { AuthVariables } from '../types/auth.js';
 
 const dashboardRoutes = new Hono<{ Variables: AuthVariables }>();
 
 // GET /dashboard/student — resumen flat-fee del alumno (mes actual).
-dashboardRoutes.get('/student', authMiddleware, async (c) => {
-	const user = await getCurrentUser(c);
-	if (!user || user.role !== 'STUDENT') {
-		return c.json({ error: 'No autorizado' }, 403);
-	}
+dashboardRoutes.get('/student', requireRole('STUDENT'), async (c) => {
+	const user = c.get('user');
 
 	const now = new Date();
 	const period = monthPeriod(now);
@@ -80,11 +75,8 @@ function slotMins(time: string): number {
 
 // GET /dashboard/teacher — datos operativos del profe (sin finanzas de la academia).
 // Solo lo suyo: sus clases, alumnos inscritos, horas dadas y asistencia.
-dashboardRoutes.get('/teacher', authMiddleware, async (c) => {
-	const user = await getCurrentUser(c);
-	if (!user || user.role !== 'TEACHER') {
-		return c.json({ error: 'No autorizado' }, 403);
-	}
+dashboardRoutes.get('/teacher', requireRole('TEACHER'), async (c) => {
+	const user = c.get('user');
 
 	const period = monthPeriod();
 	const nextMonthStart = new Date(
@@ -185,10 +177,8 @@ dashboardRoutes.get('/teacher', authMiddleware, async (c) => {
 
 // GET /dashboard/admin — resumen flat-fee de la academia (mes actual).
 // Solo ADMIN: expone finanzas de toda la academia y datos de todos los alumnos.
-dashboardRoutes.get('/admin', authMiddleware, async (c) => {
-	const auth = await authorizeRole(c, 'ADMIN');
-	if (auth.error) return auth.error;
-	const user = auth.user;
+dashboardRoutes.get('/admin', requireRole('ADMIN'), async (c) => {
+	const user = c.get('user');
 
 	const now = new Date();
 	const period = monthPeriod(now);

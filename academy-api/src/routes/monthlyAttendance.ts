@@ -1,14 +1,13 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
 
-import { getCurrentUser } from '../lib/auth.js';
 import { db } from '../lib/db.js';
 import { getPlanStatus } from '../lib/enrollment.js';
+import { badRequest, forbidden, notFound } from '../lib/errors.js';
 import { invalidatePayouts } from '../lib/payouts.js';
-import { parseJsonBody } from '../lib/request.js';
+import { parseBody } from '../lib/request.js';
 import { monthPeriod, parseMonthPeriod } from '../lib/utils/date.js';
-import { authMiddleware } from '../middleware/auth.js';
-import { requireRoleMiddleware } from '../middleware/requireRole.js';
+import { requireAuth, requireRole } from '../middleware/requireRole.js';
 import type { AuthVariables } from '../types/auth.js';
 
 // Inscripciones del mes. El admin gestiona las de cualquier alumno; cada alumno
@@ -66,9 +65,8 @@ async function checkCanEnroll(
 // ── Auto-inscripción del alumno (scoped a sí mismo) ────────────────────────
 
 // GET /monthly-attendance/me?period=YYYY-MM — clases en las que está inscrito.
-monthlyAttendanceRoutes.get('/me', authMiddleware, async (c) => {
-	const user = await getCurrentUser(c);
-	if (!user) return c.json({ error: 'UNAUTHENTICATED' }, 401);
+monthlyAttendanceRoutes.get('/me', requireAuth, async (c) => {
+	const user = c.get('user');
 	const period = parseMonthPeriod(c.req.query('period'));
 	const [rows, status] = await Promise.all([
 		db.monthlyAttendance.findMany({
@@ -89,40 +87,37 @@ monthlyAttendanceRoutes.get('/me', authMiddleware, async (c) => {
 });
 
 // POST /monthly-attendance/me — el alumno se inscribe en una clase.
-monthlyAttendanceRoutes.post('/me', authMiddleware, async (c) => {
-	const user = await getCurrentUser(c);
-	if (!user) return c.json({ error: 'UNAUTHENTICATED' }, 401);
-	const parsed = selfEnrollSchema.safeParse(await parseJsonBody(c));
-	if (!parsed.success) return c.json({ error: parsed.error.flatten() }, 422);
-	const period = parsed.data.period
-		? parseMonthPeriod(parsed.data.period)
+monthlyAttendanceRoutes.post('/me', requireAuth, async (c) => {
+	const user = c.get('user');
+	const parsed = await parseBody(c, selfEnrollSchema);
+	const period = parsed.period
+		? parseMonthPeriod(parsed.period)
 		: monthPeriod();
 
 	// Las clases privadas (compañía/audición) solo las inscribe el admin.
 	const cls = await db.class.findUnique({
-		where: { id: parsed.data.classId },
+		where: { id: parsed.classId },
 		select: { isPrivate: true },
 	});
-	if (!cls) return c.json({ error: 'Clase no encontrada.' }, 404);
+	if (!cls) throw notFound('Clase no encontrada.');
 	if (cls.isPrivate) {
-		return c.json(
-			{ error: 'Esta clase es privada; solo el administrador puede inscribirte.' },
-			403,
+		throw forbidden(
+			'Esta clase es privada; solo el administrador puede inscribirte.',
 		);
 	}
 
-	const check = await checkCanEnroll(user.id, parsed.data.classId, period);
-	if (!check.ok) return c.json({ error: check.reason }, 400);
+	const check = await checkCanEnroll(user.id, parsed.classId, period);
+	if (!check.ok) throw badRequest('ENROLLMENT_NOT_ALLOWED', check.reason);
 
 	const record = await db.monthlyAttendance.upsert({
 		where: {
 			studentId_classId_period: {
 				studentId: user.id,
-				classId: parsed.data.classId,
+				classId: parsed.classId,
 				period,
 			},
 		},
-		create: { studentId: user.id, classId: parsed.data.classId, period },
+		create: { studentId: user.id, classId: parsed.classId, period },
 		update: {},
 	});
 	invalidatePayouts();
@@ -130,13 +125,11 @@ monthlyAttendanceRoutes.post('/me', authMiddleware, async (c) => {
 });
 
 // DELETE /monthly-attendance/me — el alumno se desinscribe.
-monthlyAttendanceRoutes.delete('/me', authMiddleware, async (c) => {
-	const user = await getCurrentUser(c);
-	if (!user) return c.json({ error: 'UNAUTHENTICATED' }, 401);
-	const parsed = selfEnrollSchema.safeParse(await parseJsonBody(c));
-	if (!parsed.success) return c.json({ error: parsed.error.flatten() }, 422);
-	const period = parsed.data.period
-		? parseMonthPeriod(parsed.data.period)
+monthlyAttendanceRoutes.delete('/me', requireAuth, async (c) => {
+	const user = c.get('user');
+	const parsed = await parseBody(c, selfEnrollSchema);
+	const period = parsed.period
+		? parseMonthPeriod(parsed.period)
 		: monthPeriod();
 
 	// Una reserva de clase suelta (sessionDate seteada) no se puede quitar por
@@ -145,21 +138,21 @@ monthlyAttendanceRoutes.delete('/me', authMiddleware, async (c) => {
 		where: {
 			studentId_classId_period: {
 				studentId: user.id,
-				classId: parsed.data.classId,
+				classId: parsed.classId,
 				period,
 			},
 		},
 		select: { sessionDate: true },
 	});
 	if (existing?.sessionDate) {
-		return c.json(
-			{ error: 'Tu reserva de clase suelta no se puede cambiar.' },
-			400,
+		throw badRequest(
+			'SINGLE_CLASS_LOCKED',
+			'Tu reserva de clase suelta no se puede cambiar.',
 		);
 	}
 
 	await db.monthlyAttendance.deleteMany({
-		where: { studentId: user.id, classId: parsed.data.classId, period },
+		where: { studentId: user.id, classId: parsed.classId, period },
 	});
 	invalidatePayouts();
 	return c.json({ success: true });
@@ -169,8 +162,7 @@ monthlyAttendanceRoutes.delete('/me', authMiddleware, async (c) => {
 // Lista las inscripciones del período.
 monthlyAttendanceRoutes.get(
 	'/',
-	authMiddleware,
-	requireRoleMiddleware('ADMIN'),
+	requireRole('ADMIN'),
 	async (c) => {
 		const period = parseMonthPeriod(c.req.query('period'));
 		const classId = c.req.query('classId');
@@ -196,22 +188,17 @@ monthlyAttendanceRoutes.get(
 // Idempotente: una fila por [alumno, clase, mes].
 monthlyAttendanceRoutes.post(
 	'/',
-	authMiddleware,
-	requireRoleMiddleware('ADMIN'),
+	requireRole('ADMIN'),
 	async (c) => {
-		const body = await parseJsonBody(c);
-		const parsed = markSchema.safeParse(body);
-		if (!parsed.success) {
-			return c.json({ error: parsed.error.flatten() }, 422);
-		}
+		const parsed = await parseBody(c, markSchema);
 
-		const { studentId, classId } = parsed.data;
-		const period = parsed.data.period
-			? parseMonthPeriod(parsed.data.period)
+		const { studentId, classId } = parsed;
+		const period = parsed.period
+			? parseMonthPeriod(parsed.period)
 			: monthPeriod();
 
 		const check = await checkCanEnroll(studentId, classId, period);
-		if (!check.ok) return c.json({ error: check.reason }, 400);
+		if (!check.ok) throw badRequest('ENROLLMENT_NOT_ALLOWED', check.reason);
 
 		const record = await db.monthlyAttendance.upsert({
 			where: {
@@ -229,18 +216,13 @@ monthlyAttendanceRoutes.post(
 // DELETE /monthly-attendance — quita la inscripción de un alumno a una clase ese mes.
 monthlyAttendanceRoutes.delete(
 	'/',
-	authMiddleware,
-	requireRoleMiddleware('ADMIN'),
+	requireRole('ADMIN'),
 	async (c) => {
-		const body = await parseJsonBody(c);
-		const parsed = markSchema.safeParse(body);
-		if (!parsed.success) {
-			return c.json({ error: parsed.error.flatten() }, 422);
-		}
+		const parsed = await parseBody(c, markSchema);
 
-		const { studentId, classId } = parsed.data;
-		const period = parsed.data.period
-			? parseMonthPeriod(parsed.data.period)
+		const { studentId, classId } = parsed;
+		const period = parsed.period
+			? parseMonthPeriod(parsed.period)
 			: monthPeriod();
 
 		await db.monthlyAttendance.deleteMany({

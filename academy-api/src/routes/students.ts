@@ -1,153 +1,77 @@
 import { Hono } from 'hono';
 
-import { createManagedUser } from '../lib/auth.js';
 import { db } from '../lib/db.js';
-import { parseJsonBody } from '../lib/request.js';
+import { notFound } from '../lib/errors.js';
+import { parseBody } from '../lib/request.js';
 import { monthPeriod } from '../lib/utils/date.js';
-import { generateTempPassword } from '../lib/utils/password.js';
 import {
 	createStudentSchema,
 	updateStudentSchema,
 } from '../lib/validations/students.js';
-import { authMiddleware } from '../middleware/auth.js';
-import { requireRoleMiddleware } from '../middleware/requireRole.js';
+import { requireRole } from '../middleware/requireRole.js';
+import { createStudent, deactivateStudent } from '../services/students.js';
 import type { AuthVariables } from '../types/auth.js';
 
 const studentsRoutes = new Hono<{ Variables: AuthVariables }>();
 
-studentsRoutes.get(
-	'/',
-	authMiddleware,
-	requireRoleMiddleware(['ADMIN', 'TEACHER']),
-	async (c) => {
-		const students = await db.userProfile.findMany({
-			where: { role: 'STUDENT' },
-			select: {
-				id: true,
-				name: true,
-				email: true,
-				phone: true,
-				role: true,
-				createdAt: true,
-				isActive: true,
-				enrollmentFee: true,
-				enrolledAt: true,
-				subscriptions: {
-					orderBy: { period: 'desc' },
-					take: 1,
-					select: {
-						id: true,
-						planId: true,
-						period: true,
-						amount: true,
-						isPaid: true,
-						paidAt: true,
-						expiresAt: true,
-						plan: { select: { id: true, name: true, isPublic: true } },
-					},
+studentsRoutes.get('/', requireRole('ADMIN', 'TEACHER'), async (c) => {
+	const students = await db.userProfile.findMany({
+		where: { role: 'STUDENT', isActive: true },
+		select: {
+			id: true,
+			name: true,
+			email: true,
+			phone: true,
+			role: true,
+			createdAt: true,
+			isActive: true,
+			enrollmentFee: true,
+			enrolledAt: true,
+			subscriptions: {
+				orderBy: { period: 'desc' },
+				take: 1,
+				select: {
+					id: true,
+					planId: true,
+					period: true,
+					amount: true,
+					isPaid: true,
+					paidAt: true,
+					expiresAt: true,
+					plan: { select: { id: true, name: true, isPublic: true } },
 				},
 			},
-			orderBy: { createdAt: 'desc' },
-		});
+		},
+		orderBy: { createdAt: 'desc' },
+	});
 
-		return c.json({ students });
-	},
-);
+	return c.json({ students });
+});
 
-studentsRoutes.post(
-	'/',
-	authMiddleware,
-	requireRoleMiddleware(['ADMIN', 'TEACHER']),
-	async (c) => {
-		const body = await parseJsonBody(c);
-		const parsed = createStudentSchema.safeParse(body);
-		if (!parsed.success) {
-			return c.json({ success: false, error: parsed.error.flatten() }, 422);
-		}
+studentsRoutes.post('/', requireRole('ADMIN', 'TEACHER'), async (c) => {
+	const parsed = await parseBody(c, createStudentSchema);
+	const { userId, tempPassword } = await createStudent(parsed);
+	return c.json({ success: true, userId, tempPassword }, 201);
+});
 
-		const { name, email, phone, enrollmentFee, enrolledAt } = parsed.data;
-		const planId = parsed.data.planId?.trim() || null;
+studentsRoutes.put('/:id', requireRole('ADMIN', 'TEACHER'), async (c) => {
+	const parsed = await parseBody(c, updateStudentSchema);
 
-		try {
-			const tempPassword = generateTempPassword();
+	const id = c.req.param('id');
+	const student = await db.userProfile.findFirst({
+		where: { id, role: 'STUDENT' },
+	});
+	if (!student) throw notFound('Alumno no encontrado.');
 
-			const created = await createManagedUser({
-				email,
-				name,
-				role: 'STUDENT',
-				tempPassword,
-				phone: phone?.trim() || null,
-			});
+	const name = parsed.name.replace(/\s+/g, ' ').trim();
+	const email = parsed.email.trim().toLowerCase();
+	const phone = parsed.phone?.trim() || null;
+	const planId = parsed.planId?.trim() || null;
+	const { enrollmentFee, enrolledAt } = parsed;
 
-			// Matrícula (pago único de inscripción).
-			if (enrollmentFee != null || enrolledAt) {
-				await db.userProfile.update({
-					where: { id: created.id },
-					data: {
-						enrollmentFee: enrollmentFee ?? null,
-						enrolledAt: enrolledAt ? new Date(enrolledAt) : null,
-					},
-				});
-			}
-
-			// Plan asignado → mensualidad del mes actual.
-			if (planId) {
-				const plan = await db.membershipPlan.findUnique({
-					where: { id: planId },
-					select: { price: true },
-				});
-				if (plan) {
-					await db.monthlySubscription.create({
-						data: {
-							studentId: created.id,
-							planId,
-							period: monthPeriod(),
-							amount: plan.price,
-							isPaid: false,
-						},
-					});
-				}
-			}
-
-			return c.json({ success: true, userId: created.id, tempPassword }, 201);
-		} catch (err) {
-			const message =
-				err instanceof Error && err.message.includes('Unique')
-					? 'El correo ya está registrado.'
-					: 'Error al crear el alumno.';
-			return c.json({ success: false, error: message }, 400);
-		}
-	},
-);
-
-studentsRoutes.put(
-	'/:id',
-	authMiddleware,
-	requireRoleMiddleware(['ADMIN', 'TEACHER']),
-	async (c) => {
-		const body = await parseJsonBody(c);
-		const parsed = updateStudentSchema.safeParse(body);
-		if (!parsed.success) {
-			return c.json({ success: false, error: parsed.error.flatten() }, 422);
-		}
-
-		const id = c.req.param('id');
-		const student = await db.userProfile.findFirst({
-			where: { id, role: 'STUDENT' },
-		});
-
-		if (!student) {
-			return c.json({ success: false, error: 'Alumno no encontrado.' }, 404);
-		}
-
-		const name = parsed.data.name.replace(/\s+/g, ' ').trim();
-		const email = parsed.data.email.trim().toLowerCase();
-		const phone = parsed.data.phone?.trim() || null;
-		const planId = parsed.data.planId?.trim() || null;
-		const { enrollmentFee, enrolledAt } = parsed.data;
-
+	const updated = await db.$transaction(async (tx) => {
 		// Perfil + matrícula.
-		const updated = await db.userProfile.update({
+		const profile = await tx.userProfile.update({
 			where: { id: student.id },
 			data: {
 				name,
@@ -174,13 +98,13 @@ studentsRoutes.put(
 
 		// Plan asignado → upsert de la mensualidad del mes actual.
 		if (planId) {
-			const plan = await db.membershipPlan.findUnique({
+			const plan = await tx.membershipPlan.findUnique({
 				where: { id: planId },
 				select: { price: true },
 			});
 			if (plan) {
 				const period = monthPeriod();
-				await db.monthlySubscription.upsert({
+				await tx.monthlySubscription.upsert({
 					where: { studentId_period: { studentId: student.id, period } },
 					create: {
 						studentId: student.id,
@@ -194,40 +118,117 @@ studentsRoutes.put(
 			}
 		}
 
-		return c.json({ success: true, student: updated, email });
-	},
-);
+		return profile;
+	});
 
-studentsRoutes.delete(
-	'/:id',
-	authMiddleware,
-	requireRoleMiddleware(['ADMIN', 'TEACHER']),
-	async (c) => {
-		const id = c.req.param('id');
-		const student = await db.userProfile.findFirst({
-			where: { id, role: 'STUDENT' },
-			select: { id: true, name: true },
-		});
+	return c.json({ success: true, student: updated, email });
+});
 
-		if (!student) {
-			return c.json({ success: false, error: 'Alumno no encontrado.' }, 404);
+// Baja de alumno: soft delete — el historial financiero y de asistencia se
+// conserva. Solo ADMIN.
+studentsRoutes.delete('/:id', requireRole('ADMIN'), async (c) => {
+	const id = c.req.param('id');
+	const student = await db.userProfile.findFirst({
+		where: { id, role: 'STUDENT', isActive: true },
+		select: { id: true },
+	});
+	if (!student) throw notFound('Alumno no encontrado.');
+
+	await deactivateStudent(student.id);
+
+	return c.json({ success: true });
+});
+
+// GET /students/:id/history — historial del alumno agrupado por mes:
+// mensualidad pagada, clases inscritas y asistencias reales de cada mes.
+studentsRoutes.get('/:id/history', requireRole('ADMIN', 'TEACHER'), async (c) => {
+	const id = c.req.param('id');
+
+	const student = await db.userProfile.findFirst({
+		where: { id, role: 'STUDENT' },
+		select: {
+			id: true,
+			name: true,
+			email: true,
+			phone: true,
+			isActive: true,
+			enrolledAt: true,
+			enrollmentFee: true,
+		},
+	});
+	if (!student) throw notFound('Alumno no encontrado.');
+
+	const [subscriptions, enrollments, sessions] = await Promise.all([
+		db.monthlySubscription.findMany({
+			where: { studentId: id },
+			include: { plan: { select: { name: true } } },
+			orderBy: { period: 'desc' },
+		}),
+		db.monthlyAttendance.findMany({
+			where: { studentId: id },
+			include: { class: { select: { name: true } } },
+		}),
+		db.sessionAttendance.findMany({
+			where: { studentId: id },
+			include: { class: { select: { name: true } } },
+			orderBy: { date: 'desc' },
+		}),
+	]);
+
+	// "YYYY-MM" a partir de una fecha (en UTC, como se guardan los períodos).
+	const monthKey = (d: Date) =>
+		`${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}`;
+
+	type Month = {
+		period: string;
+		subscription: {
+			planName: string;
+			amount: number;
+			isPaid: boolean;
+			paidAt: string | null;
+			expiresAt: string | null;
+		} | null;
+		enrolledClasses: { classId: string; className: string }[];
+		sessions: { date: string; className: string }[];
+	};
+
+	const months = new Map<string, Month>();
+	const get = (key: string): Month => {
+		let m = months.get(key);
+		if (!m) {
+			m = { period: key, subscription: null, enrolledClasses: [], sessions: [] };
+			months.set(key, m);
 		}
+		return m;
+	};
 
-		await db.$transaction([
-			db.monthlyAttendance.deleteMany({ where: { studentId: student.id } }),
-			db.monthlySubscription.deleteMany({ where: { studentId: student.id } }),
-			db.creditLedger.deleteMany({ where: { studentId: student.id } }),
-			db.classWaitlist.deleteMany({ where: { studentId: student.id } }),
-			db.attendance.deleteMany({ where: { studentId: student.id } }),
-			db.userSkill.deleteMany({ where: { studentId: student.id } }),
-			db.streak.deleteMany({ where: { studentId: student.id } }),
-			db.familyMember.deleteMany({ where: { studentId: student.id } }),
-			db.membershipOrder.deleteMany({ where: { studentId: student.id } }),
-			db.userProfile.delete({ where: { id: student.id } }),
-		]);
+	for (const s of subscriptions) {
+		get(monthKey(s.period)).subscription = {
+			planName: s.plan.name,
+			amount: Number(s.amount),
+			isPaid: s.isPaid,
+			paidAt: s.paidAt?.toISOString() ?? null,
+			expiresAt: s.expiresAt?.toISOString() ?? null,
+		};
+	}
+	for (const e of enrollments) {
+		get(monthKey(e.period)).enrolledClasses.push({
+			classId: e.classId,
+			className: e.class.name,
+		});
+	}
+	for (const s of sessions) {
+		get(monthKey(s.date)).sessions.push({
+			date: s.date.toISOString().slice(0, 10),
+			className: s.class.name,
+		});
+	}
 
-		return c.json({ success: true });
-	},
-);
+	const ordered = [...months.values()].sort((a, b) =>
+		a.period < b.period ? 1 : -1,
+	);
+
+	return c.json({ student, months: ordered });
+});
 
 export default studentsRoutes;

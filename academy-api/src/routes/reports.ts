@@ -1,11 +1,11 @@
 import { Hono } from 'hono';
 
 import { db } from '../lib/db.js';
+import { forbidden } from '../lib/errors.js';
 import { features } from '../lib/features.js';
 import { startOfMonth } from '../lib/utils/date.js';
 import { sumPrice } from '../lib/utils/money.js';
-import { authMiddleware } from '../middleware/auth.js';
-import { requireRoleMiddleware } from '../middleware/requireRole.js';
+import { requireRole } from '../middleware/requireRole.js';
 import type { AuthVariables } from '../types/auth.js';
 
 const reportsRoutes = new Hono<{ Variables: AuthVariables }>();
@@ -13,11 +13,10 @@ const reportsRoutes = new Hono<{ Variables: AuthVariables }>();
 // GET /reports
 reportsRoutes.get(
 	'/',
-	authMiddleware,
-	requireRoleMiddleware('ADMIN'),
+	requireRole('ADMIN'),
 	async (c) => {
 		if (!features.reports) {
-			return c.json({ error: 'Módulo no disponible' }, 403);
+			throw forbidden('Módulo no disponible.');
 		}
 
 		const now = new Date();

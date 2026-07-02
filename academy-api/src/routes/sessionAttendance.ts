@@ -1,23 +1,21 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
 
-import { getCurrentUser } from '../lib/auth.js';
 import { db } from '../lib/db.js';
+import { badRequest, forbidden } from '../lib/errors.js';
+import type { UserProfileModel } from '../lib/generated/prisma/models.js';
 import { invalidatePayouts } from '../lib/payouts.js';
-import { parseJsonBody } from '../lib/request.js';
+import { parseBody } from '../lib/request.js';
 import { monthPeriod } from '../lib/utils/date.js';
-import { authMiddleware } from '../middleware/auth.js';
-import { requireRoleMiddleware } from '../middleware/requireRole.js';
-import type { AuthContext, AuthVariables } from '../types/auth.js';
+import { requireRole } from '../middleware/requireRole.js';
+import type { AuthVariables } from '../types/auth.js';
 
 const sessionAttendanceRoutes = new Hono<{ Variables: AuthVariables }>();
 
 async function canManageClass(
-	c: AuthContext,
+	user: UserProfileModel,
 	classId: string,
 ): Promise<boolean> {
-	const user = await getCurrentUser(c);
-	if (!user) return false;
 	if (user.role !== 'TEACHER') return true;
 	const cls = await db.class.findUnique({
 		where: { id: classId },
@@ -44,13 +42,12 @@ const markSchema = z.object({
 
 sessionAttendanceRoutes.get(
 	'/',
-	authMiddleware,
-	requireRoleMiddleware(['ADMIN', 'TEACHER']),
+	requireRole('ADMIN', 'TEACHER'),
 	async (c) => {
 		const classId = c.req.query('classId');
-		if (!classId) return c.json({ error: 'classId requerido' }, 400);
-		if (!(await canManageClass(c, classId))) {
-			return c.json({ error: 'Solo puedes gestionar tus clases.' }, 403);
+		if (!classId) throw badRequest('MISSING_CLASS_ID', 'classId requerido.');
+		if (!(await canManageClass(c.get('user'), classId))) {
+			throw forbidden('Solo puedes gestionar tus clases.');
 		}
 		const date = parseDate(c.req.query('date'));
 		const period = monthPeriod(date);
@@ -92,16 +89,14 @@ sessionAttendanceRoutes.get(
 
 sessionAttendanceRoutes.post(
 	'/',
-	authMiddleware,
-	requireRoleMiddleware(['ADMIN', 'TEACHER']),
+	requireRole('ADMIN', 'TEACHER'),
 	async (c) => {
-		const parsed = markSchema.safeParse(await parseJsonBody(c));
-		if (!parsed.success) return c.json({ error: parsed.error.flatten() }, 422);
-		const { studentId, classId } = parsed.data;
-		if (!(await canManageClass(c, classId))) {
-			return c.json({ error: 'Solo puedes gestionar tus clases.' }, 403);
+		const parsed = await parseBody(c, markSchema);
+		const { studentId, classId } = parsed;
+		if (!(await canManageClass(c.get('user'), classId))) {
+			throw forbidden('Solo puedes gestionar tus clases.');
 		}
-		const date = parseDate(parsed.data.date);
+		const date = parseDate(parsed.date);
 		const record = await db.sessionAttendance.upsert({
 			where: { classId_studentId_date: { classId, studentId, date } },
 			create: { classId, studentId, date },
@@ -114,16 +109,14 @@ sessionAttendanceRoutes.post(
 
 sessionAttendanceRoutes.delete(
 	'/',
-	authMiddleware,
-	requireRoleMiddleware(['ADMIN', 'TEACHER']),
+	requireRole('ADMIN', 'TEACHER'),
 	async (c) => {
-		const parsed = markSchema.safeParse(await parseJsonBody(c));
-		if (!parsed.success) return c.json({ error: parsed.error.flatten() }, 422);
-		const { studentId, classId } = parsed.data;
-		if (!(await canManageClass(c, classId))) {
-			return c.json({ error: 'Solo puedes gestionar tus clases.' }, 403);
+		const parsed = await parseBody(c, markSchema);
+		const { studentId, classId } = parsed;
+		if (!(await canManageClass(c.get('user'), classId))) {
+			throw forbidden('Solo puedes gestionar tus clases.');
 		}
-		const date = parseDate(parsed.data.date);
+		const date = parseDate(parsed.date);
 		await db.sessionAttendance.deleteMany({
 			where: { classId, studentId, date },
 		});

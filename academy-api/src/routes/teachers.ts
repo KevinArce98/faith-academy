@@ -3,13 +3,14 @@ import { z } from 'zod';
 
 import { createManagedUser } from '../lib/auth.js';
 import { db } from '../lib/db.js';
+import { badRequest, notFound } from '../lib/errors.js';
+import { Prisma } from '../lib/generated/prisma/client.js';
 import { revokeAllForUser } from '../lib/refreshTokens.js';
-import { parseJsonBody } from '../lib/request.js';
+import { parseBody } from '../lib/request.js';
 import type { Role } from '../lib/roles.js';
 import { getTeachersWithClasses } from '../lib/teachers.js';
 import { generateTempPassword } from '../lib/utils/password.js';
-import { authMiddleware } from '../middleware/auth.js';
-import { requireRoleMiddleware } from '../middleware/requireRole.js';
+import { requireRole } from '../middleware/requireRole.js';
 import type { AuthVariables } from '../types/auth.js';
 
 const teachersRoutes = new Hono<{ Variables: AuthVariables }>();
@@ -32,15 +33,10 @@ const updateTeacherSchema = z.object({
 });
 
 // GET /teachers
-teachersRoutes.get(
-	'/',
-	authMiddleware,
-	requireRoleMiddleware('ADMIN'),
-	async (c) => {
-		const teachers = await getTeachersWithClasses();
-		return c.json(teachers);
-	},
-);
+teachersRoutes.get('/', requireRole('ADMIN'), async (c) => {
+	const teachers = await getTeachersWithClasses();
+	return c.json(teachers);
+});
 
 // GET /teachers/assignable — usuarios que pueden impartir una clase
 // (profesores + admins, ya que un admin también puede dar clases).
@@ -48,8 +44,7 @@ teachersRoutes.get(
 // Solo expone id/name/role — sin email ni tarifa.
 teachersRoutes.get(
 	'/assignable',
-	authMiddleware,
-	requireRoleMiddleware(['ADMIN', 'TEACHER', 'STUDENT']),
+	requireRole('ADMIN', 'TEACHER', 'STUDENT'),
 	async (c) => {
 		const teachers = await db.userProfile.findMany({
 			where: { role: { in: ['ADMIN', 'TEACHER'] }, isActive: true },
@@ -61,74 +56,53 @@ teachersRoutes.get(
 );
 
 // POST /teachers — create a new teacher
-teachersRoutes.post(
-	'/',
-	authMiddleware,
-	requireRoleMiddleware('ADMIN'),
-	async (c) => {
-		const body = await parseJsonBody(c);
-		const parsed = createTeacherSchema.safeParse(body);
-		if (!parsed.success) {
-			return c.json({ error: parsed.error.flatten() }, 422);
-		}
+teachersRoutes.post('/', requireRole('ADMIN'), async (c) => {
+	const { name, email, hourlyRate } = await parseBody(c, createTeacherSchema);
+	const tempPassword = generateTempPassword();
 
-		const { name, email, hourlyRate } = parsed.data;
-		const tempPassword = generateTempPassword();
-
-		try {
-			const userProfile = await createManagedUser({
-				email,
-				name,
-				role: 'TEACHER',
-				tempPassword,
-				hourlyRate,
-			});
-			return c.json(
-				{ success: true, userId: userProfile.id, tempPassword },
-				201,
-			);
-		} catch (err) {
-			const message =
-				err instanceof Error && err.message.includes('Unique')
-					? 'El correo ya está registrado.'
-					: 'Error al crear el profesor.';
-			return c.json({ error: message }, 400);
+	try {
+		const userProfile = await createManagedUser({
+			email,
+			name,
+			role: 'TEACHER',
+			tempPassword,
+			hourlyRate,
+		});
+		return c.json({ success: true, userId: userProfile.id, tempPassword }, 201);
+	} catch (err) {
+		if (
+			err instanceof Prisma.PrismaClientKnownRequestError &&
+			err.code === 'P2002'
+		) {
+			throw badRequest('EMAIL_TAKEN', 'El correo ya está registrado.');
 		}
-	},
-);
+		throw err;
+	}
+});
 
 // PATCH /teachers/:id — update teacher (isActive, role, name)
 teachersRoutes.patch(
 	'/:id',
-	authMiddleware,
-	requireRoleMiddleware('ADMIN'),
+	requireRole('ADMIN'),
 	async (c) => {
 		const id = c.req.param('id');
-		const body = await parseJsonBody(c);
-		const parsed = updateTeacherSchema.safeParse(body);
-		if (!parsed.success) {
-			return c.json({ error: parsed.error.flatten() }, 422);
-		}
+		const parsed = await parseBody(c, updateTeacherSchema);
 
-		const { isActive, role, name, hourlyRate } = parsed.data;
+		const { isActive, role, name, hourlyRate } = parsed;
 
 		const teacher = await db.userProfile.findFirst({
 			where: { id, role: 'TEACHER' },
 		});
-		if (!teacher) {
-			return c.json({ error: 'Profesor no encontrado.' }, 404);
-		}
+		if (!teacher) throw notFound('Profesor no encontrado.');
 
 		if (isActive === false) {
 			const activeClasses = await db.class.count({
 				where: { teacherId: teacher.id, isActive: true },
 			});
 			if (activeClasses > 0) {
-				return c.json(
-					{
-						error: `No se puede desactivar. El profesor tiene ${activeClasses} clase(s) activa(s). Reasigna las clases primero.`,
-					},
-					400,
+				throw badRequest(
+					'TEACHER_HAS_CLASSES',
+					`No se puede desactivar. El profesor tiene ${activeClasses} clase(s) activa(s). Reasigna las clases primero.`,
 				);
 			}
 		}
@@ -151,7 +125,7 @@ teachersRoutes.patch(
 		}
 
 		if (!Object.keys(data).length) {
-			return c.json({ error: 'No hay cambios para aplicar.' }, 400);
+			throw badRequest('NO_CHANGES', 'No hay cambios para aplicar.');
 		}
 
 		const updated = await db.userProfile.update({
@@ -177,34 +151,25 @@ teachersRoutes.patch(
 );
 
 // DELETE /teachers/:id
-teachersRoutes.delete(
-	'/:id',
-	authMiddleware,
-	requireRoleMiddleware('ADMIN'),
-	async (c) => {
-		const id = c.req.param('id');
-		const teacher = await db.userProfile.findFirst({
-			where: { id, role: 'TEACHER' },
-		});
-		if (!teacher) {
-			return c.json({ error: 'Profesor no encontrado.' }, 404);
-		}
+teachersRoutes.delete('/:id', requireRole('ADMIN'), async (c) => {
+	const id = c.req.param('id');
+	const teacher = await db.userProfile.findFirst({
+		where: { id, role: 'TEACHER' },
+	});
+	if (!teacher) throw notFound('Profesor no encontrado.');
 
-		const activeClasses = await db.class.count({
-			where: { teacherId: teacher.id, isActive: true },
-		});
-		if (activeClasses > 0) {
-			return c.json(
-				{
-					error: `No se puede eliminar. Tiene ${activeClasses} clase(s) activa(s).`,
-				},
-				400,
-			);
-		}
+	const activeClasses = await db.class.count({
+		where: { teacherId: teacher.id, isActive: true },
+	});
+	if (activeClasses > 0) {
+		throw badRequest(
+			'TEACHER_HAS_CLASSES',
+			`No se puede eliminar. Tiene ${activeClasses} clase(s) activa(s).`,
+		);
+	}
 
-		await db.userProfile.delete({ where: { id } });
-		return c.json({ success: true });
-	},
-);
+	await db.userProfile.delete({ where: { id } });
+	return c.json({ success: true });
+});
 
 export default teachersRoutes;
