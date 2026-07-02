@@ -1,33 +1,32 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Redirect, Tabs } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
 import type { ColorValue } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { useApiClient } from '@/lib/api';
 import { useAuth } from '@/lib/auth/useAuth';
-import type { MeResponse } from '@/lib/interfaces/auth';
+import { useMe } from '@/lib/queries';
 import { isAdmin, isStudent } from '@/lib/roles';
+import { usePushNotifications } from '@/lib/usePushNotifications';
 import { InlineSpinner } from '@/components/ui/Spinner';
 import { theme } from '@/theme';
 
 type IoniconName = keyof typeof Ionicons.glyphMap;
 
 function tabIcon(name: IoniconName) {
-  return ({ color, focused }: { color: ColorValue; focused: boolean; size: number }) => (
+  const TabBarIcon = ({ color, focused }: { color: ColorValue; focused: boolean; size: number }) => (
     <Ionicons name={(focused ? name : `${name}-outline`) as IoniconName} size={23} color={color as string} />
   );
+  TabBarIcon.displayName = `TabBarIcon(${name})`;
+  return TabBarIcon;
 }
 
 export default function AppLayout() {
   const { isLoaded, isSignedIn } = useAuth();
-  const api = useApiClient();
+  const insets = useSafeAreaInsets();
 
-  const { data: me, isLoading } = useQuery<MeResponse>({
-    queryKey: ['me'],
-    queryFn: () => api<MeResponse>('/api/v1/auth/me'),
-    enabled: isSignedIn,
-    staleTime: 5 * 60 * 1000,
-  });
+  const { data: me, isLoading } = useMe(isSignedIn);
+
+  usePushNotifications(isSignedIn);
 
   if (!isLoaded || isLoading) return <InlineSpinner />;
   if (!isSignedIn) return <Redirect href="/(auth)/sign-in" />;
@@ -45,10 +44,10 @@ export default function AppLayout() {
         tabBarInactiveTintColor: theme.colors.textMuted,
         tabBarStyle: {
           backgroundColor: theme.colors.surface,
-          borderTopColor: '#EEF2F7',
-          height: 60,
+          borderTopColor: theme.colors.border,
+          height: 60 + insets.bottom,
           paddingTop: 6,
-          paddingBottom: 8,
+          paddingBottom: 8 + insets.bottom,
         },
         tabBarLabelStyle: { fontSize: 10.5, fontWeight: '600', marginTop: 2 },
         tabBarItemStyle: { paddingVertical: 0 },
@@ -63,7 +62,17 @@ export default function AppLayout() {
         }}
       />
 
-      {/* ── STUDENT ── */}
+      {/* ── Clases (TEACHER + ADMIN) ── */}
+      <Tabs.Screen
+        name="classes"
+        options={{
+          title: 'Clases',
+          href: teacher || admin ? undefined : null,
+          tabBarIcon: tabIcon('musical-notes'),
+        }}
+      />
+
+      {/* ── Mis Clases (STUDENT) ── */}
       <Tabs.Screen
         name="my-classes"
         options={{
@@ -72,14 +81,28 @@ export default function AppLayout() {
           tabBarIcon: tabIcon('calendar'),
         }}
       />
+
+      {/* ── Asistencia de Clase (TEACHER; admin la abre desde "Más") ── */}
       <Tabs.Screen
-        name="plans"
+        name="class-attendance"
         options={{
-          title: 'Planes',
-          href: student || admin ? undefined : null,
-          tabBarIcon: tabIcon('pricetag'),
+          title: 'Asistencia',
+          href: teacher ? undefined : null,
+          tabBarIcon: tabIcon('checkbox'),
         }}
       />
+
+      {/* ── Alumnos (ADMIN) ── */}
+      <Tabs.Screen
+        name="students"
+        options={{
+          title: 'Alumnos',
+          href: admin ? undefined : null,
+          tabBarIcon: tabIcon('people'),
+        }}
+      />
+
+      {/* ── Pagos (STUDENT + ADMIN) ── */}
       <Tabs.Screen
         name="payments"
         options={{
@@ -89,33 +112,17 @@ export default function AppLayout() {
         }}
       />
 
-      {/* ── TEACHER + ADMIN ── */}
+      {/* ── Planes (STUDENT; admin lo abre desde "Más") ── */}
       <Tabs.Screen
-        name="classes"
+        name="plans"
         options={{
-          title: 'Clases',
-          href: teacher || admin ? undefined : null,
-          tabBarIcon: tabIcon('musical-notes'),
-        }}
-      />
-      <Tabs.Screen
-        name="class-attendance"
-        options={{
-          title: 'Asistencia',
-          href: teacher || admin ? undefined : null,
-          tabBarIcon: tabIcon('checkbox'),
+          title: 'Planes',
+          href: student ? undefined : null,
+          tabBarIcon: tabIcon('pricetag'),
         }}
       />
 
-      {/* ── ADMIN ── */}
-      <Tabs.Screen
-        name="students"
-        options={{
-          title: 'Alumnos',
-          href: admin ? undefined : null,
-          tabBarIcon: tabIcon('people'),
-        }}
-      />
+      {/* ── Más (ADMIN) ── */}
       <Tabs.Screen
         name="more"
         options={{
@@ -125,10 +132,12 @@ export default function AppLayout() {
         }}
       />
 
-      {/* ── Pantallas sin tab (accesibles desde other screens) ── */}
+      {/* ── Pantallas sin tab (accesibles desde otras pantallas) ── */}
       <Tabs.Screen name="teachers" options={{ href: null }} />
       <Tabs.Screen name="payouts" options={{ href: null }} />
       <Tabs.Screen name="monthly-attendance" options={{ href: null }} />
+      <Tabs.Screen name="notifications" options={{ href: null }} />
+      <Tabs.Screen name="student-history" options={{ href: null }} />
     </Tabs>
   );
 }

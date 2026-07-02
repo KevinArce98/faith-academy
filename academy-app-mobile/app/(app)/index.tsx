@@ -1,5 +1,4 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -10,10 +9,24 @@ import { Card } from '@/components/ui/Card';
 import { InlineSpinner } from '@/components/ui/Spinner';
 import { Kpi } from '@/components/dashboard/Kpi';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
-import { useApiClient } from '@/lib/api';
+import { usePullRefresh } from '@/hooks/usePullRefresh';
+import { getStoredRefreshToken, useApiClient } from '@/lib/api';
 import { useAuth } from '@/lib/auth/useAuth';
-import type { MeResponse } from '@/lib/interfaces/auth';
-import { isStudent } from '@/lib/roles';
+import type {
+  AdminDashboard,
+  StudentDashboard,
+  TeacherClass,
+  TeacherDashboard,
+  TeacherSlot,
+  PendingPayment,
+} from '@/lib/interfaces/dashboard';
+import { usePaySubscription } from '@/lib/mutations';
+import {
+  useAdminDashboard,
+  useMe,
+  useStudentDashboard,
+  useTeacherDashboard,
+} from '@/lib/queries';
 import { theme } from '@/theme';
 import { formatPrice, formatShortDate, todayDow } from '@/utils/general';
 import { formatSlotRange } from '@/utils/schedule';
@@ -29,47 +42,7 @@ function SectionTitle({ icon, children }: { icon: keyof typeof Ionicons.glyphMap
   );
 }
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-type PendingPayment = {
-  subscriptionId: string | null;
-  studentId: string;
-  studentName: string;
-  planName: string;
-  amount: number;
-  status: 'pending' | 'expired';
-};
-
-type AdminDashboard = {
-  userName: string;
-  activeStudents: number;
-  monthCollected: number;
-  monthPending: number;
-  teacherPayout: number;
-  pendingCount: number;
-  pendingPayments: PendingPayment[];
-  newStudents: { id: string; name: string | null; email: string; planName: string | null }[];
-};
-
-type TeacherSlot = { dayOfWeek: number; startTime: string; endTime: string };
-type TeacherClass = { id: string; name: string; skillLevel: string; slots: TeacherSlot[]; oneOffDate: string | null; students: number };
-type TeacherDashboard = {
-  userName: string;
-  totalClasses: number;
-  totalStudents: number;
-  hoursThisMonth: number;
-  classes: TeacherClass[];
-};
-
-type StudentDashboard = {
-  userName: string;
-  subscription: { planName: string; amount: number; isPaid: boolean } | null;
-  planActive: boolean;
-  planExpired: boolean;
-  expiresAt: string | null;
-  classesThisMonth: { id: string; name: string }[];
-  enrollmentFee: number | null;
-};
+// Tipos del dashboard en @/lib/interfaces/dashboard.
 
 // ─── Student view ─────────────────────────────────────────────────────────────
 
@@ -83,7 +56,6 @@ function LogoutButton() {
         text: 'Cerrar sesión', style: 'destructive',
         onPress: async () => {
           try {
-            const { getStoredRefreshToken } = await import('@/lib/api');
             const refreshToken = await getStoredRefreshToken();
             await api('/api/v1/auth/logout', { method: 'POST', body: JSON.stringify({ refreshToken }) });
           } catch { /* limpia igual */ }
@@ -105,10 +77,11 @@ function LogoutButton() {
 
 function StudentView({ data }: { data: StudentDashboard }) {
   const router = useRouter();
+  const refresh = usePullRefresh(['dashboard', 'notifications']);
   const statusColor = data.planActive ? theme.colors.success : data.planExpired ? theme.colors.danger : theme.colors.warning;
 
   return (
-    <ScrollView className="flex-1 bg-background" contentContainerClassName="px-4 pt-2 pb-8 gap-4">
+    <ScrollView className="flex-1 bg-background" contentContainerClassName="px-4 pt-2 pb-8 gap-4" refreshControl={refresh}>
       <DashboardHeader name={data.userName} />
 
       {data.planExpired && (
@@ -176,6 +149,7 @@ function StudentView({ data }: { data: StudentDashboard }) {
 
 function TeacherView({ data }: { data: TeacherDashboard }) {
   const router = useRouter();
+  const refresh = usePullRefresh(['dashboard', 'notifications']);
   const dow = todayDow();
   const today = new Date().toISOString().split('T')[0];
 
@@ -190,7 +164,7 @@ function TeacherView({ data }: { data: TeacherDashboard }) {
     .sort((a, b) => a.slot.startTime.localeCompare(b.slot.startTime));
 
   return (
-    <ScrollView className="flex-1 bg-background" contentContainerClassName="px-4 pt-2 pb-8 gap-4">
+    <ScrollView className="flex-1 bg-background" contentContainerClassName="px-4 pt-2 pb-8 gap-4" refreshControl={refresh}>
       <DashboardHeader name={data.userName} />
 
       <View className="flex-row gap-3">
@@ -232,21 +206,12 @@ function TeacherView({ data }: { data: TeacherDashboard }) {
 // ─── Admin view ───────────────────────────────────────────────────────────────
 
 function AdminView({ data }: { data: AdminDashboard }) {
-  const api = useApiClient();
-  const queryClient = useQueryClient();
+  const refresh = usePullRefresh(['dashboard', 'notifications']);
 
-  const payMutation = useMutation({
-    mutationFn: (p: PendingPayment) =>
-      p.subscriptionId
-        ? api(`/api/v1/subscriptions/${p.subscriptionId}/pay`, { method: 'PATCH', body: JSON.stringify({ isPaid: true }) })
-        : api('/api/v1/subscriptions', { method: 'POST', body: JSON.stringify({ studentId: p.studentId, planId: undefined, isPaid: true }) }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
-    },
-  });
+  const payMutation = usePaySubscription();
 
   return (
-    <ScrollView className="flex-1 bg-background" contentContainerClassName="px-4 pt-2 pb-8 gap-4">
+    <ScrollView className="flex-1 bg-background" contentContainerClassName="px-4 pt-2 pb-8 gap-4" refreshControl={refresh}>
       <DashboardHeader name={data.userName} />
 
       <View className="flex-row gap-3 flex-wrap">
@@ -308,32 +273,17 @@ function AdminView({ data }: { data: AdminDashboard }) {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function Dashboard() {
-  const api = useApiClient();
   const { clearToken } = useAuth();
-
-  const { data: me, isLoading: meLoading } = useQuery<MeResponse>({
-    queryKey: ['me'],
-    queryFn: () => api<MeResponse>('/api/v1/auth/me'),
-    staleTime: 5 * 60 * 1000,
-  });
-
+  const { data: me, isLoading: meLoading } = useMe();
   const role = me?.role;
-  const studentRole = role ? isStudent(role) : false;
-  const teacherRole = role === 'TEACHER';
 
-  const endpoint = studentRole
-    ? '/api/v1/dashboard/student'
-    : teacherRole
-      ? '/api/v1/dashboard/teacher'
-      : '/api/v1/dashboard/admin';
+  const student = useStudentDashboard(role);
+  const teacher = useTeacherDashboard(role);
+  const admin = useAdminDashboard(role);
 
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ['dashboard', role ?? ''],
-    queryFn: () => api(endpoint),
-    enabled: !!role,
-  });
+  const active = role === 'STUDENT' ? student : role === 'TEACHER' ? teacher : admin;
 
-  if (meLoading || isLoading) {
+  if (meLoading || active.isLoading) {
     return (
       <SafeAreaView className="flex-1 bg-background">
         <InlineSpinner />
@@ -341,7 +291,7 @@ export default function Dashboard() {
     );
   }
 
-  if (isError || !data) {
+  if (active.isError) {
     return (
       <SafeAreaView className="flex-1 bg-background items-center justify-center px-6">
         <Text className="text-sm text-danger text-center">Error al cargar los datos. Intenta de nuevo.</Text>
@@ -350,11 +300,14 @@ export default function Dashboard() {
     );
   }
 
+  // Los tres hooks comparten la query key ['dashboard', role], así que las
+  // queries deshabilitadas leen el mismo cache: hay que elegir la vista por
+  // ROL, no por cuál `.data` está definido (todas lo estarían).
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
-      {studentRole && <StudentView data={data as StudentDashboard} />}
-      {teacherRole && <TeacherView data={data as TeacherDashboard} />}
-      {!studentRole && !teacherRole && <AdminView data={data as AdminDashboard} />}
+      {role === 'STUDENT' && student.data && <StudentView data={student.data} />}
+      {role === 'TEACHER' && teacher.data && <TeacherView data={teacher.data} />}
+      {role === 'ADMIN' && admin.data && <AdminView data={admin.data} />}
     </SafeAreaView>
   );
 }
