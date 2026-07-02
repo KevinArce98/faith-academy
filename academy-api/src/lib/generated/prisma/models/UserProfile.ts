@@ -291,10 +291,10 @@ export type UserProfileWhereInput = {
   attendances?: Prisma.AttendanceListRelationFilter
   skills?: Prisma.UserSkillListRelationFilter
   familyMember?: Prisma.XOR<Prisma.FamilyMemberNullableScalarRelationFilter, Prisma.FamilyMemberWhereInput> | null
-  streak?: Prisma.XOR<Prisma.StreakNullableScalarRelationFilter, Prisma.StreakWhereInput> | null
-  waitlists?: Prisma.ClassWaitlistListRelationFilter
   emailTokens?: Prisma.EmailTokenListRelationFilter
   refreshTokens?: Prisma.RefreshTokenListRelationFilter
+  pushTokens?: Prisma.PushTokenListRelationFilter
+  notifications?: Prisma.NotificationListRelationFilter
 }
 
 export type UserProfileOrderByWithRelationInput = {
@@ -318,10 +318,10 @@ export type UserProfileOrderByWithRelationInput = {
   attendances?: Prisma.AttendanceOrderByRelationAggregateInput
   skills?: Prisma.UserSkillOrderByRelationAggregateInput
   familyMember?: Prisma.FamilyMemberOrderByWithRelationInput
-  streak?: Prisma.StreakOrderByWithRelationInput
-  waitlists?: Prisma.ClassWaitlistOrderByRelationAggregateInput
   emailTokens?: Prisma.EmailTokenOrderByRelationAggregateInput
   refreshTokens?: Prisma.RefreshTokenOrderByRelationAggregateInput
+  pushTokens?: Prisma.PushTokenOrderByRelationAggregateInput
+  notifications?: Prisma.NotificationOrderByRelationAggregateInput
 }
 
 export type UserProfileWhereUniqueInput = Prisma.AtLeast<{
@@ -348,10 +348,10 @@ export type UserProfileWhereUniqueInput = Prisma.AtLeast<{
   attendances?: Prisma.AttendanceListRelationFilter
   skills?: Prisma.UserSkillListRelationFilter
   familyMember?: Prisma.XOR<Prisma.FamilyMemberNullableScalarRelationFilter, Prisma.FamilyMemberWhereInput> | null
-  streak?: Prisma.XOR<Prisma.StreakNullableScalarRelationFilter, Prisma.StreakWhereInput> | null
-  waitlists?: Prisma.ClassWaitlistListRelationFilter
   emailTokens?: Prisma.EmailTokenListRelationFilter
   refreshTokens?: Prisma.RefreshTokenListRelationFilter
+  pushTokens?: Prisma.PushTokenListRelationFilter
+  notifications?: Prisma.NotificationListRelationFilter
 }, "id" | "email">
 
 export type UserProfileOrderByWithAggregationInput = {
@@ -415,10 +415,10 @@ export type UserProfileCreateInput = {
   attendances?: Prisma.AttendanceCreateNestedManyWithoutStudentInput
   skills?: Prisma.UserSkillCreateNestedManyWithoutStudentInput
   familyMember?: Prisma.FamilyMemberCreateNestedOneWithoutStudentInput
-  streak?: Prisma.StreakCreateNestedOneWithoutStudentInput
-  waitlists?: Prisma.ClassWaitlistCreateNestedManyWithoutStudentInput
   emailTokens?: Prisma.EmailTokenCreateNestedManyWithoutUserInput
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
+  pushTokens?: Prisma.PushTokenCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
 }
 
 export type UserProfileUncheckedCreateInput = {
@@ -442,10 +442,10 @@ export type UserProfileUncheckedCreateInput = {
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutStudentInput
   skills?: Prisma.UserSkillUncheckedCreateNestedManyWithoutStudentInput
   familyMember?: Prisma.FamilyMemberUncheckedCreateNestedOneWithoutStudentInput
-  streak?: Prisma.StreakUncheckedCreateNestedOneWithoutStudentInput
-  waitlists?: Prisma.ClassWaitlistUncheckedCreateNestedManyWithoutStudentInput
   emailTokens?: Prisma.EmailTokenUncheckedCreateNestedManyWithoutUserInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+  pushTokens?: Prisma.PushTokenUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserProfileUpdateInput = {
@@ -469,10 +469,10 @@ export type UserProfileUpdateInput = {
   attendances?: Prisma.AttendanceUpdateManyWithoutStudentNestedInput
   skills?: Prisma.UserSkillUpdateManyWithoutStudentNestedInput
   familyMember?: Prisma.FamilyMemberUpdateOneWithoutStudentNestedInput
-  streak?: Prisma.StreakUpdateOneWithoutStudentNestedInput
-  waitlists?: Prisma.ClassWaitlistUpdateManyWithoutStudentNestedInput
   emailTokens?: Prisma.EmailTokenUpdateManyWithoutUserNestedInput
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
+  pushTokens?: Prisma.PushTokenUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
 }
 
 export type UserProfileUncheckedUpdateInput = {
@@ -496,10 +496,10 @@ export type UserProfileUncheckedUpdateInput = {
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutStudentNestedInput
   skills?: Prisma.UserSkillUncheckedUpdateManyWithoutStudentNestedInput
   familyMember?: Prisma.FamilyMemberUncheckedUpdateOneWithoutStudentNestedInput
-  streak?: Prisma.StreakUncheckedUpdateOneWithoutStudentNestedInput
-  waitlists?: Prisma.ClassWaitlistUncheckedUpdateManyWithoutStudentNestedInput
   emailTokens?: Prisma.EmailTokenUncheckedUpdateManyWithoutUserNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+  pushTokens?: Prisma.PushTokenUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserProfileCreateManyInput = {
@@ -645,6 +645,34 @@ export type NullableDateTimeFieldUpdateOperationsInput = {
   set?: Date | string | null
 }
 
+export type UserProfileCreateNestedOneWithoutPushTokensInput = {
+  create?: Prisma.XOR<Prisma.UserProfileCreateWithoutPushTokensInput, Prisma.UserProfileUncheckedCreateWithoutPushTokensInput>
+  connectOrCreate?: Prisma.UserProfileCreateOrConnectWithoutPushTokensInput
+  connect?: Prisma.UserProfileWhereUniqueInput
+}
+
+export type UserProfileUpdateOneRequiredWithoutPushTokensNestedInput = {
+  create?: Prisma.XOR<Prisma.UserProfileCreateWithoutPushTokensInput, Prisma.UserProfileUncheckedCreateWithoutPushTokensInput>
+  connectOrCreate?: Prisma.UserProfileCreateOrConnectWithoutPushTokensInput
+  upsert?: Prisma.UserProfileUpsertWithoutPushTokensInput
+  connect?: Prisma.UserProfileWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserProfileUpdateToOneWithWhereWithoutPushTokensInput, Prisma.UserProfileUpdateWithoutPushTokensInput>, Prisma.UserProfileUncheckedUpdateWithoutPushTokensInput>
+}
+
+export type UserProfileCreateNestedOneWithoutNotificationsInput = {
+  create?: Prisma.XOR<Prisma.UserProfileCreateWithoutNotificationsInput, Prisma.UserProfileUncheckedCreateWithoutNotificationsInput>
+  connectOrCreate?: Prisma.UserProfileCreateOrConnectWithoutNotificationsInput
+  connect?: Prisma.UserProfileWhereUniqueInput
+}
+
+export type UserProfileUpdateOneRequiredWithoutNotificationsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserProfileCreateWithoutNotificationsInput, Prisma.UserProfileUncheckedCreateWithoutNotificationsInput>
+  connectOrCreate?: Prisma.UserProfileCreateOrConnectWithoutNotificationsInput
+  upsert?: Prisma.UserProfileUpsertWithoutNotificationsInput
+  connect?: Prisma.UserProfileWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserProfileUpdateToOneWithWhereWithoutNotificationsInput, Prisma.UserProfileUpdateWithoutNotificationsInput>, Prisma.UserProfileUncheckedUpdateWithoutNotificationsInput>
+}
+
 export type UserProfileCreateNestedOneWithoutRefreshTokensInput = {
   create?: Prisma.XOR<Prisma.UserProfileCreateWithoutRefreshTokensInput, Prisma.UserProfileUncheckedCreateWithoutRefreshTokensInput>
   connectOrCreate?: Prisma.UserProfileCreateOrConnectWithoutRefreshTokensInput
@@ -715,20 +743,6 @@ export type UserProfileUpdateOneRequiredWithoutAttendancesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserProfileUpdateToOneWithWhereWithoutAttendancesInput, Prisma.UserProfileUpdateWithoutAttendancesInput>, Prisma.UserProfileUncheckedUpdateWithoutAttendancesInput>
 }
 
-export type UserProfileCreateNestedOneWithoutWaitlistsInput = {
-  create?: Prisma.XOR<Prisma.UserProfileCreateWithoutWaitlistsInput, Prisma.UserProfileUncheckedCreateWithoutWaitlistsInput>
-  connectOrCreate?: Prisma.UserProfileCreateOrConnectWithoutWaitlistsInput
-  connect?: Prisma.UserProfileWhereUniqueInput
-}
-
-export type UserProfileUpdateOneRequiredWithoutWaitlistsNestedInput = {
-  create?: Prisma.XOR<Prisma.UserProfileCreateWithoutWaitlistsInput, Prisma.UserProfileUncheckedCreateWithoutWaitlistsInput>
-  connectOrCreate?: Prisma.UserProfileCreateOrConnectWithoutWaitlistsInput
-  upsert?: Prisma.UserProfileUpsertWithoutWaitlistsInput
-  connect?: Prisma.UserProfileWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserProfileUpdateToOneWithWhereWithoutWaitlistsInput, Prisma.UserProfileUpdateWithoutWaitlistsInput>, Prisma.UserProfileUncheckedUpdateWithoutWaitlistsInput>
-}
-
 export type UserProfileCreateNestedOneWithoutSkillsInput = {
   create?: Prisma.XOR<Prisma.UserProfileCreateWithoutSkillsInput, Prisma.UserProfileUncheckedCreateWithoutSkillsInput>
   connectOrCreate?: Prisma.UserProfileCreateOrConnectWithoutSkillsInput
@@ -741,20 +755,6 @@ export type UserProfileUpdateOneRequiredWithoutSkillsNestedInput = {
   upsert?: Prisma.UserProfileUpsertWithoutSkillsInput
   connect?: Prisma.UserProfileWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserProfileUpdateToOneWithWhereWithoutSkillsInput, Prisma.UserProfileUpdateWithoutSkillsInput>, Prisma.UserProfileUncheckedUpdateWithoutSkillsInput>
-}
-
-export type UserProfileCreateNestedOneWithoutStreakInput = {
-  create?: Prisma.XOR<Prisma.UserProfileCreateWithoutStreakInput, Prisma.UserProfileUncheckedCreateWithoutStreakInput>
-  connectOrCreate?: Prisma.UserProfileCreateOrConnectWithoutStreakInput
-  connect?: Prisma.UserProfileWhereUniqueInput
-}
-
-export type UserProfileUpdateOneRequiredWithoutStreakNestedInput = {
-  create?: Prisma.XOR<Prisma.UserProfileCreateWithoutStreakInput, Prisma.UserProfileUncheckedCreateWithoutStreakInput>
-  connectOrCreate?: Prisma.UserProfileCreateOrConnectWithoutStreakInput
-  upsert?: Prisma.UserProfileUpsertWithoutStreakInput
-  connect?: Prisma.UserProfileWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserProfileUpdateToOneWithWhereWithoutStreakInput, Prisma.UserProfileUpdateWithoutStreakInput>, Prisma.UserProfileUncheckedUpdateWithoutStreakInput>
 }
 
 export type UserProfileCreateNestedOneWithoutSubscriptionsInput = {
@@ -799,6 +799,246 @@ export type UserProfileUpdateOneRequiredWithoutSessionAttendancesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserProfileUpdateToOneWithWhereWithoutSessionAttendancesInput, Prisma.UserProfileUpdateWithoutSessionAttendancesInput>, Prisma.UserProfileUncheckedUpdateWithoutSessionAttendancesInput>
 }
 
+export type UserProfileCreateWithoutPushTokensInput = {
+  id?: string
+  email: string
+  phone?: string | null
+  name?: string | null
+  avatarUrl?: string | null
+  role: $Enums.Role
+  isActive?: boolean
+  passwordHash: string
+  emailVerified?: boolean
+  createdAt?: Date | string
+  enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Date | string | null
+  hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  subscriptions?: Prisma.MonthlySubscriptionCreateNestedManyWithoutStudentInput
+  monthlyAttendance?: Prisma.MonthlyAttendanceCreateNestedManyWithoutStudentInput
+  sessionAttendances?: Prisma.SessionAttendanceCreateNestedManyWithoutStudentInput
+  orders?: Prisma.MembershipOrderCreateNestedManyWithoutStudentInput
+  attendances?: Prisma.AttendanceCreateNestedManyWithoutStudentInput
+  skills?: Prisma.UserSkillCreateNestedManyWithoutStudentInput
+  familyMember?: Prisma.FamilyMemberCreateNestedOneWithoutStudentInput
+  emailTokens?: Prisma.EmailTokenCreateNestedManyWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+}
+
+export type UserProfileUncheckedCreateWithoutPushTokensInput = {
+  id?: string
+  email: string
+  phone?: string | null
+  name?: string | null
+  avatarUrl?: string | null
+  role: $Enums.Role
+  isActive?: boolean
+  passwordHash: string
+  emailVerified?: boolean
+  createdAt?: Date | string
+  enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Date | string | null
+  hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  subscriptions?: Prisma.MonthlySubscriptionUncheckedCreateNestedManyWithoutStudentInput
+  monthlyAttendance?: Prisma.MonthlyAttendanceUncheckedCreateNestedManyWithoutStudentInput
+  sessionAttendances?: Prisma.SessionAttendanceUncheckedCreateNestedManyWithoutStudentInput
+  orders?: Prisma.MembershipOrderUncheckedCreateNestedManyWithoutStudentInput
+  attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutStudentInput
+  skills?: Prisma.UserSkillUncheckedCreateNestedManyWithoutStudentInput
+  familyMember?: Prisma.FamilyMemberUncheckedCreateNestedOneWithoutStudentInput
+  emailTokens?: Prisma.EmailTokenUncheckedCreateNestedManyWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserProfileCreateOrConnectWithoutPushTokensInput = {
+  where: Prisma.UserProfileWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserProfileCreateWithoutPushTokensInput, Prisma.UserProfileUncheckedCreateWithoutPushTokensInput>
+}
+
+export type UserProfileUpsertWithoutPushTokensInput = {
+  update: Prisma.XOR<Prisma.UserProfileUpdateWithoutPushTokensInput, Prisma.UserProfileUncheckedUpdateWithoutPushTokensInput>
+  create: Prisma.XOR<Prisma.UserProfileCreateWithoutPushTokensInput, Prisma.UserProfileUncheckedCreateWithoutPushTokensInput>
+  where?: Prisma.UserProfileWhereInput
+}
+
+export type UserProfileUpdateToOneWithWhereWithoutPushTokensInput = {
+  where?: Prisma.UserProfileWhereInput
+  data: Prisma.XOR<Prisma.UserProfileUpdateWithoutPushTokensInput, Prisma.UserProfileUncheckedUpdateWithoutPushTokensInput>
+}
+
+export type UserProfileUpdateWithoutPushTokensInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  subscriptions?: Prisma.MonthlySubscriptionUpdateManyWithoutStudentNestedInput
+  monthlyAttendance?: Prisma.MonthlyAttendanceUpdateManyWithoutStudentNestedInput
+  sessionAttendances?: Prisma.SessionAttendanceUpdateManyWithoutStudentNestedInput
+  orders?: Prisma.MembershipOrderUpdateManyWithoutStudentNestedInput
+  attendances?: Prisma.AttendanceUpdateManyWithoutStudentNestedInput
+  skills?: Prisma.UserSkillUpdateManyWithoutStudentNestedInput
+  familyMember?: Prisma.FamilyMemberUpdateOneWithoutStudentNestedInput
+  emailTokens?: Prisma.EmailTokenUpdateManyWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+}
+
+export type UserProfileUncheckedUpdateWithoutPushTokensInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  subscriptions?: Prisma.MonthlySubscriptionUncheckedUpdateManyWithoutStudentNestedInput
+  monthlyAttendance?: Prisma.MonthlyAttendanceUncheckedUpdateManyWithoutStudentNestedInput
+  sessionAttendances?: Prisma.SessionAttendanceUncheckedUpdateManyWithoutStudentNestedInput
+  orders?: Prisma.MembershipOrderUncheckedUpdateManyWithoutStudentNestedInput
+  attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutStudentNestedInput
+  skills?: Prisma.UserSkillUncheckedUpdateManyWithoutStudentNestedInput
+  familyMember?: Prisma.FamilyMemberUncheckedUpdateOneWithoutStudentNestedInput
+  emailTokens?: Prisma.EmailTokenUncheckedUpdateManyWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserProfileCreateWithoutNotificationsInput = {
+  id?: string
+  email: string
+  phone?: string | null
+  name?: string | null
+  avatarUrl?: string | null
+  role: $Enums.Role
+  isActive?: boolean
+  passwordHash: string
+  emailVerified?: boolean
+  createdAt?: Date | string
+  enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Date | string | null
+  hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  subscriptions?: Prisma.MonthlySubscriptionCreateNestedManyWithoutStudentInput
+  monthlyAttendance?: Prisma.MonthlyAttendanceCreateNestedManyWithoutStudentInput
+  sessionAttendances?: Prisma.SessionAttendanceCreateNestedManyWithoutStudentInput
+  orders?: Prisma.MembershipOrderCreateNestedManyWithoutStudentInput
+  attendances?: Prisma.AttendanceCreateNestedManyWithoutStudentInput
+  skills?: Prisma.UserSkillCreateNestedManyWithoutStudentInput
+  familyMember?: Prisma.FamilyMemberCreateNestedOneWithoutStudentInput
+  emailTokens?: Prisma.EmailTokenCreateNestedManyWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
+  pushTokens?: Prisma.PushTokenCreateNestedManyWithoutUserInput
+}
+
+export type UserProfileUncheckedCreateWithoutNotificationsInput = {
+  id?: string
+  email: string
+  phone?: string | null
+  name?: string | null
+  avatarUrl?: string | null
+  role: $Enums.Role
+  isActive?: boolean
+  passwordHash: string
+  emailVerified?: boolean
+  createdAt?: Date | string
+  enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Date | string | null
+  hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  subscriptions?: Prisma.MonthlySubscriptionUncheckedCreateNestedManyWithoutStudentInput
+  monthlyAttendance?: Prisma.MonthlyAttendanceUncheckedCreateNestedManyWithoutStudentInput
+  sessionAttendances?: Prisma.SessionAttendanceUncheckedCreateNestedManyWithoutStudentInput
+  orders?: Prisma.MembershipOrderUncheckedCreateNestedManyWithoutStudentInput
+  attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutStudentInput
+  skills?: Prisma.UserSkillUncheckedCreateNestedManyWithoutStudentInput
+  familyMember?: Prisma.FamilyMemberUncheckedCreateNestedOneWithoutStudentInput
+  emailTokens?: Prisma.EmailTokenUncheckedCreateNestedManyWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+  pushTokens?: Prisma.PushTokenUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserProfileCreateOrConnectWithoutNotificationsInput = {
+  where: Prisma.UserProfileWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserProfileCreateWithoutNotificationsInput, Prisma.UserProfileUncheckedCreateWithoutNotificationsInput>
+}
+
+export type UserProfileUpsertWithoutNotificationsInput = {
+  update: Prisma.XOR<Prisma.UserProfileUpdateWithoutNotificationsInput, Prisma.UserProfileUncheckedUpdateWithoutNotificationsInput>
+  create: Prisma.XOR<Prisma.UserProfileCreateWithoutNotificationsInput, Prisma.UserProfileUncheckedCreateWithoutNotificationsInput>
+  where?: Prisma.UserProfileWhereInput
+}
+
+export type UserProfileUpdateToOneWithWhereWithoutNotificationsInput = {
+  where?: Prisma.UserProfileWhereInput
+  data: Prisma.XOR<Prisma.UserProfileUpdateWithoutNotificationsInput, Prisma.UserProfileUncheckedUpdateWithoutNotificationsInput>
+}
+
+export type UserProfileUpdateWithoutNotificationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  subscriptions?: Prisma.MonthlySubscriptionUpdateManyWithoutStudentNestedInput
+  monthlyAttendance?: Prisma.MonthlyAttendanceUpdateManyWithoutStudentNestedInput
+  sessionAttendances?: Prisma.SessionAttendanceUpdateManyWithoutStudentNestedInput
+  orders?: Prisma.MembershipOrderUpdateManyWithoutStudentNestedInput
+  attendances?: Prisma.AttendanceUpdateManyWithoutStudentNestedInput
+  skills?: Prisma.UserSkillUpdateManyWithoutStudentNestedInput
+  familyMember?: Prisma.FamilyMemberUpdateOneWithoutStudentNestedInput
+  emailTokens?: Prisma.EmailTokenUpdateManyWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
+  pushTokens?: Prisma.PushTokenUpdateManyWithoutUserNestedInput
+}
+
+export type UserProfileUncheckedUpdateWithoutNotificationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  subscriptions?: Prisma.MonthlySubscriptionUncheckedUpdateManyWithoutStudentNestedInput
+  monthlyAttendance?: Prisma.MonthlyAttendanceUncheckedUpdateManyWithoutStudentNestedInput
+  sessionAttendances?: Prisma.SessionAttendanceUncheckedUpdateManyWithoutStudentNestedInput
+  orders?: Prisma.MembershipOrderUncheckedUpdateManyWithoutStudentNestedInput
+  attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutStudentNestedInput
+  skills?: Prisma.UserSkillUncheckedUpdateManyWithoutStudentNestedInput
+  familyMember?: Prisma.FamilyMemberUncheckedUpdateOneWithoutStudentNestedInput
+  emailTokens?: Prisma.EmailTokenUncheckedUpdateManyWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+  pushTokens?: Prisma.PushTokenUncheckedUpdateManyWithoutUserNestedInput
+}
+
 export type UserProfileCreateWithoutRefreshTokensInput = {
   id?: string
   email: string
@@ -820,9 +1060,9 @@ export type UserProfileCreateWithoutRefreshTokensInput = {
   attendances?: Prisma.AttendanceCreateNestedManyWithoutStudentInput
   skills?: Prisma.UserSkillCreateNestedManyWithoutStudentInput
   familyMember?: Prisma.FamilyMemberCreateNestedOneWithoutStudentInput
-  streak?: Prisma.StreakCreateNestedOneWithoutStudentInput
-  waitlists?: Prisma.ClassWaitlistCreateNestedManyWithoutStudentInput
   emailTokens?: Prisma.EmailTokenCreateNestedManyWithoutUserInput
+  pushTokens?: Prisma.PushTokenCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
 }
 
 export type UserProfileUncheckedCreateWithoutRefreshTokensInput = {
@@ -846,9 +1086,9 @@ export type UserProfileUncheckedCreateWithoutRefreshTokensInput = {
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutStudentInput
   skills?: Prisma.UserSkillUncheckedCreateNestedManyWithoutStudentInput
   familyMember?: Prisma.FamilyMemberUncheckedCreateNestedOneWithoutStudentInput
-  streak?: Prisma.StreakUncheckedCreateNestedOneWithoutStudentInput
-  waitlists?: Prisma.ClassWaitlistUncheckedCreateNestedManyWithoutStudentInput
   emailTokens?: Prisma.EmailTokenUncheckedCreateNestedManyWithoutUserInput
+  pushTokens?: Prisma.PushTokenUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserProfileCreateOrConnectWithoutRefreshTokensInput = {
@@ -888,9 +1128,9 @@ export type UserProfileUpdateWithoutRefreshTokensInput = {
   attendances?: Prisma.AttendanceUpdateManyWithoutStudentNestedInput
   skills?: Prisma.UserSkillUpdateManyWithoutStudentNestedInput
   familyMember?: Prisma.FamilyMemberUpdateOneWithoutStudentNestedInput
-  streak?: Prisma.StreakUpdateOneWithoutStudentNestedInput
-  waitlists?: Prisma.ClassWaitlistUpdateManyWithoutStudentNestedInput
   emailTokens?: Prisma.EmailTokenUpdateManyWithoutUserNestedInput
+  pushTokens?: Prisma.PushTokenUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
 }
 
 export type UserProfileUncheckedUpdateWithoutRefreshTokensInput = {
@@ -914,9 +1154,9 @@ export type UserProfileUncheckedUpdateWithoutRefreshTokensInput = {
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutStudentNestedInput
   skills?: Prisma.UserSkillUncheckedUpdateManyWithoutStudentNestedInput
   familyMember?: Prisma.FamilyMemberUncheckedUpdateOneWithoutStudentNestedInput
-  streak?: Prisma.StreakUncheckedUpdateOneWithoutStudentNestedInput
-  waitlists?: Prisma.ClassWaitlistUncheckedUpdateManyWithoutStudentNestedInput
   emailTokens?: Prisma.EmailTokenUncheckedUpdateManyWithoutUserNestedInput
+  pushTokens?: Prisma.PushTokenUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserProfileCreateWithoutEmailTokensInput = {
@@ -940,9 +1180,9 @@ export type UserProfileCreateWithoutEmailTokensInput = {
   attendances?: Prisma.AttendanceCreateNestedManyWithoutStudentInput
   skills?: Prisma.UserSkillCreateNestedManyWithoutStudentInput
   familyMember?: Prisma.FamilyMemberCreateNestedOneWithoutStudentInput
-  streak?: Prisma.StreakCreateNestedOneWithoutStudentInput
-  waitlists?: Prisma.ClassWaitlistCreateNestedManyWithoutStudentInput
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
+  pushTokens?: Prisma.PushTokenCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
 }
 
 export type UserProfileUncheckedCreateWithoutEmailTokensInput = {
@@ -966,9 +1206,9 @@ export type UserProfileUncheckedCreateWithoutEmailTokensInput = {
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutStudentInput
   skills?: Prisma.UserSkillUncheckedCreateNestedManyWithoutStudentInput
   familyMember?: Prisma.FamilyMemberUncheckedCreateNestedOneWithoutStudentInput
-  streak?: Prisma.StreakUncheckedCreateNestedOneWithoutStudentInput
-  waitlists?: Prisma.ClassWaitlistUncheckedCreateNestedManyWithoutStudentInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+  pushTokens?: Prisma.PushTokenUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserProfileCreateOrConnectWithoutEmailTokensInput = {
@@ -1008,9 +1248,9 @@ export type UserProfileUpdateWithoutEmailTokensInput = {
   attendances?: Prisma.AttendanceUpdateManyWithoutStudentNestedInput
   skills?: Prisma.UserSkillUpdateManyWithoutStudentNestedInput
   familyMember?: Prisma.FamilyMemberUpdateOneWithoutStudentNestedInput
-  streak?: Prisma.StreakUpdateOneWithoutStudentNestedInput
-  waitlists?: Prisma.ClassWaitlistUpdateManyWithoutStudentNestedInput
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
+  pushTokens?: Prisma.PushTokenUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
 }
 
 export type UserProfileUncheckedUpdateWithoutEmailTokensInput = {
@@ -1034,9 +1274,9 @@ export type UserProfileUncheckedUpdateWithoutEmailTokensInput = {
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutStudentNestedInput
   skills?: Prisma.UserSkillUncheckedUpdateManyWithoutStudentNestedInput
   familyMember?: Prisma.FamilyMemberUncheckedUpdateOneWithoutStudentNestedInput
-  streak?: Prisma.StreakUncheckedUpdateOneWithoutStudentNestedInput
-  waitlists?: Prisma.ClassWaitlistUncheckedUpdateManyWithoutStudentNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+  pushTokens?: Prisma.PushTokenUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserProfileCreateWithoutFamilyMemberInput = {
@@ -1059,10 +1299,10 @@ export type UserProfileCreateWithoutFamilyMemberInput = {
   orders?: Prisma.MembershipOrderCreateNestedManyWithoutStudentInput
   attendances?: Prisma.AttendanceCreateNestedManyWithoutStudentInput
   skills?: Prisma.UserSkillCreateNestedManyWithoutStudentInput
-  streak?: Prisma.StreakCreateNestedOneWithoutStudentInput
-  waitlists?: Prisma.ClassWaitlistCreateNestedManyWithoutStudentInput
   emailTokens?: Prisma.EmailTokenCreateNestedManyWithoutUserInput
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
+  pushTokens?: Prisma.PushTokenCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
 }
 
 export type UserProfileUncheckedCreateWithoutFamilyMemberInput = {
@@ -1085,10 +1325,10 @@ export type UserProfileUncheckedCreateWithoutFamilyMemberInput = {
   orders?: Prisma.MembershipOrderUncheckedCreateNestedManyWithoutStudentInput
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutStudentInput
   skills?: Prisma.UserSkillUncheckedCreateNestedManyWithoutStudentInput
-  streak?: Prisma.StreakUncheckedCreateNestedOneWithoutStudentInput
-  waitlists?: Prisma.ClassWaitlistUncheckedCreateNestedManyWithoutStudentInput
   emailTokens?: Prisma.EmailTokenUncheckedCreateNestedManyWithoutUserInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+  pushTokens?: Prisma.PushTokenUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserProfileCreateOrConnectWithoutFamilyMemberInput = {
@@ -1127,10 +1367,10 @@ export type UserProfileUpdateWithoutFamilyMemberInput = {
   orders?: Prisma.MembershipOrderUpdateManyWithoutStudentNestedInput
   attendances?: Prisma.AttendanceUpdateManyWithoutStudentNestedInput
   skills?: Prisma.UserSkillUpdateManyWithoutStudentNestedInput
-  streak?: Prisma.StreakUpdateOneWithoutStudentNestedInput
-  waitlists?: Prisma.ClassWaitlistUpdateManyWithoutStudentNestedInput
   emailTokens?: Prisma.EmailTokenUpdateManyWithoutUserNestedInput
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
+  pushTokens?: Prisma.PushTokenUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
 }
 
 export type UserProfileUncheckedUpdateWithoutFamilyMemberInput = {
@@ -1153,10 +1393,10 @@ export type UserProfileUncheckedUpdateWithoutFamilyMemberInput = {
   orders?: Prisma.MembershipOrderUncheckedUpdateManyWithoutStudentNestedInput
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutStudentNestedInput
   skills?: Prisma.UserSkillUncheckedUpdateManyWithoutStudentNestedInput
-  streak?: Prisma.StreakUncheckedUpdateOneWithoutStudentNestedInput
-  waitlists?: Prisma.ClassWaitlistUncheckedUpdateManyWithoutStudentNestedInput
   emailTokens?: Prisma.EmailTokenUncheckedUpdateManyWithoutUserNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+  pushTokens?: Prisma.PushTokenUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserProfileCreateWithoutOrdersInput = {
@@ -1179,10 +1419,10 @@ export type UserProfileCreateWithoutOrdersInput = {
   attendances?: Prisma.AttendanceCreateNestedManyWithoutStudentInput
   skills?: Prisma.UserSkillCreateNestedManyWithoutStudentInput
   familyMember?: Prisma.FamilyMemberCreateNestedOneWithoutStudentInput
-  streak?: Prisma.StreakCreateNestedOneWithoutStudentInput
-  waitlists?: Prisma.ClassWaitlistCreateNestedManyWithoutStudentInput
   emailTokens?: Prisma.EmailTokenCreateNestedManyWithoutUserInput
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
+  pushTokens?: Prisma.PushTokenCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
 }
 
 export type UserProfileUncheckedCreateWithoutOrdersInput = {
@@ -1205,10 +1445,10 @@ export type UserProfileUncheckedCreateWithoutOrdersInput = {
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutStudentInput
   skills?: Prisma.UserSkillUncheckedCreateNestedManyWithoutStudentInput
   familyMember?: Prisma.FamilyMemberUncheckedCreateNestedOneWithoutStudentInput
-  streak?: Prisma.StreakUncheckedCreateNestedOneWithoutStudentInput
-  waitlists?: Prisma.ClassWaitlistUncheckedCreateNestedManyWithoutStudentInput
   emailTokens?: Prisma.EmailTokenUncheckedCreateNestedManyWithoutUserInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+  pushTokens?: Prisma.PushTokenUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserProfileCreateOrConnectWithoutOrdersInput = {
@@ -1247,10 +1487,10 @@ export type UserProfileUpdateWithoutOrdersInput = {
   attendances?: Prisma.AttendanceUpdateManyWithoutStudentNestedInput
   skills?: Prisma.UserSkillUpdateManyWithoutStudentNestedInput
   familyMember?: Prisma.FamilyMemberUpdateOneWithoutStudentNestedInput
-  streak?: Prisma.StreakUpdateOneWithoutStudentNestedInput
-  waitlists?: Prisma.ClassWaitlistUpdateManyWithoutStudentNestedInput
   emailTokens?: Prisma.EmailTokenUpdateManyWithoutUserNestedInput
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
+  pushTokens?: Prisma.PushTokenUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
 }
 
 export type UserProfileUncheckedUpdateWithoutOrdersInput = {
@@ -1273,10 +1513,10 @@ export type UserProfileUncheckedUpdateWithoutOrdersInput = {
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutStudentNestedInput
   skills?: Prisma.UserSkillUncheckedUpdateManyWithoutStudentNestedInput
   familyMember?: Prisma.FamilyMemberUncheckedUpdateOneWithoutStudentNestedInput
-  streak?: Prisma.StreakUncheckedUpdateOneWithoutStudentNestedInput
-  waitlists?: Prisma.ClassWaitlistUncheckedUpdateManyWithoutStudentNestedInput
   emailTokens?: Prisma.EmailTokenUncheckedUpdateManyWithoutUserNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+  pushTokens?: Prisma.PushTokenUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserProfileCreateWithoutAttendancesInput = {
@@ -1299,10 +1539,10 @@ export type UserProfileCreateWithoutAttendancesInput = {
   orders?: Prisma.MembershipOrderCreateNestedManyWithoutStudentInput
   skills?: Prisma.UserSkillCreateNestedManyWithoutStudentInput
   familyMember?: Prisma.FamilyMemberCreateNestedOneWithoutStudentInput
-  streak?: Prisma.StreakCreateNestedOneWithoutStudentInput
-  waitlists?: Prisma.ClassWaitlistCreateNestedManyWithoutStudentInput
   emailTokens?: Prisma.EmailTokenCreateNestedManyWithoutUserInput
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
+  pushTokens?: Prisma.PushTokenCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
 }
 
 export type UserProfileUncheckedCreateWithoutAttendancesInput = {
@@ -1325,10 +1565,10 @@ export type UserProfileUncheckedCreateWithoutAttendancesInput = {
   orders?: Prisma.MembershipOrderUncheckedCreateNestedManyWithoutStudentInput
   skills?: Prisma.UserSkillUncheckedCreateNestedManyWithoutStudentInput
   familyMember?: Prisma.FamilyMemberUncheckedCreateNestedOneWithoutStudentInput
-  streak?: Prisma.StreakUncheckedCreateNestedOneWithoutStudentInput
-  waitlists?: Prisma.ClassWaitlistUncheckedCreateNestedManyWithoutStudentInput
   emailTokens?: Prisma.EmailTokenUncheckedCreateNestedManyWithoutUserInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+  pushTokens?: Prisma.PushTokenUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserProfileCreateOrConnectWithoutAttendancesInput = {
@@ -1367,10 +1607,10 @@ export type UserProfileUpdateWithoutAttendancesInput = {
   orders?: Prisma.MembershipOrderUpdateManyWithoutStudentNestedInput
   skills?: Prisma.UserSkillUpdateManyWithoutStudentNestedInput
   familyMember?: Prisma.FamilyMemberUpdateOneWithoutStudentNestedInput
-  streak?: Prisma.StreakUpdateOneWithoutStudentNestedInput
-  waitlists?: Prisma.ClassWaitlistUpdateManyWithoutStudentNestedInput
   emailTokens?: Prisma.EmailTokenUpdateManyWithoutUserNestedInput
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
+  pushTokens?: Prisma.PushTokenUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
 }
 
 export type UserProfileUncheckedUpdateWithoutAttendancesInput = {
@@ -1393,130 +1633,10 @@ export type UserProfileUncheckedUpdateWithoutAttendancesInput = {
   orders?: Prisma.MembershipOrderUncheckedUpdateManyWithoutStudentNestedInput
   skills?: Prisma.UserSkillUncheckedUpdateManyWithoutStudentNestedInput
   familyMember?: Prisma.FamilyMemberUncheckedUpdateOneWithoutStudentNestedInput
-  streak?: Prisma.StreakUncheckedUpdateOneWithoutStudentNestedInput
-  waitlists?: Prisma.ClassWaitlistUncheckedUpdateManyWithoutStudentNestedInput
   emailTokens?: Prisma.EmailTokenUncheckedUpdateManyWithoutUserNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-}
-
-export type UserProfileCreateWithoutWaitlistsInput = {
-  id?: string
-  email: string
-  phone?: string | null
-  name?: string | null
-  avatarUrl?: string | null
-  role: $Enums.Role
-  isActive?: boolean
-  passwordHash: string
-  emailVerified?: boolean
-  createdAt?: Date | string
-  enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  enrolledAt?: Date | string | null
-  hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  subscriptions?: Prisma.MonthlySubscriptionCreateNestedManyWithoutStudentInput
-  monthlyAttendance?: Prisma.MonthlyAttendanceCreateNestedManyWithoutStudentInput
-  sessionAttendances?: Prisma.SessionAttendanceCreateNestedManyWithoutStudentInput
-  orders?: Prisma.MembershipOrderCreateNestedManyWithoutStudentInput
-  attendances?: Prisma.AttendanceCreateNestedManyWithoutStudentInput
-  skills?: Prisma.UserSkillCreateNestedManyWithoutStudentInput
-  familyMember?: Prisma.FamilyMemberCreateNestedOneWithoutStudentInput
-  streak?: Prisma.StreakCreateNestedOneWithoutStudentInput
-  emailTokens?: Prisma.EmailTokenCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-}
-
-export type UserProfileUncheckedCreateWithoutWaitlistsInput = {
-  id?: string
-  email: string
-  phone?: string | null
-  name?: string | null
-  avatarUrl?: string | null
-  role: $Enums.Role
-  isActive?: boolean
-  passwordHash: string
-  emailVerified?: boolean
-  createdAt?: Date | string
-  enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  enrolledAt?: Date | string | null
-  hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  subscriptions?: Prisma.MonthlySubscriptionUncheckedCreateNestedManyWithoutStudentInput
-  monthlyAttendance?: Prisma.MonthlyAttendanceUncheckedCreateNestedManyWithoutStudentInput
-  sessionAttendances?: Prisma.SessionAttendanceUncheckedCreateNestedManyWithoutStudentInput
-  orders?: Prisma.MembershipOrderUncheckedCreateNestedManyWithoutStudentInput
-  attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutStudentInput
-  skills?: Prisma.UserSkillUncheckedCreateNestedManyWithoutStudentInput
-  familyMember?: Prisma.FamilyMemberUncheckedCreateNestedOneWithoutStudentInput
-  streak?: Prisma.StreakUncheckedCreateNestedOneWithoutStudentInput
-  emailTokens?: Prisma.EmailTokenUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-}
-
-export type UserProfileCreateOrConnectWithoutWaitlistsInput = {
-  where: Prisma.UserProfileWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserProfileCreateWithoutWaitlistsInput, Prisma.UserProfileUncheckedCreateWithoutWaitlistsInput>
-}
-
-export type UserProfileUpsertWithoutWaitlistsInput = {
-  update: Prisma.XOR<Prisma.UserProfileUpdateWithoutWaitlistsInput, Prisma.UserProfileUncheckedUpdateWithoutWaitlistsInput>
-  create: Prisma.XOR<Prisma.UserProfileCreateWithoutWaitlistsInput, Prisma.UserProfileUncheckedCreateWithoutWaitlistsInput>
-  where?: Prisma.UserProfileWhereInput
-}
-
-export type UserProfileUpdateToOneWithWhereWithoutWaitlistsInput = {
-  where?: Prisma.UserProfileWhereInput
-  data: Prisma.XOR<Prisma.UserProfileUpdateWithoutWaitlistsInput, Prisma.UserProfileUncheckedUpdateWithoutWaitlistsInput>
-}
-
-export type UserProfileUpdateWithoutWaitlistsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  subscriptions?: Prisma.MonthlySubscriptionUpdateManyWithoutStudentNestedInput
-  monthlyAttendance?: Prisma.MonthlyAttendanceUpdateManyWithoutStudentNestedInput
-  sessionAttendances?: Prisma.SessionAttendanceUpdateManyWithoutStudentNestedInput
-  orders?: Prisma.MembershipOrderUpdateManyWithoutStudentNestedInput
-  attendances?: Prisma.AttendanceUpdateManyWithoutStudentNestedInput
-  skills?: Prisma.UserSkillUpdateManyWithoutStudentNestedInput
-  familyMember?: Prisma.FamilyMemberUpdateOneWithoutStudentNestedInput
-  streak?: Prisma.StreakUpdateOneWithoutStudentNestedInput
-  emailTokens?: Prisma.EmailTokenUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-}
-
-export type UserProfileUncheckedUpdateWithoutWaitlistsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  subscriptions?: Prisma.MonthlySubscriptionUncheckedUpdateManyWithoutStudentNestedInput
-  monthlyAttendance?: Prisma.MonthlyAttendanceUncheckedUpdateManyWithoutStudentNestedInput
-  sessionAttendances?: Prisma.SessionAttendanceUncheckedUpdateManyWithoutStudentNestedInput
-  orders?: Prisma.MembershipOrderUncheckedUpdateManyWithoutStudentNestedInput
-  attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutStudentNestedInput
-  skills?: Prisma.UserSkillUncheckedUpdateManyWithoutStudentNestedInput
-  familyMember?: Prisma.FamilyMemberUncheckedUpdateOneWithoutStudentNestedInput
-  streak?: Prisma.StreakUncheckedUpdateOneWithoutStudentNestedInput
-  emailTokens?: Prisma.EmailTokenUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+  pushTokens?: Prisma.PushTokenUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserProfileCreateWithoutSkillsInput = {
@@ -1539,10 +1659,10 @@ export type UserProfileCreateWithoutSkillsInput = {
   orders?: Prisma.MembershipOrderCreateNestedManyWithoutStudentInput
   attendances?: Prisma.AttendanceCreateNestedManyWithoutStudentInput
   familyMember?: Prisma.FamilyMemberCreateNestedOneWithoutStudentInput
-  streak?: Prisma.StreakCreateNestedOneWithoutStudentInput
-  waitlists?: Prisma.ClassWaitlistCreateNestedManyWithoutStudentInput
   emailTokens?: Prisma.EmailTokenCreateNestedManyWithoutUserInput
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
+  pushTokens?: Prisma.PushTokenCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
 }
 
 export type UserProfileUncheckedCreateWithoutSkillsInput = {
@@ -1565,10 +1685,10 @@ export type UserProfileUncheckedCreateWithoutSkillsInput = {
   orders?: Prisma.MembershipOrderUncheckedCreateNestedManyWithoutStudentInput
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutStudentInput
   familyMember?: Prisma.FamilyMemberUncheckedCreateNestedOneWithoutStudentInput
-  streak?: Prisma.StreakUncheckedCreateNestedOneWithoutStudentInput
-  waitlists?: Prisma.ClassWaitlistUncheckedCreateNestedManyWithoutStudentInput
   emailTokens?: Prisma.EmailTokenUncheckedCreateNestedManyWithoutUserInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+  pushTokens?: Prisma.PushTokenUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserProfileCreateOrConnectWithoutSkillsInput = {
@@ -1607,10 +1727,10 @@ export type UserProfileUpdateWithoutSkillsInput = {
   orders?: Prisma.MembershipOrderUpdateManyWithoutStudentNestedInput
   attendances?: Prisma.AttendanceUpdateManyWithoutStudentNestedInput
   familyMember?: Prisma.FamilyMemberUpdateOneWithoutStudentNestedInput
-  streak?: Prisma.StreakUpdateOneWithoutStudentNestedInput
-  waitlists?: Prisma.ClassWaitlistUpdateManyWithoutStudentNestedInput
   emailTokens?: Prisma.EmailTokenUpdateManyWithoutUserNestedInput
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
+  pushTokens?: Prisma.PushTokenUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
 }
 
 export type UserProfileUncheckedUpdateWithoutSkillsInput = {
@@ -1633,130 +1753,10 @@ export type UserProfileUncheckedUpdateWithoutSkillsInput = {
   orders?: Prisma.MembershipOrderUncheckedUpdateManyWithoutStudentNestedInput
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutStudentNestedInput
   familyMember?: Prisma.FamilyMemberUncheckedUpdateOneWithoutStudentNestedInput
-  streak?: Prisma.StreakUncheckedUpdateOneWithoutStudentNestedInput
-  waitlists?: Prisma.ClassWaitlistUncheckedUpdateManyWithoutStudentNestedInput
   emailTokens?: Prisma.EmailTokenUncheckedUpdateManyWithoutUserNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-}
-
-export type UserProfileCreateWithoutStreakInput = {
-  id?: string
-  email: string
-  phone?: string | null
-  name?: string | null
-  avatarUrl?: string | null
-  role: $Enums.Role
-  isActive?: boolean
-  passwordHash: string
-  emailVerified?: boolean
-  createdAt?: Date | string
-  enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  enrolledAt?: Date | string | null
-  hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  subscriptions?: Prisma.MonthlySubscriptionCreateNestedManyWithoutStudentInput
-  monthlyAttendance?: Prisma.MonthlyAttendanceCreateNestedManyWithoutStudentInput
-  sessionAttendances?: Prisma.SessionAttendanceCreateNestedManyWithoutStudentInput
-  orders?: Prisma.MembershipOrderCreateNestedManyWithoutStudentInput
-  attendances?: Prisma.AttendanceCreateNestedManyWithoutStudentInput
-  skills?: Prisma.UserSkillCreateNestedManyWithoutStudentInput
-  familyMember?: Prisma.FamilyMemberCreateNestedOneWithoutStudentInput
-  waitlists?: Prisma.ClassWaitlistCreateNestedManyWithoutStudentInput
-  emailTokens?: Prisma.EmailTokenCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
-}
-
-export type UserProfileUncheckedCreateWithoutStreakInput = {
-  id?: string
-  email: string
-  phone?: string | null
-  name?: string | null
-  avatarUrl?: string | null
-  role: $Enums.Role
-  isActive?: boolean
-  passwordHash: string
-  emailVerified?: boolean
-  createdAt?: Date | string
-  enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  enrolledAt?: Date | string | null
-  hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  subscriptions?: Prisma.MonthlySubscriptionUncheckedCreateNestedManyWithoutStudentInput
-  monthlyAttendance?: Prisma.MonthlyAttendanceUncheckedCreateNestedManyWithoutStudentInput
-  sessionAttendances?: Prisma.SessionAttendanceUncheckedCreateNestedManyWithoutStudentInput
-  orders?: Prisma.MembershipOrderUncheckedCreateNestedManyWithoutStudentInput
-  attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutStudentInput
-  skills?: Prisma.UserSkillUncheckedCreateNestedManyWithoutStudentInput
-  familyMember?: Prisma.FamilyMemberUncheckedCreateNestedOneWithoutStudentInput
-  waitlists?: Prisma.ClassWaitlistUncheckedCreateNestedManyWithoutStudentInput
-  emailTokens?: Prisma.EmailTokenUncheckedCreateNestedManyWithoutUserInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-}
-
-export type UserProfileCreateOrConnectWithoutStreakInput = {
-  where: Prisma.UserProfileWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserProfileCreateWithoutStreakInput, Prisma.UserProfileUncheckedCreateWithoutStreakInput>
-}
-
-export type UserProfileUpsertWithoutStreakInput = {
-  update: Prisma.XOR<Prisma.UserProfileUpdateWithoutStreakInput, Prisma.UserProfileUncheckedUpdateWithoutStreakInput>
-  create: Prisma.XOR<Prisma.UserProfileCreateWithoutStreakInput, Prisma.UserProfileUncheckedCreateWithoutStreakInput>
-  where?: Prisma.UserProfileWhereInput
-}
-
-export type UserProfileUpdateToOneWithWhereWithoutStreakInput = {
-  where?: Prisma.UserProfileWhereInput
-  data: Prisma.XOR<Prisma.UserProfileUpdateWithoutStreakInput, Prisma.UserProfileUncheckedUpdateWithoutStreakInput>
-}
-
-export type UserProfileUpdateWithoutStreakInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  subscriptions?: Prisma.MonthlySubscriptionUpdateManyWithoutStudentNestedInput
-  monthlyAttendance?: Prisma.MonthlyAttendanceUpdateManyWithoutStudentNestedInput
-  sessionAttendances?: Prisma.SessionAttendanceUpdateManyWithoutStudentNestedInput
-  orders?: Prisma.MembershipOrderUpdateManyWithoutStudentNestedInput
-  attendances?: Prisma.AttendanceUpdateManyWithoutStudentNestedInput
-  skills?: Prisma.UserSkillUpdateManyWithoutStudentNestedInput
-  familyMember?: Prisma.FamilyMemberUpdateOneWithoutStudentNestedInput
-  waitlists?: Prisma.ClassWaitlistUpdateManyWithoutStudentNestedInput
-  emailTokens?: Prisma.EmailTokenUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
-}
-
-export type UserProfileUncheckedUpdateWithoutStreakInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  subscriptions?: Prisma.MonthlySubscriptionUncheckedUpdateManyWithoutStudentNestedInput
-  monthlyAttendance?: Prisma.MonthlyAttendanceUncheckedUpdateManyWithoutStudentNestedInput
-  sessionAttendances?: Prisma.SessionAttendanceUncheckedUpdateManyWithoutStudentNestedInput
-  orders?: Prisma.MembershipOrderUncheckedUpdateManyWithoutStudentNestedInput
-  attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutStudentNestedInput
-  skills?: Prisma.UserSkillUncheckedUpdateManyWithoutStudentNestedInput
-  familyMember?: Prisma.FamilyMemberUncheckedUpdateOneWithoutStudentNestedInput
-  waitlists?: Prisma.ClassWaitlistUncheckedUpdateManyWithoutStudentNestedInput
-  emailTokens?: Prisma.EmailTokenUncheckedUpdateManyWithoutUserNestedInput
-  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+  pushTokens?: Prisma.PushTokenUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserProfileCreateWithoutSubscriptionsInput = {
@@ -1779,10 +1779,10 @@ export type UserProfileCreateWithoutSubscriptionsInput = {
   attendances?: Prisma.AttendanceCreateNestedManyWithoutStudentInput
   skills?: Prisma.UserSkillCreateNestedManyWithoutStudentInput
   familyMember?: Prisma.FamilyMemberCreateNestedOneWithoutStudentInput
-  streak?: Prisma.StreakCreateNestedOneWithoutStudentInput
-  waitlists?: Prisma.ClassWaitlistCreateNestedManyWithoutStudentInput
   emailTokens?: Prisma.EmailTokenCreateNestedManyWithoutUserInput
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
+  pushTokens?: Prisma.PushTokenCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
 }
 
 export type UserProfileUncheckedCreateWithoutSubscriptionsInput = {
@@ -1805,10 +1805,10 @@ export type UserProfileUncheckedCreateWithoutSubscriptionsInput = {
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutStudentInput
   skills?: Prisma.UserSkillUncheckedCreateNestedManyWithoutStudentInput
   familyMember?: Prisma.FamilyMemberUncheckedCreateNestedOneWithoutStudentInput
-  streak?: Prisma.StreakUncheckedCreateNestedOneWithoutStudentInput
-  waitlists?: Prisma.ClassWaitlistUncheckedCreateNestedManyWithoutStudentInput
   emailTokens?: Prisma.EmailTokenUncheckedCreateNestedManyWithoutUserInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+  pushTokens?: Prisma.PushTokenUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserProfileCreateOrConnectWithoutSubscriptionsInput = {
@@ -1847,10 +1847,10 @@ export type UserProfileUpdateWithoutSubscriptionsInput = {
   attendances?: Prisma.AttendanceUpdateManyWithoutStudentNestedInput
   skills?: Prisma.UserSkillUpdateManyWithoutStudentNestedInput
   familyMember?: Prisma.FamilyMemberUpdateOneWithoutStudentNestedInput
-  streak?: Prisma.StreakUpdateOneWithoutStudentNestedInput
-  waitlists?: Prisma.ClassWaitlistUpdateManyWithoutStudentNestedInput
   emailTokens?: Prisma.EmailTokenUpdateManyWithoutUserNestedInput
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
+  pushTokens?: Prisma.PushTokenUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
 }
 
 export type UserProfileUncheckedUpdateWithoutSubscriptionsInput = {
@@ -1873,10 +1873,10 @@ export type UserProfileUncheckedUpdateWithoutSubscriptionsInput = {
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutStudentNestedInput
   skills?: Prisma.UserSkillUncheckedUpdateManyWithoutStudentNestedInput
   familyMember?: Prisma.FamilyMemberUncheckedUpdateOneWithoutStudentNestedInput
-  streak?: Prisma.StreakUncheckedUpdateOneWithoutStudentNestedInput
-  waitlists?: Prisma.ClassWaitlistUncheckedUpdateManyWithoutStudentNestedInput
   emailTokens?: Prisma.EmailTokenUncheckedUpdateManyWithoutUserNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+  pushTokens?: Prisma.PushTokenUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserProfileCreateWithoutMonthlyAttendanceInput = {
@@ -1899,10 +1899,10 @@ export type UserProfileCreateWithoutMonthlyAttendanceInput = {
   attendances?: Prisma.AttendanceCreateNestedManyWithoutStudentInput
   skills?: Prisma.UserSkillCreateNestedManyWithoutStudentInput
   familyMember?: Prisma.FamilyMemberCreateNestedOneWithoutStudentInput
-  streak?: Prisma.StreakCreateNestedOneWithoutStudentInput
-  waitlists?: Prisma.ClassWaitlistCreateNestedManyWithoutStudentInput
   emailTokens?: Prisma.EmailTokenCreateNestedManyWithoutUserInput
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
+  pushTokens?: Prisma.PushTokenCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
 }
 
 export type UserProfileUncheckedCreateWithoutMonthlyAttendanceInput = {
@@ -1925,10 +1925,10 @@ export type UserProfileUncheckedCreateWithoutMonthlyAttendanceInput = {
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutStudentInput
   skills?: Prisma.UserSkillUncheckedCreateNestedManyWithoutStudentInput
   familyMember?: Prisma.FamilyMemberUncheckedCreateNestedOneWithoutStudentInput
-  streak?: Prisma.StreakUncheckedCreateNestedOneWithoutStudentInput
-  waitlists?: Prisma.ClassWaitlistUncheckedCreateNestedManyWithoutStudentInput
   emailTokens?: Prisma.EmailTokenUncheckedCreateNestedManyWithoutUserInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+  pushTokens?: Prisma.PushTokenUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserProfileCreateOrConnectWithoutMonthlyAttendanceInput = {
@@ -1967,10 +1967,10 @@ export type UserProfileUpdateWithoutMonthlyAttendanceInput = {
   attendances?: Prisma.AttendanceUpdateManyWithoutStudentNestedInput
   skills?: Prisma.UserSkillUpdateManyWithoutStudentNestedInput
   familyMember?: Prisma.FamilyMemberUpdateOneWithoutStudentNestedInput
-  streak?: Prisma.StreakUpdateOneWithoutStudentNestedInput
-  waitlists?: Prisma.ClassWaitlistUpdateManyWithoutStudentNestedInput
   emailTokens?: Prisma.EmailTokenUpdateManyWithoutUserNestedInput
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
+  pushTokens?: Prisma.PushTokenUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
 }
 
 export type UserProfileUncheckedUpdateWithoutMonthlyAttendanceInput = {
@@ -1993,10 +1993,10 @@ export type UserProfileUncheckedUpdateWithoutMonthlyAttendanceInput = {
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutStudentNestedInput
   skills?: Prisma.UserSkillUncheckedUpdateManyWithoutStudentNestedInput
   familyMember?: Prisma.FamilyMemberUncheckedUpdateOneWithoutStudentNestedInput
-  streak?: Prisma.StreakUncheckedUpdateOneWithoutStudentNestedInput
-  waitlists?: Prisma.ClassWaitlistUncheckedUpdateManyWithoutStudentNestedInput
   emailTokens?: Prisma.EmailTokenUncheckedUpdateManyWithoutUserNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+  pushTokens?: Prisma.PushTokenUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserProfileCreateWithoutSessionAttendancesInput = {
@@ -2019,10 +2019,10 @@ export type UserProfileCreateWithoutSessionAttendancesInput = {
   attendances?: Prisma.AttendanceCreateNestedManyWithoutStudentInput
   skills?: Prisma.UserSkillCreateNestedManyWithoutStudentInput
   familyMember?: Prisma.FamilyMemberCreateNestedOneWithoutStudentInput
-  streak?: Prisma.StreakCreateNestedOneWithoutStudentInput
-  waitlists?: Prisma.ClassWaitlistCreateNestedManyWithoutStudentInput
   emailTokens?: Prisma.EmailTokenCreateNestedManyWithoutUserInput
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
+  pushTokens?: Prisma.PushTokenCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
 }
 
 export type UserProfileUncheckedCreateWithoutSessionAttendancesInput = {
@@ -2045,10 +2045,10 @@ export type UserProfileUncheckedCreateWithoutSessionAttendancesInput = {
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutStudentInput
   skills?: Prisma.UserSkillUncheckedCreateNestedManyWithoutStudentInput
   familyMember?: Prisma.FamilyMemberUncheckedCreateNestedOneWithoutStudentInput
-  streak?: Prisma.StreakUncheckedCreateNestedOneWithoutStudentInput
-  waitlists?: Prisma.ClassWaitlistUncheckedCreateNestedManyWithoutStudentInput
   emailTokens?: Prisma.EmailTokenUncheckedCreateNestedManyWithoutUserInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+  pushTokens?: Prisma.PushTokenUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserProfileCreateOrConnectWithoutSessionAttendancesInput = {
@@ -2087,10 +2087,10 @@ export type UserProfileUpdateWithoutSessionAttendancesInput = {
   attendances?: Prisma.AttendanceUpdateManyWithoutStudentNestedInput
   skills?: Prisma.UserSkillUpdateManyWithoutStudentNestedInput
   familyMember?: Prisma.FamilyMemberUpdateOneWithoutStudentNestedInput
-  streak?: Prisma.StreakUpdateOneWithoutStudentNestedInput
-  waitlists?: Prisma.ClassWaitlistUpdateManyWithoutStudentNestedInput
   emailTokens?: Prisma.EmailTokenUpdateManyWithoutUserNestedInput
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
+  pushTokens?: Prisma.PushTokenUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
 }
 
 export type UserProfileUncheckedUpdateWithoutSessionAttendancesInput = {
@@ -2113,10 +2113,10 @@ export type UserProfileUncheckedUpdateWithoutSessionAttendancesInput = {
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutStudentNestedInput
   skills?: Prisma.UserSkillUncheckedUpdateManyWithoutStudentNestedInput
   familyMember?: Prisma.FamilyMemberUncheckedUpdateOneWithoutStudentNestedInput
-  streak?: Prisma.StreakUncheckedUpdateOneWithoutStudentNestedInput
-  waitlists?: Prisma.ClassWaitlistUncheckedUpdateManyWithoutStudentNestedInput
   emailTokens?: Prisma.EmailTokenUncheckedUpdateManyWithoutUserNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+  pushTokens?: Prisma.PushTokenUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -2131,9 +2131,10 @@ export type UserProfileCountOutputType = {
   orders: number
   attendances: number
   skills: number
-  waitlists: number
   emailTokens: number
   refreshTokens: number
+  pushTokens: number
+  notifications: number
 }
 
 export type UserProfileCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2143,9 +2144,10 @@ export type UserProfileCountOutputTypeSelect<ExtArgs extends runtime.Types.Exten
   orders?: boolean | UserProfileCountOutputTypeCountOrdersArgs
   attendances?: boolean | UserProfileCountOutputTypeCountAttendancesArgs
   skills?: boolean | UserProfileCountOutputTypeCountSkillsArgs
-  waitlists?: boolean | UserProfileCountOutputTypeCountWaitlistsArgs
   emailTokens?: boolean | UserProfileCountOutputTypeCountEmailTokensArgs
   refreshTokens?: boolean | UserProfileCountOutputTypeCountRefreshTokensArgs
+  pushTokens?: boolean | UserProfileCountOutputTypeCountPushTokensArgs
+  notifications?: boolean | UserProfileCountOutputTypeCountNotificationsArgs
 }
 
 /**
@@ -2203,13 +2205,6 @@ export type UserProfileCountOutputTypeCountSkillsArgs<ExtArgs extends runtime.Ty
 /**
  * UserProfileCountOutputType without action
  */
-export type UserProfileCountOutputTypeCountWaitlistsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ClassWaitlistWhereInput
-}
-
-/**
- * UserProfileCountOutputType without action
- */
 export type UserProfileCountOutputTypeCountEmailTokensArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.EmailTokenWhereInput
 }
@@ -2219,6 +2214,20 @@ export type UserProfileCountOutputTypeCountEmailTokensArgs<ExtArgs extends runti
  */
 export type UserProfileCountOutputTypeCountRefreshTokensArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.RefreshTokenWhereInput
+}
+
+/**
+ * UserProfileCountOutputType without action
+ */
+export type UserProfileCountOutputTypeCountPushTokensArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PushTokenWhereInput
+}
+
+/**
+ * UserProfileCountOutputType without action
+ */
+export type UserProfileCountOutputTypeCountNotificationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.NotificationWhereInput
 }
 
 
@@ -2243,10 +2252,10 @@ export type UserProfileSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   attendances?: boolean | Prisma.UserProfile$attendancesArgs<ExtArgs>
   skills?: boolean | Prisma.UserProfile$skillsArgs<ExtArgs>
   familyMember?: boolean | Prisma.UserProfile$familyMemberArgs<ExtArgs>
-  streak?: boolean | Prisma.UserProfile$streakArgs<ExtArgs>
-  waitlists?: boolean | Prisma.UserProfile$waitlistsArgs<ExtArgs>
   emailTokens?: boolean | Prisma.UserProfile$emailTokensArgs<ExtArgs>
   refreshTokens?: boolean | Prisma.UserProfile$refreshTokensArgs<ExtArgs>
+  pushTokens?: boolean | Prisma.UserProfile$pushTokensArgs<ExtArgs>
+  notifications?: boolean | Prisma.UserProfile$notificationsArgs<ExtArgs>
   _count?: boolean | Prisma.UserProfileCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["userProfile"]>
 
@@ -2307,10 +2316,10 @@ export type UserProfileInclude<ExtArgs extends runtime.Types.Extensions.Internal
   attendances?: boolean | Prisma.UserProfile$attendancesArgs<ExtArgs>
   skills?: boolean | Prisma.UserProfile$skillsArgs<ExtArgs>
   familyMember?: boolean | Prisma.UserProfile$familyMemberArgs<ExtArgs>
-  streak?: boolean | Prisma.UserProfile$streakArgs<ExtArgs>
-  waitlists?: boolean | Prisma.UserProfile$waitlistsArgs<ExtArgs>
   emailTokens?: boolean | Prisma.UserProfile$emailTokensArgs<ExtArgs>
   refreshTokens?: boolean | Prisma.UserProfile$refreshTokensArgs<ExtArgs>
+  pushTokens?: boolean | Prisma.UserProfile$pushTokensArgs<ExtArgs>
+  notifications?: boolean | Prisma.UserProfile$notificationsArgs<ExtArgs>
   _count?: boolean | Prisma.UserProfileCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserProfileIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -2326,10 +2335,10 @@ export type $UserProfilePayload<ExtArgs extends runtime.Types.Extensions.Interna
     attendances: Prisma.$AttendancePayload<ExtArgs>[]
     skills: Prisma.$UserSkillPayload<ExtArgs>[]
     familyMember: Prisma.$FamilyMemberPayload<ExtArgs> | null
-    streak: Prisma.$StreakPayload<ExtArgs> | null
-    waitlists: Prisma.$ClassWaitlistPayload<ExtArgs>[]
     emailTokens: Prisma.$EmailTokenPayload<ExtArgs>[]
     refreshTokens: Prisma.$RefreshTokenPayload<ExtArgs>[]
+    pushTokens: Prisma.$PushTokenPayload<ExtArgs>[]
+    notifications: Prisma.$NotificationPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2746,10 +2755,10 @@ export interface Prisma__UserProfileClient<T, Null = never, ExtArgs extends runt
   attendances<T extends Prisma.UserProfile$attendancesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserProfile$attendancesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AttendancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   skills<T extends Prisma.UserProfile$skillsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserProfile$skillsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserSkillPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   familyMember<T extends Prisma.UserProfile$familyMemberArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserProfile$familyMemberArgs<ExtArgs>>): Prisma.Prisma__FamilyMemberClient<runtime.Types.Result.GetResult<Prisma.$FamilyMemberPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  streak<T extends Prisma.UserProfile$streakArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserProfile$streakArgs<ExtArgs>>): Prisma.Prisma__StreakClient<runtime.Types.Result.GetResult<Prisma.$StreakPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  waitlists<T extends Prisma.UserProfile$waitlistsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserProfile$waitlistsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ClassWaitlistPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   emailTokens<T extends Prisma.UserProfile$emailTokensArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserProfile$emailTokensArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EmailTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   refreshTokens<T extends Prisma.UserProfile$refreshTokensArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserProfile$refreshTokensArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RefreshTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  pushTokens<T extends Prisma.UserProfile$pushTokensArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserProfile$pushTokensArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PushTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  notifications<T extends Prisma.UserProfile$notificationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserProfile$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3348,49 +3357,6 @@ export type UserProfile$familyMemberArgs<ExtArgs extends runtime.Types.Extension
 }
 
 /**
- * UserProfile.streak
- */
-export type UserProfile$streakArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Streak
-   */
-  select?: Prisma.StreakSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Streak
-   */
-  omit?: Prisma.StreakOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.StreakInclude<ExtArgs> | null
-  where?: Prisma.StreakWhereInput
-}
-
-/**
- * UserProfile.waitlists
- */
-export type UserProfile$waitlistsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the ClassWaitlist
-   */
-  select?: Prisma.ClassWaitlistSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the ClassWaitlist
-   */
-  omit?: Prisma.ClassWaitlistOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ClassWaitlistInclude<ExtArgs> | null
-  where?: Prisma.ClassWaitlistWhereInput
-  orderBy?: Prisma.ClassWaitlistOrderByWithRelationInput | Prisma.ClassWaitlistOrderByWithRelationInput[]
-  cursor?: Prisma.ClassWaitlistWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.ClassWaitlistScalarFieldEnum | Prisma.ClassWaitlistScalarFieldEnum[]
-}
-
-/**
  * UserProfile.emailTokens
  */
 export type UserProfile$emailTokensArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -3436,6 +3402,54 @@ export type UserProfile$refreshTokensArgs<ExtArgs extends runtime.Types.Extensio
   take?: number
   skip?: number
   distinct?: Prisma.RefreshTokenScalarFieldEnum | Prisma.RefreshTokenScalarFieldEnum[]
+}
+
+/**
+ * UserProfile.pushTokens
+ */
+export type UserProfile$pushTokensArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PushToken
+   */
+  select?: Prisma.PushTokenSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PushToken
+   */
+  omit?: Prisma.PushTokenOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PushTokenInclude<ExtArgs> | null
+  where?: Prisma.PushTokenWhereInput
+  orderBy?: Prisma.PushTokenOrderByWithRelationInput | Prisma.PushTokenOrderByWithRelationInput[]
+  cursor?: Prisma.PushTokenWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PushTokenScalarFieldEnum | Prisma.PushTokenScalarFieldEnum[]
+}
+
+/**
+ * UserProfile.notifications
+ */
+export type UserProfile$notificationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Notification
+   */
+  select?: Prisma.NotificationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Notification
+   */
+  omit?: Prisma.NotificationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.NotificationInclude<ExtArgs> | null
+  where?: Prisma.NotificationWhereInput
+  orderBy?: Prisma.NotificationOrderByWithRelationInput | Prisma.NotificationOrderByWithRelationInput[]
+  cursor?: Prisma.NotificationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.NotificationScalarFieldEnum | Prisma.NotificationScalarFieldEnum[]
 }
 
 /**

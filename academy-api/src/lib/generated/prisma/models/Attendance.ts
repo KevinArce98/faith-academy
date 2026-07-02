@@ -29,7 +29,6 @@ export type AttendanceMinAggregateOutputType = {
   classId: string | null
   studentId: string | null
   status: $Enums.AttendanceStatus | null
-  creditDeducted: boolean | null
   qrToken: string | null
   checkedAt: Date | null
   cancelledAt: Date | null
@@ -41,7 +40,6 @@ export type AttendanceMaxAggregateOutputType = {
   classId: string | null
   studentId: string | null
   status: $Enums.AttendanceStatus | null
-  creditDeducted: boolean | null
   qrToken: string | null
   checkedAt: Date | null
   cancelledAt: Date | null
@@ -53,7 +51,6 @@ export type AttendanceCountAggregateOutputType = {
   classId: number
   studentId: number
   status: number
-  creditDeducted: number
   qrToken: number
   checkedAt: number
   cancelledAt: number
@@ -67,7 +64,6 @@ export type AttendanceMinAggregateInputType = {
   classId?: true
   studentId?: true
   status?: true
-  creditDeducted?: true
   qrToken?: true
   checkedAt?: true
   cancelledAt?: true
@@ -79,7 +75,6 @@ export type AttendanceMaxAggregateInputType = {
   classId?: true
   studentId?: true
   status?: true
-  creditDeducted?: true
   qrToken?: true
   checkedAt?: true
   cancelledAt?: true
@@ -91,7 +86,6 @@ export type AttendanceCountAggregateInputType = {
   classId?: true
   studentId?: true
   status?: true
-  creditDeducted?: true
   qrToken?: true
   checkedAt?: true
   cancelledAt?: true
@@ -176,7 +170,6 @@ export type AttendanceGroupByOutputType = {
   classId: string
   studentId: string
   status: $Enums.AttendanceStatus
-  creditDeducted: boolean
   qrToken: string | null
   checkedAt: Date | null
   cancelledAt: Date | null
@@ -209,7 +202,6 @@ export type AttendanceWhereInput = {
   classId?: Prisma.StringFilter<"Attendance"> | string
   studentId?: Prisma.StringFilter<"Attendance"> | string
   status?: Prisma.EnumAttendanceStatusFilter<"Attendance"> | $Enums.AttendanceStatus
-  creditDeducted?: Prisma.BoolFilter<"Attendance"> | boolean
   qrToken?: Prisma.StringNullableFilter<"Attendance"> | string | null
   checkedAt?: Prisma.DateTimeNullableFilter<"Attendance"> | Date | string | null
   cancelledAt?: Prisma.DateTimeNullableFilter<"Attendance"> | Date | string | null
@@ -223,7 +215,6 @@ export type AttendanceOrderByWithRelationInput = {
   classId?: Prisma.SortOrder
   studentId?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  creditDeducted?: Prisma.SortOrder
   qrToken?: Prisma.SortOrderInput | Prisma.SortOrder
   checkedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   cancelledAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -241,7 +232,6 @@ export type AttendanceWhereUniqueInput = Prisma.AtLeast<{
   classId?: Prisma.StringFilter<"Attendance"> | string
   studentId?: Prisma.StringFilter<"Attendance"> | string
   status?: Prisma.EnumAttendanceStatusFilter<"Attendance"> | $Enums.AttendanceStatus
-  creditDeducted?: Prisma.BoolFilter<"Attendance"> | boolean
   checkedAt?: Prisma.DateTimeNullableFilter<"Attendance"> | Date | string | null
   cancelledAt?: Prisma.DateTimeNullableFilter<"Attendance"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Attendance"> | Date | string
@@ -254,7 +244,6 @@ export type AttendanceOrderByWithAggregationInput = {
   classId?: Prisma.SortOrder
   studentId?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  creditDeducted?: Prisma.SortOrder
   qrToken?: Prisma.SortOrderInput | Prisma.SortOrder
   checkedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   cancelledAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -272,7 +261,6 @@ export type AttendanceScalarWhereWithAggregatesInput = {
   classId?: Prisma.StringWithAggregatesFilter<"Attendance"> | string
   studentId?: Prisma.StringWithAggregatesFilter<"Attendance"> | string
   status?: Prisma.EnumAttendanceStatusWithAggregatesFilter<"Attendance"> | $Enums.AttendanceStatus
-  creditDeducted?: Prisma.BoolWithAggregatesFilter<"Attendance"> | boolean
   qrToken?: Prisma.StringNullableWithAggregatesFilter<"Attendance"> | string | null
   checkedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Attendance"> | Date | string | null
   cancelledAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Attendance"> | Date | string | null
@@ -282,7 +270,6 @@ export type AttendanceScalarWhereWithAggregatesInput = {
 export type AttendanceCreateInput = {
   id?: string
   status?: $Enums.AttendanceStatus
-  creditDeducted?: boolean
   qrToken?: string | null
   checkedAt?: Date | string | null
   cancelledAt?: Date | string | null
@@ -296,7 +283,6 @@ export type AttendanceUncheckedCreateInput = {
   classId: string
   studentId: string
   status?: $Enums.AttendanceStatus
-  creditDeducted?: boolean
   qrToken?: string | null
   checkedAt?: Date | string | null
   cancelledAt?: Date | string | null
@@ -306,7 +292,6 @@ export type AttendanceUncheckedCreateInput = {
 export type AttendanceUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumAttendanceStatusFieldUpdateOperationsInput | $Enums.AttendanceStatus
-  creditDeducted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   qrToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -320,7 +305,6 @@ export type AttendanceUncheckedUpdateInput = {
   classId?: Prisma.StringFieldUpdateOperationsInput | string
   studentId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumAttendanceStatusFieldUpdateOperationsInput | $Enums.AttendanceStatus
-  creditDeducted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   qrToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -332,7 +316,6 @@ export type AttendanceCreateManyInput = {
   classId: string
   studentId: string
   status?: $Enums.AttendanceStatus
-  creditDeducted?: boolean
   qrToken?: string | null
   checkedAt?: Date | string | null
   cancelledAt?: Date | string | null
@@ -342,7 +325,6 @@ export type AttendanceCreateManyInput = {
 export type AttendanceUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumAttendanceStatusFieldUpdateOperationsInput | $Enums.AttendanceStatus
-  creditDeducted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   qrToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -354,7 +336,6 @@ export type AttendanceUncheckedUpdateManyInput = {
   classId?: Prisma.StringFieldUpdateOperationsInput | string
   studentId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumAttendanceStatusFieldUpdateOperationsInput | $Enums.AttendanceStatus
-  creditDeducted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   qrToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -376,7 +357,6 @@ export type AttendanceCountOrderByAggregateInput = {
   classId?: Prisma.SortOrder
   studentId?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  creditDeducted?: Prisma.SortOrder
   qrToken?: Prisma.SortOrder
   checkedAt?: Prisma.SortOrder
   cancelledAt?: Prisma.SortOrder
@@ -388,7 +368,6 @@ export type AttendanceMaxOrderByAggregateInput = {
   classId?: Prisma.SortOrder
   studentId?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  creditDeducted?: Prisma.SortOrder
   qrToken?: Prisma.SortOrder
   checkedAt?: Prisma.SortOrder
   cancelledAt?: Prisma.SortOrder
@@ -400,7 +379,6 @@ export type AttendanceMinOrderByAggregateInput = {
   classId?: Prisma.SortOrder
   studentId?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  creditDeducted?: Prisma.SortOrder
   qrToken?: Prisma.SortOrder
   checkedAt?: Prisma.SortOrder
   cancelledAt?: Prisma.SortOrder
@@ -498,7 +476,6 @@ export type EnumAttendanceStatusFieldUpdateOperationsInput = {
 export type AttendanceCreateWithoutStudentInput = {
   id?: string
   status?: $Enums.AttendanceStatus
-  creditDeducted?: boolean
   qrToken?: string | null
   checkedAt?: Date | string | null
   cancelledAt?: Date | string | null
@@ -510,7 +487,6 @@ export type AttendanceUncheckedCreateWithoutStudentInput = {
   id?: string
   classId: string
   status?: $Enums.AttendanceStatus
-  creditDeducted?: boolean
   qrToken?: string | null
   checkedAt?: Date | string | null
   cancelledAt?: Date | string | null
@@ -551,7 +527,6 @@ export type AttendanceScalarWhereInput = {
   classId?: Prisma.StringFilter<"Attendance"> | string
   studentId?: Prisma.StringFilter<"Attendance"> | string
   status?: Prisma.EnumAttendanceStatusFilter<"Attendance"> | $Enums.AttendanceStatus
-  creditDeducted?: Prisma.BoolFilter<"Attendance"> | boolean
   qrToken?: Prisma.StringNullableFilter<"Attendance"> | string | null
   checkedAt?: Prisma.DateTimeNullableFilter<"Attendance"> | Date | string | null
   cancelledAt?: Prisma.DateTimeNullableFilter<"Attendance"> | Date | string | null
@@ -561,7 +536,6 @@ export type AttendanceScalarWhereInput = {
 export type AttendanceCreateWithoutClassInput = {
   id?: string
   status?: $Enums.AttendanceStatus
-  creditDeducted?: boolean
   qrToken?: string | null
   checkedAt?: Date | string | null
   cancelledAt?: Date | string | null
@@ -573,7 +547,6 @@ export type AttendanceUncheckedCreateWithoutClassInput = {
   id?: string
   studentId: string
   status?: $Enums.AttendanceStatus
-  creditDeducted?: boolean
   qrToken?: string | null
   checkedAt?: Date | string | null
   cancelledAt?: Date | string | null
@@ -610,7 +583,6 @@ export type AttendanceCreateManyStudentInput = {
   id?: string
   classId: string
   status?: $Enums.AttendanceStatus
-  creditDeducted?: boolean
   qrToken?: string | null
   checkedAt?: Date | string | null
   cancelledAt?: Date | string | null
@@ -620,7 +592,6 @@ export type AttendanceCreateManyStudentInput = {
 export type AttendanceUpdateWithoutStudentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumAttendanceStatusFieldUpdateOperationsInput | $Enums.AttendanceStatus
-  creditDeducted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   qrToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -632,7 +603,6 @@ export type AttendanceUncheckedUpdateWithoutStudentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   classId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumAttendanceStatusFieldUpdateOperationsInput | $Enums.AttendanceStatus
-  creditDeducted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   qrToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -643,7 +613,6 @@ export type AttendanceUncheckedUpdateManyWithoutStudentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   classId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumAttendanceStatusFieldUpdateOperationsInput | $Enums.AttendanceStatus
-  creditDeducted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   qrToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -654,7 +623,6 @@ export type AttendanceCreateManyClassInput = {
   id?: string
   studentId: string
   status?: $Enums.AttendanceStatus
-  creditDeducted?: boolean
   qrToken?: string | null
   checkedAt?: Date | string | null
   cancelledAt?: Date | string | null
@@ -664,7 +632,6 @@ export type AttendanceCreateManyClassInput = {
 export type AttendanceUpdateWithoutClassInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumAttendanceStatusFieldUpdateOperationsInput | $Enums.AttendanceStatus
-  creditDeducted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   qrToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -676,7 +643,6 @@ export type AttendanceUncheckedUpdateWithoutClassInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   studentId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumAttendanceStatusFieldUpdateOperationsInput | $Enums.AttendanceStatus
-  creditDeducted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   qrToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -687,7 +653,6 @@ export type AttendanceUncheckedUpdateManyWithoutClassInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   studentId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumAttendanceStatusFieldUpdateOperationsInput | $Enums.AttendanceStatus
-  creditDeducted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   qrToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -701,7 +666,6 @@ export type AttendanceSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   classId?: boolean
   studentId?: boolean
   status?: boolean
-  creditDeducted?: boolean
   qrToken?: boolean
   checkedAt?: boolean
   cancelledAt?: boolean
@@ -715,7 +679,6 @@ export type AttendanceSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   classId?: boolean
   studentId?: boolean
   status?: boolean
-  creditDeducted?: boolean
   qrToken?: boolean
   checkedAt?: boolean
   cancelledAt?: boolean
@@ -729,7 +692,6 @@ export type AttendanceSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   classId?: boolean
   studentId?: boolean
   status?: boolean
-  creditDeducted?: boolean
   qrToken?: boolean
   checkedAt?: boolean
   cancelledAt?: boolean
@@ -743,14 +705,13 @@ export type AttendanceSelectScalar = {
   classId?: boolean
   studentId?: boolean
   status?: boolean
-  creditDeducted?: boolean
   qrToken?: boolean
   checkedAt?: boolean
   cancelledAt?: boolean
   createdAt?: boolean
 }
 
-export type AttendanceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "classId" | "studentId" | "status" | "creditDeducted" | "qrToken" | "checkedAt" | "cancelledAt" | "createdAt", ExtArgs["result"]["attendance"]>
+export type AttendanceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "classId" | "studentId" | "status" | "qrToken" | "checkedAt" | "cancelledAt" | "createdAt", ExtArgs["result"]["attendance"]>
 export type AttendanceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   class?: boolean | Prisma.ClassDefaultArgs<ExtArgs>
   student?: boolean | Prisma.UserProfileDefaultArgs<ExtArgs>
@@ -775,7 +736,6 @@ export type $AttendancePayload<ExtArgs extends runtime.Types.Extensions.Internal
     classId: string
     studentId: string
     status: $Enums.AttendanceStatus
-    creditDeducted: boolean
     qrToken: string | null
     checkedAt: Date | null
     cancelledAt: Date | null
@@ -1209,7 +1169,6 @@ export interface AttendanceFieldRefs {
   readonly classId: Prisma.FieldRef<"Attendance", 'String'>
   readonly studentId: Prisma.FieldRef<"Attendance", 'String'>
   readonly status: Prisma.FieldRef<"Attendance", 'AttendanceStatus'>
-  readonly creditDeducted: Prisma.FieldRef<"Attendance", 'Boolean'>
   readonly qrToken: Prisma.FieldRef<"Attendance", 'String'>
   readonly checkedAt: Prisma.FieldRef<"Attendance", 'DateTime'>
   readonly cancelledAt: Prisma.FieldRef<"Attendance", 'DateTime'>

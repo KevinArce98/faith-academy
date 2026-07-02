@@ -29,16 +29,6 @@ export const OrderStatus = {
 export type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus]
 
 
-export const LedgerType = {
-  CREDIT_GRANT: 'CREDIT_GRANT',
-  CREDIT_DEBIT: 'CREDIT_DEBIT',
-  CREDIT_REFUND: 'CREDIT_REFUND',
-  CREDIT_EXPIRY: 'CREDIT_EXPIRY'
-} as const
-
-export type LedgerType = (typeof LedgerType)[keyof typeof LedgerType]
-
-
 export const AttendanceStatus = {
   RESERVED: 'RESERVED',
   ATTENDED: 'ATTENDED',

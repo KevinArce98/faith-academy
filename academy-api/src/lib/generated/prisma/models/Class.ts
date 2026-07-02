@@ -28,14 +28,10 @@ export type AggregateClass = {
 
 export type ClassAvgAggregateOutputType = {
   maxCapacity: number | null
-  creditCost: number | null
-  cancelWindowHours: number | null
 }
 
 export type ClassSumAggregateOutputType = {
   maxCapacity: number | null
-  creditCost: number | null
-  cancelWindowHours: number | null
 }
 
 export type ClassMinAggregateOutputType = {
@@ -45,8 +41,6 @@ export type ClassMinAggregateOutputType = {
   description: string | null
   skillLevel: $Enums.SkillLevel | null
   maxCapacity: number | null
-  creditCost: number | null
-  cancelWindowHours: number | null
   isPrivate: boolean | null
   oneOffDate: Date | null
   startsAt: Date | null
@@ -62,8 +56,6 @@ export type ClassMaxAggregateOutputType = {
   description: string | null
   skillLevel: $Enums.SkillLevel | null
   maxCapacity: number | null
-  creditCost: number | null
-  cancelWindowHours: number | null
   isPrivate: boolean | null
   oneOffDate: Date | null
   startsAt: Date | null
@@ -79,8 +71,6 @@ export type ClassCountAggregateOutputType = {
   description: number
   skillLevel: number
   maxCapacity: number
-  creditCost: number
-  cancelWindowHours: number
   isPrivate: number
   oneOffDate: number
   startsAt: number
@@ -93,14 +83,10 @@ export type ClassCountAggregateOutputType = {
 
 export type ClassAvgAggregateInputType = {
   maxCapacity?: true
-  creditCost?: true
-  cancelWindowHours?: true
 }
 
 export type ClassSumAggregateInputType = {
   maxCapacity?: true
-  creditCost?: true
-  cancelWindowHours?: true
 }
 
 export type ClassMinAggregateInputType = {
@@ -110,8 +96,6 @@ export type ClassMinAggregateInputType = {
   description?: true
   skillLevel?: true
   maxCapacity?: true
-  creditCost?: true
-  cancelWindowHours?: true
   isPrivate?: true
   oneOffDate?: true
   startsAt?: true
@@ -127,8 +111,6 @@ export type ClassMaxAggregateInputType = {
   description?: true
   skillLevel?: true
   maxCapacity?: true
-  creditCost?: true
-  cancelWindowHours?: true
   isPrivate?: true
   oneOffDate?: true
   startsAt?: true
@@ -144,8 +126,6 @@ export type ClassCountAggregateInputType = {
   description?: true
   skillLevel?: true
   maxCapacity?: true
-  creditCost?: true
-  cancelWindowHours?: true
   isPrivate?: true
   oneOffDate?: true
   startsAt?: true
@@ -248,8 +228,6 @@ export type ClassGroupByOutputType = {
   description: string | null
   skillLevel: $Enums.SkillLevel
   maxCapacity: number
-  creditCost: number
-  cancelWindowHours: number
   isPrivate: boolean
   oneOffDate: Date | null
   startsAt: Date
@@ -288,8 +266,6 @@ export type ClassWhereInput = {
   description?: Prisma.StringNullableFilter<"Class"> | string | null
   skillLevel?: Prisma.EnumSkillLevelFilter<"Class"> | $Enums.SkillLevel
   maxCapacity?: Prisma.IntFilter<"Class"> | number
-  creditCost?: Prisma.IntFilter<"Class"> | number
-  cancelWindowHours?: Prisma.IntFilter<"Class"> | number
   isPrivate?: Prisma.BoolFilter<"Class"> | boolean
   oneOffDate?: Prisma.DateTimeNullableFilter<"Class"> | Date | string | null
   startsAt?: Prisma.DateTimeFilter<"Class"> | Date | string
@@ -300,7 +276,6 @@ export type ClassWhereInput = {
   attendances?: Prisma.AttendanceListRelationFilter
   monthlyAttendance?: Prisma.MonthlyAttendanceListRelationFilter
   sessionAttendances?: Prisma.SessionAttendanceListRelationFilter
-  waitlist?: Prisma.ClassWaitlistListRelationFilter
   content?: Prisma.ContentListRelationFilter
   bookingOrders?: Prisma.MembershipOrderListRelationFilter
 }
@@ -312,8 +287,6 @@ export type ClassOrderByWithRelationInput = {
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   skillLevel?: Prisma.SortOrder
   maxCapacity?: Prisma.SortOrder
-  creditCost?: Prisma.SortOrder
-  cancelWindowHours?: Prisma.SortOrder
   isPrivate?: Prisma.SortOrder
   oneOffDate?: Prisma.SortOrderInput | Prisma.SortOrder
   startsAt?: Prisma.SortOrder
@@ -324,7 +297,6 @@ export type ClassOrderByWithRelationInput = {
   attendances?: Prisma.AttendanceOrderByRelationAggregateInput
   monthlyAttendance?: Prisma.MonthlyAttendanceOrderByRelationAggregateInput
   sessionAttendances?: Prisma.SessionAttendanceOrderByRelationAggregateInput
-  waitlist?: Prisma.ClassWaitlistOrderByRelationAggregateInput
   content?: Prisma.ContentOrderByRelationAggregateInput
   bookingOrders?: Prisma.MembershipOrderOrderByRelationAggregateInput
 }
@@ -339,8 +311,6 @@ export type ClassWhereUniqueInput = Prisma.AtLeast<{
   description?: Prisma.StringNullableFilter<"Class"> | string | null
   skillLevel?: Prisma.EnumSkillLevelFilter<"Class"> | $Enums.SkillLevel
   maxCapacity?: Prisma.IntFilter<"Class"> | number
-  creditCost?: Prisma.IntFilter<"Class"> | number
-  cancelWindowHours?: Prisma.IntFilter<"Class"> | number
   isPrivate?: Prisma.BoolFilter<"Class"> | boolean
   oneOffDate?: Prisma.DateTimeNullableFilter<"Class"> | Date | string | null
   startsAt?: Prisma.DateTimeFilter<"Class"> | Date | string
@@ -351,7 +321,6 @@ export type ClassWhereUniqueInput = Prisma.AtLeast<{
   attendances?: Prisma.AttendanceListRelationFilter
   monthlyAttendance?: Prisma.MonthlyAttendanceListRelationFilter
   sessionAttendances?: Prisma.SessionAttendanceListRelationFilter
-  waitlist?: Prisma.ClassWaitlistListRelationFilter
   content?: Prisma.ContentListRelationFilter
   bookingOrders?: Prisma.MembershipOrderListRelationFilter
 }, "id">
@@ -363,8 +332,6 @@ export type ClassOrderByWithAggregationInput = {
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   skillLevel?: Prisma.SortOrder
   maxCapacity?: Prisma.SortOrder
-  creditCost?: Prisma.SortOrder
-  cancelWindowHours?: Prisma.SortOrder
   isPrivate?: Prisma.SortOrder
   oneOffDate?: Prisma.SortOrderInput | Prisma.SortOrder
   startsAt?: Prisma.SortOrder
@@ -388,8 +355,6 @@ export type ClassScalarWhereWithAggregatesInput = {
   description?: Prisma.StringNullableWithAggregatesFilter<"Class"> | string | null
   skillLevel?: Prisma.EnumSkillLevelWithAggregatesFilter<"Class"> | $Enums.SkillLevel
   maxCapacity?: Prisma.IntWithAggregatesFilter<"Class"> | number
-  creditCost?: Prisma.IntWithAggregatesFilter<"Class"> | number
-  cancelWindowHours?: Prisma.IntWithAggregatesFilter<"Class"> | number
   isPrivate?: Prisma.BoolWithAggregatesFilter<"Class"> | boolean
   oneOffDate?: Prisma.DateTimeNullableWithAggregatesFilter<"Class"> | Date | string | null
   startsAt?: Prisma.DateTimeWithAggregatesFilter<"Class"> | Date | string
@@ -405,8 +370,6 @@ export type ClassCreateInput = {
   description?: string | null
   skillLevel: $Enums.SkillLevel
   maxCapacity?: number
-  creditCost?: number
-  cancelWindowHours?: number
   isPrivate?: boolean
   oneOffDate?: Date | string | null
   startsAt: Date | string
@@ -417,7 +380,6 @@ export type ClassCreateInput = {
   attendances?: Prisma.AttendanceCreateNestedManyWithoutClassInput
   monthlyAttendance?: Prisma.MonthlyAttendanceCreateNestedManyWithoutClassInput
   sessionAttendances?: Prisma.SessionAttendanceCreateNestedManyWithoutClassInput
-  waitlist?: Prisma.ClassWaitlistCreateNestedManyWithoutClassInput
   content?: Prisma.ContentCreateNestedManyWithoutClassInput
   bookingOrders?: Prisma.MembershipOrderCreateNestedManyWithoutBookingClassInput
 }
@@ -429,8 +391,6 @@ export type ClassUncheckedCreateInput = {
   description?: string | null
   skillLevel: $Enums.SkillLevel
   maxCapacity?: number
-  creditCost?: number
-  cancelWindowHours?: number
   isPrivate?: boolean
   oneOffDate?: Date | string | null
   startsAt: Date | string
@@ -441,7 +401,6 @@ export type ClassUncheckedCreateInput = {
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutClassInput
   monthlyAttendance?: Prisma.MonthlyAttendanceUncheckedCreateNestedManyWithoutClassInput
   sessionAttendances?: Prisma.SessionAttendanceUncheckedCreateNestedManyWithoutClassInput
-  waitlist?: Prisma.ClassWaitlistUncheckedCreateNestedManyWithoutClassInput
   content?: Prisma.ContentUncheckedCreateNestedManyWithoutClassInput
   bookingOrders?: Prisma.MembershipOrderUncheckedCreateNestedManyWithoutBookingClassInput
 }
@@ -453,8 +412,6 @@ export type ClassUpdateInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   skillLevel?: Prisma.EnumSkillLevelFieldUpdateOperationsInput | $Enums.SkillLevel
   maxCapacity?: Prisma.IntFieldUpdateOperationsInput | number
-  creditCost?: Prisma.IntFieldUpdateOperationsInput | number
-  cancelWindowHours?: Prisma.IntFieldUpdateOperationsInput | number
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   oneOffDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -465,7 +422,6 @@ export type ClassUpdateInput = {
   attendances?: Prisma.AttendanceUpdateManyWithoutClassNestedInput
   monthlyAttendance?: Prisma.MonthlyAttendanceUpdateManyWithoutClassNestedInput
   sessionAttendances?: Prisma.SessionAttendanceUpdateManyWithoutClassNestedInput
-  waitlist?: Prisma.ClassWaitlistUpdateManyWithoutClassNestedInput
   content?: Prisma.ContentUpdateManyWithoutClassNestedInput
   bookingOrders?: Prisma.MembershipOrderUpdateManyWithoutBookingClassNestedInput
 }
@@ -477,8 +433,6 @@ export type ClassUncheckedUpdateInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   skillLevel?: Prisma.EnumSkillLevelFieldUpdateOperationsInput | $Enums.SkillLevel
   maxCapacity?: Prisma.IntFieldUpdateOperationsInput | number
-  creditCost?: Prisma.IntFieldUpdateOperationsInput | number
-  cancelWindowHours?: Prisma.IntFieldUpdateOperationsInput | number
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   oneOffDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -489,7 +443,6 @@ export type ClassUncheckedUpdateInput = {
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutClassNestedInput
   monthlyAttendance?: Prisma.MonthlyAttendanceUncheckedUpdateManyWithoutClassNestedInput
   sessionAttendances?: Prisma.SessionAttendanceUncheckedUpdateManyWithoutClassNestedInput
-  waitlist?: Prisma.ClassWaitlistUncheckedUpdateManyWithoutClassNestedInput
   content?: Prisma.ContentUncheckedUpdateManyWithoutClassNestedInput
   bookingOrders?: Prisma.MembershipOrderUncheckedUpdateManyWithoutBookingClassNestedInput
 }
@@ -501,8 +454,6 @@ export type ClassCreateManyInput = {
   description?: string | null
   skillLevel: $Enums.SkillLevel
   maxCapacity?: number
-  creditCost?: number
-  cancelWindowHours?: number
   isPrivate?: boolean
   oneOffDate?: Date | string | null
   startsAt: Date | string
@@ -518,8 +469,6 @@ export type ClassUpdateManyMutationInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   skillLevel?: Prisma.EnumSkillLevelFieldUpdateOperationsInput | $Enums.SkillLevel
   maxCapacity?: Prisma.IntFieldUpdateOperationsInput | number
-  creditCost?: Prisma.IntFieldUpdateOperationsInput | number
-  cancelWindowHours?: Prisma.IntFieldUpdateOperationsInput | number
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   oneOffDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -535,8 +484,6 @@ export type ClassUncheckedUpdateManyInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   skillLevel?: Prisma.EnumSkillLevelFieldUpdateOperationsInput | $Enums.SkillLevel
   maxCapacity?: Prisma.IntFieldUpdateOperationsInput | number
-  creditCost?: Prisma.IntFieldUpdateOperationsInput | number
-  cancelWindowHours?: Prisma.IntFieldUpdateOperationsInput | number
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   oneOffDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -557,8 +504,6 @@ export type ClassCountOrderByAggregateInput = {
   description?: Prisma.SortOrder
   skillLevel?: Prisma.SortOrder
   maxCapacity?: Prisma.SortOrder
-  creditCost?: Prisma.SortOrder
-  cancelWindowHours?: Prisma.SortOrder
   isPrivate?: Prisma.SortOrder
   oneOffDate?: Prisma.SortOrder
   startsAt?: Prisma.SortOrder
@@ -569,8 +514,6 @@ export type ClassCountOrderByAggregateInput = {
 
 export type ClassAvgOrderByAggregateInput = {
   maxCapacity?: Prisma.SortOrder
-  creditCost?: Prisma.SortOrder
-  cancelWindowHours?: Prisma.SortOrder
 }
 
 export type ClassMaxOrderByAggregateInput = {
@@ -580,8 +523,6 @@ export type ClassMaxOrderByAggregateInput = {
   description?: Prisma.SortOrder
   skillLevel?: Prisma.SortOrder
   maxCapacity?: Prisma.SortOrder
-  creditCost?: Prisma.SortOrder
-  cancelWindowHours?: Prisma.SortOrder
   isPrivate?: Prisma.SortOrder
   oneOffDate?: Prisma.SortOrder
   startsAt?: Prisma.SortOrder
@@ -597,8 +538,6 @@ export type ClassMinOrderByAggregateInput = {
   description?: Prisma.SortOrder
   skillLevel?: Prisma.SortOrder
   maxCapacity?: Prisma.SortOrder
-  creditCost?: Prisma.SortOrder
-  cancelWindowHours?: Prisma.SortOrder
   isPrivate?: Prisma.SortOrder
   oneOffDate?: Prisma.SortOrder
   startsAt?: Prisma.SortOrder
@@ -609,8 +548,6 @@ export type ClassMinOrderByAggregateInput = {
 
 export type ClassSumOrderByAggregateInput = {
   maxCapacity?: Prisma.SortOrder
-  creditCost?: Prisma.SortOrder
-  cancelWindowHours?: Prisma.SortOrder
 }
 
 export type ClassScalarRelationFilter = {
@@ -666,20 +603,6 @@ export type ClassUpdateOneRequiredWithoutAttendancesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ClassUpdateToOneWithWhereWithoutAttendancesInput, Prisma.ClassUpdateWithoutAttendancesInput>, Prisma.ClassUncheckedUpdateWithoutAttendancesInput>
 }
 
-export type ClassCreateNestedOneWithoutWaitlistInput = {
-  create?: Prisma.XOR<Prisma.ClassCreateWithoutWaitlistInput, Prisma.ClassUncheckedCreateWithoutWaitlistInput>
-  connectOrCreate?: Prisma.ClassCreateOrConnectWithoutWaitlistInput
-  connect?: Prisma.ClassWhereUniqueInput
-}
-
-export type ClassUpdateOneRequiredWithoutWaitlistNestedInput = {
-  create?: Prisma.XOR<Prisma.ClassCreateWithoutWaitlistInput, Prisma.ClassUncheckedCreateWithoutWaitlistInput>
-  connectOrCreate?: Prisma.ClassCreateOrConnectWithoutWaitlistInput
-  upsert?: Prisma.ClassUpsertWithoutWaitlistInput
-  connect?: Prisma.ClassWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.ClassUpdateToOneWithWhereWithoutWaitlistInput, Prisma.ClassUpdateWithoutWaitlistInput>, Prisma.ClassUncheckedUpdateWithoutWaitlistInput>
-}
-
 export type ClassCreateNestedOneWithoutContentInput = {
   create?: Prisma.XOR<Prisma.ClassCreateWithoutContentInput, Prisma.ClassUncheckedCreateWithoutContentInput>
   connectOrCreate?: Prisma.ClassCreateOrConnectWithoutContentInput
@@ -731,8 +654,6 @@ export type ClassCreateWithoutBookingOrdersInput = {
   description?: string | null
   skillLevel: $Enums.SkillLevel
   maxCapacity?: number
-  creditCost?: number
-  cancelWindowHours?: number
   isPrivate?: boolean
   oneOffDate?: Date | string | null
   startsAt: Date | string
@@ -743,7 +664,6 @@ export type ClassCreateWithoutBookingOrdersInput = {
   attendances?: Prisma.AttendanceCreateNestedManyWithoutClassInput
   monthlyAttendance?: Prisma.MonthlyAttendanceCreateNestedManyWithoutClassInput
   sessionAttendances?: Prisma.SessionAttendanceCreateNestedManyWithoutClassInput
-  waitlist?: Prisma.ClassWaitlistCreateNestedManyWithoutClassInput
   content?: Prisma.ContentCreateNestedManyWithoutClassInput
 }
 
@@ -754,8 +674,6 @@ export type ClassUncheckedCreateWithoutBookingOrdersInput = {
   description?: string | null
   skillLevel: $Enums.SkillLevel
   maxCapacity?: number
-  creditCost?: number
-  cancelWindowHours?: number
   isPrivate?: boolean
   oneOffDate?: Date | string | null
   startsAt: Date | string
@@ -766,7 +684,6 @@ export type ClassUncheckedCreateWithoutBookingOrdersInput = {
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutClassInput
   monthlyAttendance?: Prisma.MonthlyAttendanceUncheckedCreateNestedManyWithoutClassInput
   sessionAttendances?: Prisma.SessionAttendanceUncheckedCreateNestedManyWithoutClassInput
-  waitlist?: Prisma.ClassWaitlistUncheckedCreateNestedManyWithoutClassInput
   content?: Prisma.ContentUncheckedCreateNestedManyWithoutClassInput
 }
 
@@ -793,8 +710,6 @@ export type ClassUpdateWithoutBookingOrdersInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   skillLevel?: Prisma.EnumSkillLevelFieldUpdateOperationsInput | $Enums.SkillLevel
   maxCapacity?: Prisma.IntFieldUpdateOperationsInput | number
-  creditCost?: Prisma.IntFieldUpdateOperationsInput | number
-  cancelWindowHours?: Prisma.IntFieldUpdateOperationsInput | number
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   oneOffDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -805,7 +720,6 @@ export type ClassUpdateWithoutBookingOrdersInput = {
   attendances?: Prisma.AttendanceUpdateManyWithoutClassNestedInput
   monthlyAttendance?: Prisma.MonthlyAttendanceUpdateManyWithoutClassNestedInput
   sessionAttendances?: Prisma.SessionAttendanceUpdateManyWithoutClassNestedInput
-  waitlist?: Prisma.ClassWaitlistUpdateManyWithoutClassNestedInput
   content?: Prisma.ContentUpdateManyWithoutClassNestedInput
 }
 
@@ -816,8 +730,6 @@ export type ClassUncheckedUpdateWithoutBookingOrdersInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   skillLevel?: Prisma.EnumSkillLevelFieldUpdateOperationsInput | $Enums.SkillLevel
   maxCapacity?: Prisma.IntFieldUpdateOperationsInput | number
-  creditCost?: Prisma.IntFieldUpdateOperationsInput | number
-  cancelWindowHours?: Prisma.IntFieldUpdateOperationsInput | number
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   oneOffDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -828,7 +740,6 @@ export type ClassUncheckedUpdateWithoutBookingOrdersInput = {
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutClassNestedInput
   monthlyAttendance?: Prisma.MonthlyAttendanceUncheckedUpdateManyWithoutClassNestedInput
   sessionAttendances?: Prisma.SessionAttendanceUncheckedUpdateManyWithoutClassNestedInput
-  waitlist?: Prisma.ClassWaitlistUncheckedUpdateManyWithoutClassNestedInput
   content?: Prisma.ContentUncheckedUpdateManyWithoutClassNestedInput
 }
 
@@ -839,8 +750,6 @@ export type ClassCreateWithoutSlotsInput = {
   description?: string | null
   skillLevel: $Enums.SkillLevel
   maxCapacity?: number
-  creditCost?: number
-  cancelWindowHours?: number
   isPrivate?: boolean
   oneOffDate?: Date | string | null
   startsAt: Date | string
@@ -850,7 +759,6 @@ export type ClassCreateWithoutSlotsInput = {
   attendances?: Prisma.AttendanceCreateNestedManyWithoutClassInput
   monthlyAttendance?: Prisma.MonthlyAttendanceCreateNestedManyWithoutClassInput
   sessionAttendances?: Prisma.SessionAttendanceCreateNestedManyWithoutClassInput
-  waitlist?: Prisma.ClassWaitlistCreateNestedManyWithoutClassInput
   content?: Prisma.ContentCreateNestedManyWithoutClassInput
   bookingOrders?: Prisma.MembershipOrderCreateNestedManyWithoutBookingClassInput
 }
@@ -862,8 +770,6 @@ export type ClassUncheckedCreateWithoutSlotsInput = {
   description?: string | null
   skillLevel: $Enums.SkillLevel
   maxCapacity?: number
-  creditCost?: number
-  cancelWindowHours?: number
   isPrivate?: boolean
   oneOffDate?: Date | string | null
   startsAt: Date | string
@@ -873,7 +779,6 @@ export type ClassUncheckedCreateWithoutSlotsInput = {
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutClassInput
   monthlyAttendance?: Prisma.MonthlyAttendanceUncheckedCreateNestedManyWithoutClassInput
   sessionAttendances?: Prisma.SessionAttendanceUncheckedCreateNestedManyWithoutClassInput
-  waitlist?: Prisma.ClassWaitlistUncheckedCreateNestedManyWithoutClassInput
   content?: Prisma.ContentUncheckedCreateNestedManyWithoutClassInput
   bookingOrders?: Prisma.MembershipOrderUncheckedCreateNestedManyWithoutBookingClassInput
 }
@@ -901,8 +806,6 @@ export type ClassUpdateWithoutSlotsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   skillLevel?: Prisma.EnumSkillLevelFieldUpdateOperationsInput | $Enums.SkillLevel
   maxCapacity?: Prisma.IntFieldUpdateOperationsInput | number
-  creditCost?: Prisma.IntFieldUpdateOperationsInput | number
-  cancelWindowHours?: Prisma.IntFieldUpdateOperationsInput | number
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   oneOffDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -912,7 +815,6 @@ export type ClassUpdateWithoutSlotsInput = {
   attendances?: Prisma.AttendanceUpdateManyWithoutClassNestedInput
   monthlyAttendance?: Prisma.MonthlyAttendanceUpdateManyWithoutClassNestedInput
   sessionAttendances?: Prisma.SessionAttendanceUpdateManyWithoutClassNestedInput
-  waitlist?: Prisma.ClassWaitlistUpdateManyWithoutClassNestedInput
   content?: Prisma.ContentUpdateManyWithoutClassNestedInput
   bookingOrders?: Prisma.MembershipOrderUpdateManyWithoutBookingClassNestedInput
 }
@@ -924,8 +826,6 @@ export type ClassUncheckedUpdateWithoutSlotsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   skillLevel?: Prisma.EnumSkillLevelFieldUpdateOperationsInput | $Enums.SkillLevel
   maxCapacity?: Prisma.IntFieldUpdateOperationsInput | number
-  creditCost?: Prisma.IntFieldUpdateOperationsInput | number
-  cancelWindowHours?: Prisma.IntFieldUpdateOperationsInput | number
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   oneOffDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -935,7 +835,6 @@ export type ClassUncheckedUpdateWithoutSlotsInput = {
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutClassNestedInput
   monthlyAttendance?: Prisma.MonthlyAttendanceUncheckedUpdateManyWithoutClassNestedInput
   sessionAttendances?: Prisma.SessionAttendanceUncheckedUpdateManyWithoutClassNestedInput
-  waitlist?: Prisma.ClassWaitlistUncheckedUpdateManyWithoutClassNestedInput
   content?: Prisma.ContentUncheckedUpdateManyWithoutClassNestedInput
   bookingOrders?: Prisma.MembershipOrderUncheckedUpdateManyWithoutBookingClassNestedInput
 }
@@ -947,8 +846,6 @@ export type ClassCreateWithoutAttendancesInput = {
   description?: string | null
   skillLevel: $Enums.SkillLevel
   maxCapacity?: number
-  creditCost?: number
-  cancelWindowHours?: number
   isPrivate?: boolean
   oneOffDate?: Date | string | null
   startsAt: Date | string
@@ -958,7 +855,6 @@ export type ClassCreateWithoutAttendancesInput = {
   slots?: Prisma.ClassSlotCreateNestedManyWithoutClassInput
   monthlyAttendance?: Prisma.MonthlyAttendanceCreateNestedManyWithoutClassInput
   sessionAttendances?: Prisma.SessionAttendanceCreateNestedManyWithoutClassInput
-  waitlist?: Prisma.ClassWaitlistCreateNestedManyWithoutClassInput
   content?: Prisma.ContentCreateNestedManyWithoutClassInput
   bookingOrders?: Prisma.MembershipOrderCreateNestedManyWithoutBookingClassInput
 }
@@ -970,8 +866,6 @@ export type ClassUncheckedCreateWithoutAttendancesInput = {
   description?: string | null
   skillLevel: $Enums.SkillLevel
   maxCapacity?: number
-  creditCost?: number
-  cancelWindowHours?: number
   isPrivate?: boolean
   oneOffDate?: Date | string | null
   startsAt: Date | string
@@ -981,7 +875,6 @@ export type ClassUncheckedCreateWithoutAttendancesInput = {
   slots?: Prisma.ClassSlotUncheckedCreateNestedManyWithoutClassInput
   monthlyAttendance?: Prisma.MonthlyAttendanceUncheckedCreateNestedManyWithoutClassInput
   sessionAttendances?: Prisma.SessionAttendanceUncheckedCreateNestedManyWithoutClassInput
-  waitlist?: Prisma.ClassWaitlistUncheckedCreateNestedManyWithoutClassInput
   content?: Prisma.ContentUncheckedCreateNestedManyWithoutClassInput
   bookingOrders?: Prisma.MembershipOrderUncheckedCreateNestedManyWithoutBookingClassInput
 }
@@ -1009,8 +902,6 @@ export type ClassUpdateWithoutAttendancesInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   skillLevel?: Prisma.EnumSkillLevelFieldUpdateOperationsInput | $Enums.SkillLevel
   maxCapacity?: Prisma.IntFieldUpdateOperationsInput | number
-  creditCost?: Prisma.IntFieldUpdateOperationsInput | number
-  cancelWindowHours?: Prisma.IntFieldUpdateOperationsInput | number
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   oneOffDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1020,7 +911,6 @@ export type ClassUpdateWithoutAttendancesInput = {
   slots?: Prisma.ClassSlotUpdateManyWithoutClassNestedInput
   monthlyAttendance?: Prisma.MonthlyAttendanceUpdateManyWithoutClassNestedInput
   sessionAttendances?: Prisma.SessionAttendanceUpdateManyWithoutClassNestedInput
-  waitlist?: Prisma.ClassWaitlistUpdateManyWithoutClassNestedInput
   content?: Prisma.ContentUpdateManyWithoutClassNestedInput
   bookingOrders?: Prisma.MembershipOrderUpdateManyWithoutBookingClassNestedInput
 }
@@ -1032,8 +922,6 @@ export type ClassUncheckedUpdateWithoutAttendancesInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   skillLevel?: Prisma.EnumSkillLevelFieldUpdateOperationsInput | $Enums.SkillLevel
   maxCapacity?: Prisma.IntFieldUpdateOperationsInput | number
-  creditCost?: Prisma.IntFieldUpdateOperationsInput | number
-  cancelWindowHours?: Prisma.IntFieldUpdateOperationsInput | number
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   oneOffDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1041,115 +929,6 @@ export type ClassUncheckedUpdateWithoutAttendancesInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   slots?: Prisma.ClassSlotUncheckedUpdateManyWithoutClassNestedInput
-  monthlyAttendance?: Prisma.MonthlyAttendanceUncheckedUpdateManyWithoutClassNestedInput
-  sessionAttendances?: Prisma.SessionAttendanceUncheckedUpdateManyWithoutClassNestedInput
-  waitlist?: Prisma.ClassWaitlistUncheckedUpdateManyWithoutClassNestedInput
-  content?: Prisma.ContentUncheckedUpdateManyWithoutClassNestedInput
-  bookingOrders?: Prisma.MembershipOrderUncheckedUpdateManyWithoutBookingClassNestedInput
-}
-
-export type ClassCreateWithoutWaitlistInput = {
-  id?: string
-  teacherId: string
-  name: string
-  description?: string | null
-  skillLevel: $Enums.SkillLevel
-  maxCapacity?: number
-  creditCost?: number
-  cancelWindowHours?: number
-  isPrivate?: boolean
-  oneOffDate?: Date | string | null
-  startsAt: Date | string
-  endsAt: Date | string
-  isActive?: boolean
-  createdAt?: Date | string
-  slots?: Prisma.ClassSlotCreateNestedManyWithoutClassInput
-  attendances?: Prisma.AttendanceCreateNestedManyWithoutClassInput
-  monthlyAttendance?: Prisma.MonthlyAttendanceCreateNestedManyWithoutClassInput
-  sessionAttendances?: Prisma.SessionAttendanceCreateNestedManyWithoutClassInput
-  content?: Prisma.ContentCreateNestedManyWithoutClassInput
-  bookingOrders?: Prisma.MembershipOrderCreateNestedManyWithoutBookingClassInput
-}
-
-export type ClassUncheckedCreateWithoutWaitlistInput = {
-  id?: string
-  teacherId: string
-  name: string
-  description?: string | null
-  skillLevel: $Enums.SkillLevel
-  maxCapacity?: number
-  creditCost?: number
-  cancelWindowHours?: number
-  isPrivate?: boolean
-  oneOffDate?: Date | string | null
-  startsAt: Date | string
-  endsAt: Date | string
-  isActive?: boolean
-  createdAt?: Date | string
-  slots?: Prisma.ClassSlotUncheckedCreateNestedManyWithoutClassInput
-  attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutClassInput
-  monthlyAttendance?: Prisma.MonthlyAttendanceUncheckedCreateNestedManyWithoutClassInput
-  sessionAttendances?: Prisma.SessionAttendanceUncheckedCreateNestedManyWithoutClassInput
-  content?: Prisma.ContentUncheckedCreateNestedManyWithoutClassInput
-  bookingOrders?: Prisma.MembershipOrderUncheckedCreateNestedManyWithoutBookingClassInput
-}
-
-export type ClassCreateOrConnectWithoutWaitlistInput = {
-  where: Prisma.ClassWhereUniqueInput
-  create: Prisma.XOR<Prisma.ClassCreateWithoutWaitlistInput, Prisma.ClassUncheckedCreateWithoutWaitlistInput>
-}
-
-export type ClassUpsertWithoutWaitlistInput = {
-  update: Prisma.XOR<Prisma.ClassUpdateWithoutWaitlistInput, Prisma.ClassUncheckedUpdateWithoutWaitlistInput>
-  create: Prisma.XOR<Prisma.ClassCreateWithoutWaitlistInput, Prisma.ClassUncheckedCreateWithoutWaitlistInput>
-  where?: Prisma.ClassWhereInput
-}
-
-export type ClassUpdateToOneWithWhereWithoutWaitlistInput = {
-  where?: Prisma.ClassWhereInput
-  data: Prisma.XOR<Prisma.ClassUpdateWithoutWaitlistInput, Prisma.ClassUncheckedUpdateWithoutWaitlistInput>
-}
-
-export type ClassUpdateWithoutWaitlistInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  teacherId?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  skillLevel?: Prisma.EnumSkillLevelFieldUpdateOperationsInput | $Enums.SkillLevel
-  maxCapacity?: Prisma.IntFieldUpdateOperationsInput | number
-  creditCost?: Prisma.IntFieldUpdateOperationsInput | number
-  cancelWindowHours?: Prisma.IntFieldUpdateOperationsInput | number
-  isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  oneOffDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  startsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  endsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  slots?: Prisma.ClassSlotUpdateManyWithoutClassNestedInput
-  attendances?: Prisma.AttendanceUpdateManyWithoutClassNestedInput
-  monthlyAttendance?: Prisma.MonthlyAttendanceUpdateManyWithoutClassNestedInput
-  sessionAttendances?: Prisma.SessionAttendanceUpdateManyWithoutClassNestedInput
-  content?: Prisma.ContentUpdateManyWithoutClassNestedInput
-  bookingOrders?: Prisma.MembershipOrderUpdateManyWithoutBookingClassNestedInput
-}
-
-export type ClassUncheckedUpdateWithoutWaitlistInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  teacherId?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  skillLevel?: Prisma.EnumSkillLevelFieldUpdateOperationsInput | $Enums.SkillLevel
-  maxCapacity?: Prisma.IntFieldUpdateOperationsInput | number
-  creditCost?: Prisma.IntFieldUpdateOperationsInput | number
-  cancelWindowHours?: Prisma.IntFieldUpdateOperationsInput | number
-  isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  oneOffDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  startsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  endsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  slots?: Prisma.ClassSlotUncheckedUpdateManyWithoutClassNestedInput
-  attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutClassNestedInput
   monthlyAttendance?: Prisma.MonthlyAttendanceUncheckedUpdateManyWithoutClassNestedInput
   sessionAttendances?: Prisma.SessionAttendanceUncheckedUpdateManyWithoutClassNestedInput
   content?: Prisma.ContentUncheckedUpdateManyWithoutClassNestedInput
@@ -1163,8 +942,6 @@ export type ClassCreateWithoutContentInput = {
   description?: string | null
   skillLevel: $Enums.SkillLevel
   maxCapacity?: number
-  creditCost?: number
-  cancelWindowHours?: number
   isPrivate?: boolean
   oneOffDate?: Date | string | null
   startsAt: Date | string
@@ -1175,7 +952,6 @@ export type ClassCreateWithoutContentInput = {
   attendances?: Prisma.AttendanceCreateNestedManyWithoutClassInput
   monthlyAttendance?: Prisma.MonthlyAttendanceCreateNestedManyWithoutClassInput
   sessionAttendances?: Prisma.SessionAttendanceCreateNestedManyWithoutClassInput
-  waitlist?: Prisma.ClassWaitlistCreateNestedManyWithoutClassInput
   bookingOrders?: Prisma.MembershipOrderCreateNestedManyWithoutBookingClassInput
 }
 
@@ -1186,8 +962,6 @@ export type ClassUncheckedCreateWithoutContentInput = {
   description?: string | null
   skillLevel: $Enums.SkillLevel
   maxCapacity?: number
-  creditCost?: number
-  cancelWindowHours?: number
   isPrivate?: boolean
   oneOffDate?: Date | string | null
   startsAt: Date | string
@@ -1198,7 +972,6 @@ export type ClassUncheckedCreateWithoutContentInput = {
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutClassInput
   monthlyAttendance?: Prisma.MonthlyAttendanceUncheckedCreateNestedManyWithoutClassInput
   sessionAttendances?: Prisma.SessionAttendanceUncheckedCreateNestedManyWithoutClassInput
-  waitlist?: Prisma.ClassWaitlistUncheckedCreateNestedManyWithoutClassInput
   bookingOrders?: Prisma.MembershipOrderUncheckedCreateNestedManyWithoutBookingClassInput
 }
 
@@ -1225,8 +998,6 @@ export type ClassUpdateWithoutContentInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   skillLevel?: Prisma.EnumSkillLevelFieldUpdateOperationsInput | $Enums.SkillLevel
   maxCapacity?: Prisma.IntFieldUpdateOperationsInput | number
-  creditCost?: Prisma.IntFieldUpdateOperationsInput | number
-  cancelWindowHours?: Prisma.IntFieldUpdateOperationsInput | number
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   oneOffDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1237,7 +1008,6 @@ export type ClassUpdateWithoutContentInput = {
   attendances?: Prisma.AttendanceUpdateManyWithoutClassNestedInput
   monthlyAttendance?: Prisma.MonthlyAttendanceUpdateManyWithoutClassNestedInput
   sessionAttendances?: Prisma.SessionAttendanceUpdateManyWithoutClassNestedInput
-  waitlist?: Prisma.ClassWaitlistUpdateManyWithoutClassNestedInput
   bookingOrders?: Prisma.MembershipOrderUpdateManyWithoutBookingClassNestedInput
 }
 
@@ -1248,8 +1018,6 @@ export type ClassUncheckedUpdateWithoutContentInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   skillLevel?: Prisma.EnumSkillLevelFieldUpdateOperationsInput | $Enums.SkillLevel
   maxCapacity?: Prisma.IntFieldUpdateOperationsInput | number
-  creditCost?: Prisma.IntFieldUpdateOperationsInput | number
-  cancelWindowHours?: Prisma.IntFieldUpdateOperationsInput | number
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   oneOffDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1260,7 +1028,6 @@ export type ClassUncheckedUpdateWithoutContentInput = {
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutClassNestedInput
   monthlyAttendance?: Prisma.MonthlyAttendanceUncheckedUpdateManyWithoutClassNestedInput
   sessionAttendances?: Prisma.SessionAttendanceUncheckedUpdateManyWithoutClassNestedInput
-  waitlist?: Prisma.ClassWaitlistUncheckedUpdateManyWithoutClassNestedInput
   bookingOrders?: Prisma.MembershipOrderUncheckedUpdateManyWithoutBookingClassNestedInput
 }
 
@@ -1271,8 +1038,6 @@ export type ClassCreateWithoutMonthlyAttendanceInput = {
   description?: string | null
   skillLevel: $Enums.SkillLevel
   maxCapacity?: number
-  creditCost?: number
-  cancelWindowHours?: number
   isPrivate?: boolean
   oneOffDate?: Date | string | null
   startsAt: Date | string
@@ -1282,7 +1047,6 @@ export type ClassCreateWithoutMonthlyAttendanceInput = {
   slots?: Prisma.ClassSlotCreateNestedManyWithoutClassInput
   attendances?: Prisma.AttendanceCreateNestedManyWithoutClassInput
   sessionAttendances?: Prisma.SessionAttendanceCreateNestedManyWithoutClassInput
-  waitlist?: Prisma.ClassWaitlistCreateNestedManyWithoutClassInput
   content?: Prisma.ContentCreateNestedManyWithoutClassInput
   bookingOrders?: Prisma.MembershipOrderCreateNestedManyWithoutBookingClassInput
 }
@@ -1294,8 +1058,6 @@ export type ClassUncheckedCreateWithoutMonthlyAttendanceInput = {
   description?: string | null
   skillLevel: $Enums.SkillLevel
   maxCapacity?: number
-  creditCost?: number
-  cancelWindowHours?: number
   isPrivate?: boolean
   oneOffDate?: Date | string | null
   startsAt: Date | string
@@ -1305,7 +1067,6 @@ export type ClassUncheckedCreateWithoutMonthlyAttendanceInput = {
   slots?: Prisma.ClassSlotUncheckedCreateNestedManyWithoutClassInput
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutClassInput
   sessionAttendances?: Prisma.SessionAttendanceUncheckedCreateNestedManyWithoutClassInput
-  waitlist?: Prisma.ClassWaitlistUncheckedCreateNestedManyWithoutClassInput
   content?: Prisma.ContentUncheckedCreateNestedManyWithoutClassInput
   bookingOrders?: Prisma.MembershipOrderUncheckedCreateNestedManyWithoutBookingClassInput
 }
@@ -1333,8 +1094,6 @@ export type ClassUpdateWithoutMonthlyAttendanceInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   skillLevel?: Prisma.EnumSkillLevelFieldUpdateOperationsInput | $Enums.SkillLevel
   maxCapacity?: Prisma.IntFieldUpdateOperationsInput | number
-  creditCost?: Prisma.IntFieldUpdateOperationsInput | number
-  cancelWindowHours?: Prisma.IntFieldUpdateOperationsInput | number
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   oneOffDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1344,7 +1103,6 @@ export type ClassUpdateWithoutMonthlyAttendanceInput = {
   slots?: Prisma.ClassSlotUpdateManyWithoutClassNestedInput
   attendances?: Prisma.AttendanceUpdateManyWithoutClassNestedInput
   sessionAttendances?: Prisma.SessionAttendanceUpdateManyWithoutClassNestedInput
-  waitlist?: Prisma.ClassWaitlistUpdateManyWithoutClassNestedInput
   content?: Prisma.ContentUpdateManyWithoutClassNestedInput
   bookingOrders?: Prisma.MembershipOrderUpdateManyWithoutBookingClassNestedInput
 }
@@ -1356,8 +1114,6 @@ export type ClassUncheckedUpdateWithoutMonthlyAttendanceInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   skillLevel?: Prisma.EnumSkillLevelFieldUpdateOperationsInput | $Enums.SkillLevel
   maxCapacity?: Prisma.IntFieldUpdateOperationsInput | number
-  creditCost?: Prisma.IntFieldUpdateOperationsInput | number
-  cancelWindowHours?: Prisma.IntFieldUpdateOperationsInput | number
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   oneOffDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1367,7 +1123,6 @@ export type ClassUncheckedUpdateWithoutMonthlyAttendanceInput = {
   slots?: Prisma.ClassSlotUncheckedUpdateManyWithoutClassNestedInput
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutClassNestedInput
   sessionAttendances?: Prisma.SessionAttendanceUncheckedUpdateManyWithoutClassNestedInput
-  waitlist?: Prisma.ClassWaitlistUncheckedUpdateManyWithoutClassNestedInput
   content?: Prisma.ContentUncheckedUpdateManyWithoutClassNestedInput
   bookingOrders?: Prisma.MembershipOrderUncheckedUpdateManyWithoutBookingClassNestedInput
 }
@@ -1379,8 +1134,6 @@ export type ClassCreateWithoutSessionAttendancesInput = {
   description?: string | null
   skillLevel: $Enums.SkillLevel
   maxCapacity?: number
-  creditCost?: number
-  cancelWindowHours?: number
   isPrivate?: boolean
   oneOffDate?: Date | string | null
   startsAt: Date | string
@@ -1390,7 +1143,6 @@ export type ClassCreateWithoutSessionAttendancesInput = {
   slots?: Prisma.ClassSlotCreateNestedManyWithoutClassInput
   attendances?: Prisma.AttendanceCreateNestedManyWithoutClassInput
   monthlyAttendance?: Prisma.MonthlyAttendanceCreateNestedManyWithoutClassInput
-  waitlist?: Prisma.ClassWaitlistCreateNestedManyWithoutClassInput
   content?: Prisma.ContentCreateNestedManyWithoutClassInput
   bookingOrders?: Prisma.MembershipOrderCreateNestedManyWithoutBookingClassInput
 }
@@ -1402,8 +1154,6 @@ export type ClassUncheckedCreateWithoutSessionAttendancesInput = {
   description?: string | null
   skillLevel: $Enums.SkillLevel
   maxCapacity?: number
-  creditCost?: number
-  cancelWindowHours?: number
   isPrivate?: boolean
   oneOffDate?: Date | string | null
   startsAt: Date | string
@@ -1413,7 +1163,6 @@ export type ClassUncheckedCreateWithoutSessionAttendancesInput = {
   slots?: Prisma.ClassSlotUncheckedCreateNestedManyWithoutClassInput
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutClassInput
   monthlyAttendance?: Prisma.MonthlyAttendanceUncheckedCreateNestedManyWithoutClassInput
-  waitlist?: Prisma.ClassWaitlistUncheckedCreateNestedManyWithoutClassInput
   content?: Prisma.ContentUncheckedCreateNestedManyWithoutClassInput
   bookingOrders?: Prisma.MembershipOrderUncheckedCreateNestedManyWithoutBookingClassInput
 }
@@ -1441,8 +1190,6 @@ export type ClassUpdateWithoutSessionAttendancesInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   skillLevel?: Prisma.EnumSkillLevelFieldUpdateOperationsInput | $Enums.SkillLevel
   maxCapacity?: Prisma.IntFieldUpdateOperationsInput | number
-  creditCost?: Prisma.IntFieldUpdateOperationsInput | number
-  cancelWindowHours?: Prisma.IntFieldUpdateOperationsInput | number
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   oneOffDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1452,7 +1199,6 @@ export type ClassUpdateWithoutSessionAttendancesInput = {
   slots?: Prisma.ClassSlotUpdateManyWithoutClassNestedInput
   attendances?: Prisma.AttendanceUpdateManyWithoutClassNestedInput
   monthlyAttendance?: Prisma.MonthlyAttendanceUpdateManyWithoutClassNestedInput
-  waitlist?: Prisma.ClassWaitlistUpdateManyWithoutClassNestedInput
   content?: Prisma.ContentUpdateManyWithoutClassNestedInput
   bookingOrders?: Prisma.MembershipOrderUpdateManyWithoutBookingClassNestedInput
 }
@@ -1464,8 +1210,6 @@ export type ClassUncheckedUpdateWithoutSessionAttendancesInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   skillLevel?: Prisma.EnumSkillLevelFieldUpdateOperationsInput | $Enums.SkillLevel
   maxCapacity?: Prisma.IntFieldUpdateOperationsInput | number
-  creditCost?: Prisma.IntFieldUpdateOperationsInput | number
-  cancelWindowHours?: Prisma.IntFieldUpdateOperationsInput | number
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   oneOffDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1475,7 +1219,6 @@ export type ClassUncheckedUpdateWithoutSessionAttendancesInput = {
   slots?: Prisma.ClassSlotUncheckedUpdateManyWithoutClassNestedInput
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutClassNestedInput
   monthlyAttendance?: Prisma.MonthlyAttendanceUncheckedUpdateManyWithoutClassNestedInput
-  waitlist?: Prisma.ClassWaitlistUncheckedUpdateManyWithoutClassNestedInput
   content?: Prisma.ContentUncheckedUpdateManyWithoutClassNestedInput
   bookingOrders?: Prisma.MembershipOrderUncheckedUpdateManyWithoutBookingClassNestedInput
 }
@@ -1490,7 +1233,6 @@ export type ClassCountOutputType = {
   attendances: number
   monthlyAttendance: number
   sessionAttendances: number
-  waitlist: number
   content: number
   bookingOrders: number
 }
@@ -1500,7 +1242,6 @@ export type ClassCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.
   attendances?: boolean | ClassCountOutputTypeCountAttendancesArgs
   monthlyAttendance?: boolean | ClassCountOutputTypeCountMonthlyAttendanceArgs
   sessionAttendances?: boolean | ClassCountOutputTypeCountSessionAttendancesArgs
-  waitlist?: boolean | ClassCountOutputTypeCountWaitlistArgs
   content?: boolean | ClassCountOutputTypeCountContentArgs
   bookingOrders?: boolean | ClassCountOutputTypeCountBookingOrdersArgs
 }
@@ -1546,13 +1287,6 @@ export type ClassCountOutputTypeCountSessionAttendancesArgs<ExtArgs extends runt
 /**
  * ClassCountOutputType without action
  */
-export type ClassCountOutputTypeCountWaitlistArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ClassWaitlistWhereInput
-}
-
-/**
- * ClassCountOutputType without action
- */
 export type ClassCountOutputTypeCountContentArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ContentWhereInput
 }
@@ -1572,8 +1306,6 @@ export type ClassSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   description?: boolean
   skillLevel?: boolean
   maxCapacity?: boolean
-  creditCost?: boolean
-  cancelWindowHours?: boolean
   isPrivate?: boolean
   oneOffDate?: boolean
   startsAt?: boolean
@@ -1584,7 +1316,6 @@ export type ClassSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   attendances?: boolean | Prisma.Class$attendancesArgs<ExtArgs>
   monthlyAttendance?: boolean | Prisma.Class$monthlyAttendanceArgs<ExtArgs>
   sessionAttendances?: boolean | Prisma.Class$sessionAttendancesArgs<ExtArgs>
-  waitlist?: boolean | Prisma.Class$waitlistArgs<ExtArgs>
   content?: boolean | Prisma.Class$contentArgs<ExtArgs>
   bookingOrders?: boolean | Prisma.Class$bookingOrdersArgs<ExtArgs>
   _count?: boolean | Prisma.ClassCountOutputTypeDefaultArgs<ExtArgs>
@@ -1597,8 +1328,6 @@ export type ClassSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   description?: boolean
   skillLevel?: boolean
   maxCapacity?: boolean
-  creditCost?: boolean
-  cancelWindowHours?: boolean
   isPrivate?: boolean
   oneOffDate?: boolean
   startsAt?: boolean
@@ -1614,8 +1343,6 @@ export type ClassSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   description?: boolean
   skillLevel?: boolean
   maxCapacity?: boolean
-  creditCost?: boolean
-  cancelWindowHours?: boolean
   isPrivate?: boolean
   oneOffDate?: boolean
   startsAt?: boolean
@@ -1631,8 +1358,6 @@ export type ClassSelectScalar = {
   description?: boolean
   skillLevel?: boolean
   maxCapacity?: boolean
-  creditCost?: boolean
-  cancelWindowHours?: boolean
   isPrivate?: boolean
   oneOffDate?: boolean
   startsAt?: boolean
@@ -1641,13 +1366,12 @@ export type ClassSelectScalar = {
   createdAt?: boolean
 }
 
-export type ClassOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "teacherId" | "name" | "description" | "skillLevel" | "maxCapacity" | "creditCost" | "cancelWindowHours" | "isPrivate" | "oneOffDate" | "startsAt" | "endsAt" | "isActive" | "createdAt", ExtArgs["result"]["class"]>
+export type ClassOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "teacherId" | "name" | "description" | "skillLevel" | "maxCapacity" | "isPrivate" | "oneOffDate" | "startsAt" | "endsAt" | "isActive" | "createdAt", ExtArgs["result"]["class"]>
 export type ClassInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   slots?: boolean | Prisma.Class$slotsArgs<ExtArgs>
   attendances?: boolean | Prisma.Class$attendancesArgs<ExtArgs>
   monthlyAttendance?: boolean | Prisma.Class$monthlyAttendanceArgs<ExtArgs>
   sessionAttendances?: boolean | Prisma.Class$sessionAttendancesArgs<ExtArgs>
-  waitlist?: boolean | Prisma.Class$waitlistArgs<ExtArgs>
   content?: boolean | Prisma.Class$contentArgs<ExtArgs>
   bookingOrders?: boolean | Prisma.Class$bookingOrdersArgs<ExtArgs>
   _count?: boolean | Prisma.ClassCountOutputTypeDefaultArgs<ExtArgs>
@@ -1662,7 +1386,6 @@ export type $ClassPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     attendances: Prisma.$AttendancePayload<ExtArgs>[]
     monthlyAttendance: Prisma.$MonthlyAttendancePayload<ExtArgs>[]
     sessionAttendances: Prisma.$SessionAttendancePayload<ExtArgs>[]
-    waitlist: Prisma.$ClassWaitlistPayload<ExtArgs>[]
     content: Prisma.$ContentPayload<ExtArgs>[]
     bookingOrders: Prisma.$MembershipOrderPayload<ExtArgs>[]
   }
@@ -1673,8 +1396,6 @@ export type $ClassPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     description: string | null
     skillLevel: $Enums.SkillLevel
     maxCapacity: number
-    creditCost: number
-    cancelWindowHours: number
     isPrivate: boolean
     oneOffDate: Date | null
     startsAt: Date
@@ -2079,7 +1800,6 @@ export interface Prisma__ClassClient<T, Null = never, ExtArgs extends runtime.Ty
   attendances<T extends Prisma.Class$attendancesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Class$attendancesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AttendancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   monthlyAttendance<T extends Prisma.Class$monthlyAttendanceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Class$monthlyAttendanceArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MonthlyAttendancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   sessionAttendances<T extends Prisma.Class$sessionAttendancesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Class$sessionAttendancesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SessionAttendancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  waitlist<T extends Prisma.Class$waitlistArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Class$waitlistArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ClassWaitlistPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   content<T extends Prisma.Class$contentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Class$contentArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ContentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   bookingOrders<T extends Prisma.Class$bookingOrdersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Class$bookingOrdersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MembershipOrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -2117,8 +1837,6 @@ export interface ClassFieldRefs {
   readonly description: Prisma.FieldRef<"Class", 'String'>
   readonly skillLevel: Prisma.FieldRef<"Class", 'SkillLevel'>
   readonly maxCapacity: Prisma.FieldRef<"Class", 'Int'>
-  readonly creditCost: Prisma.FieldRef<"Class", 'Int'>
-  readonly cancelWindowHours: Prisma.FieldRef<"Class", 'Int'>
   readonly isPrivate: Prisma.FieldRef<"Class", 'Boolean'>
   readonly oneOffDate: Prisma.FieldRef<"Class", 'DateTime'>
   readonly startsAt: Prisma.FieldRef<"Class", 'DateTime'>
@@ -2611,30 +2329,6 @@ export type Class$sessionAttendancesArgs<ExtArgs extends runtime.Types.Extension
   take?: number
   skip?: number
   distinct?: Prisma.SessionAttendanceScalarFieldEnum | Prisma.SessionAttendanceScalarFieldEnum[]
-}
-
-/**
- * Class.waitlist
- */
-export type Class$waitlistArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the ClassWaitlist
-   */
-  select?: Prisma.ClassWaitlistSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the ClassWaitlist
-   */
-  omit?: Prisma.ClassWaitlistOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ClassWaitlistInclude<ExtArgs> | null
-  where?: Prisma.ClassWaitlistWhereInput
-  orderBy?: Prisma.ClassWaitlistOrderByWithRelationInput | Prisma.ClassWaitlistOrderByWithRelationInput[]
-  cursor?: Prisma.ClassWaitlistWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.ClassWaitlistScalarFieldEnum | Prisma.ClassWaitlistScalarFieldEnum[]
 }
 
 /**

@@ -52,19 +52,18 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   UserProfile: 'UserProfile',
+  PushToken: 'PushToken',
+  Notification: 'Notification',
   RefreshToken: 'RefreshToken',
   EmailToken: 'EmailToken',
   Family: 'Family',
   FamilyMember: 'FamilyMember',
   MembershipPlan: 'MembershipPlan',
   MembershipOrder: 'MembershipOrder',
-  CreditLedger: 'CreditLedger',
   Class: 'Class',
   ClassSlot: 'ClassSlot',
   Attendance: 'Attendance',
-  ClassWaitlist: 'ClassWaitlist',
   UserSkill: 'UserSkill',
-  Streak: 'Streak',
   Content: 'Content',
   MonthlySubscription: 'MonthlySubscription',
   MonthlyAttendance: 'MonthlyAttendance',
@@ -104,6 +103,32 @@ export const UserProfileScalarFieldEnum = {
 } as const
 
 export type UserProfileScalarFieldEnum = (typeof UserProfileScalarFieldEnum)[keyof typeof UserProfileScalarFieldEnum]
+
+
+export const PushTokenScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  token: 'token',
+  platform: 'platform',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PushTokenScalarFieldEnum = (typeof PushTokenScalarFieldEnum)[keyof typeof PushTokenScalarFieldEnum]
+
+
+export const NotificationScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  type: 'type',
+  title: 'title',
+  body: 'body',
+  data: 'data',
+  readAt: 'readAt',
+  createdAt: 'createdAt'
+} as const
+
+export type NotificationScalarFieldEnum = (typeof NotificationScalarFieldEnum)[keyof typeof NotificationScalarFieldEnum]
 
 
 export const RefreshTokenScalarFieldEnum = {
@@ -158,8 +183,7 @@ export const MembershipPlanScalarFieldEnum = {
   isActive: 'isActive',
   classesPerWeek: 'classesPerWeek',
   isPublic: 'isPublic',
-  isSingleClass: 'isSingleClass',
-  credits: 'credits'
+  isSingleClass: 'isSingleClass'
 } as const
 
 export type MembershipPlanScalarFieldEnum = (typeof MembershipPlanScalarFieldEnum)[keyof typeof MembershipPlanScalarFieldEnum]
@@ -171,7 +195,6 @@ export const MembershipOrderScalarFieldEnum = {
   planId: 'planId',
   status: 'status',
   receiptUrl: 'receiptUrl',
-  creditGranted: 'creditGranted',
   startsAt: 'startsAt',
   expiresAt: 'expiresAt',
   approvedById: 'approvedById',
@@ -185,21 +208,6 @@ export const MembershipOrderScalarFieldEnum = {
 export type MembershipOrderScalarFieldEnum = (typeof MembershipOrderScalarFieldEnum)[keyof typeof MembershipOrderScalarFieldEnum]
 
 
-export const CreditLedgerScalarFieldEnum = {
-  id: 'id',
-  studentId: 'studentId',
-  orderId: 'orderId',
-  attendanceId: 'attendanceId',
-  type: 'type',
-  amount: 'amount',
-  balance: 'balance',
-  note: 'note',
-  createdAt: 'createdAt'
-} as const
-
-export type CreditLedgerScalarFieldEnum = (typeof CreditLedgerScalarFieldEnum)[keyof typeof CreditLedgerScalarFieldEnum]
-
-
 export const ClassScalarFieldEnum = {
   id: 'id',
   teacherId: 'teacherId',
@@ -207,8 +215,6 @@ export const ClassScalarFieldEnum = {
   description: 'description',
   skillLevel: 'skillLevel',
   maxCapacity: 'maxCapacity',
-  creditCost: 'creditCost',
-  cancelWindowHours: 'cancelWindowHours',
   isPrivate: 'isPrivate',
   oneOffDate: 'oneOffDate',
   startsAt: 'startsAt',
@@ -236,7 +242,6 @@ export const AttendanceScalarFieldEnum = {
   classId: 'classId',
   studentId: 'studentId',
   status: 'status',
-  creditDeducted: 'creditDeducted',
   qrToken: 'qrToken',
   checkedAt: 'checkedAt',
   cancelledAt: 'cancelledAt',
@@ -244,18 +249,6 @@ export const AttendanceScalarFieldEnum = {
 } as const
 
 export type AttendanceScalarFieldEnum = (typeof AttendanceScalarFieldEnum)[keyof typeof AttendanceScalarFieldEnum]
-
-
-export const ClassWaitlistScalarFieldEnum = {
-  id: 'id',
-  classId: 'classId',
-  studentId: 'studentId',
-  position: 'position',
-  notifiedAt: 'notifiedAt',
-  createdAt: 'createdAt'
-} as const
-
-export type ClassWaitlistScalarFieldEnum = (typeof ClassWaitlistScalarFieldEnum)[keyof typeof ClassWaitlistScalarFieldEnum]
 
 
 export const UserSkillScalarFieldEnum = {
@@ -267,18 +260,6 @@ export const UserSkillScalarFieldEnum = {
 } as const
 
 export type UserSkillScalarFieldEnum = (typeof UserSkillScalarFieldEnum)[keyof typeof UserSkillScalarFieldEnum]
-
-
-export const StreakScalarFieldEnum = {
-  id: 'id',
-  studentId: 'studentId',
-  currentStreak: 'currentStreak',
-  longestStreak: 'longestStreak',
-  lastActivityAt: 'lastActivityAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type StreakScalarFieldEnum = (typeof StreakScalarFieldEnum)[keyof typeof StreakScalarFieldEnum]
 
 
 export const ContentScalarFieldEnum = {
@@ -340,6 +321,14 @@ export const SortOrder = {
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
 export const QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
@@ -354,4 +343,13 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 

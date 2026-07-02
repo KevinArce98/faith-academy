@@ -29,13 +29,11 @@ export type AggregateMembershipPlan = {
 export type MembershipPlanAvgAggregateOutputType = {
   price: runtime.Decimal | null
   classesPerWeek: number | null
-  credits: number | null
 }
 
 export type MembershipPlanSumAggregateOutputType = {
   price: runtime.Decimal | null
   classesPerWeek: number | null
-  credits: number | null
 }
 
 export type MembershipPlanMinAggregateOutputType = {
@@ -47,7 +45,6 @@ export type MembershipPlanMinAggregateOutputType = {
   classesPerWeek: number | null
   isPublic: boolean | null
   isSingleClass: boolean | null
-  credits: number | null
 }
 
 export type MembershipPlanMaxAggregateOutputType = {
@@ -59,7 +56,6 @@ export type MembershipPlanMaxAggregateOutputType = {
   classesPerWeek: number | null
   isPublic: boolean | null
   isSingleClass: boolean | null
-  credits: number | null
 }
 
 export type MembershipPlanCountAggregateOutputType = {
@@ -71,7 +67,6 @@ export type MembershipPlanCountAggregateOutputType = {
   classesPerWeek: number
   isPublic: number
   isSingleClass: number
-  credits: number
   _all: number
 }
 
@@ -79,13 +74,11 @@ export type MembershipPlanCountAggregateOutputType = {
 export type MembershipPlanAvgAggregateInputType = {
   price?: true
   classesPerWeek?: true
-  credits?: true
 }
 
 export type MembershipPlanSumAggregateInputType = {
   price?: true
   classesPerWeek?: true
-  credits?: true
 }
 
 export type MembershipPlanMinAggregateInputType = {
@@ -97,7 +90,6 @@ export type MembershipPlanMinAggregateInputType = {
   classesPerWeek?: true
   isPublic?: true
   isSingleClass?: true
-  credits?: true
 }
 
 export type MembershipPlanMaxAggregateInputType = {
@@ -109,7 +101,6 @@ export type MembershipPlanMaxAggregateInputType = {
   classesPerWeek?: true
   isPublic?: true
   isSingleClass?: true
-  credits?: true
 }
 
 export type MembershipPlanCountAggregateInputType = {
@@ -121,7 +112,6 @@ export type MembershipPlanCountAggregateInputType = {
   classesPerWeek?: true
   isPublic?: true
   isSingleClass?: true
-  credits?: true
   _all?: true
 }
 
@@ -220,7 +210,6 @@ export type MembershipPlanGroupByOutputType = {
   classesPerWeek: number
   isPublic: boolean
   isSingleClass: boolean
-  credits: number
   _count: MembershipPlanCountAggregateOutputType | null
   _avg: MembershipPlanAvgAggregateOutputType | null
   _sum: MembershipPlanSumAggregateOutputType | null
@@ -255,7 +244,6 @@ export type MembershipPlanWhereInput = {
   classesPerWeek?: Prisma.IntFilter<"MembershipPlan"> | number
   isPublic?: Prisma.BoolFilter<"MembershipPlan"> | boolean
   isSingleClass?: Prisma.BoolFilter<"MembershipPlan"> | boolean
-  credits?: Prisma.IntFilter<"MembershipPlan"> | number
   orders?: Prisma.MembershipOrderListRelationFilter
   subscriptions?: Prisma.MonthlySubscriptionListRelationFilter
 }
@@ -269,7 +257,6 @@ export type MembershipPlanOrderByWithRelationInput = {
   classesPerWeek?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isSingleClass?: Prisma.SortOrder
-  credits?: Prisma.SortOrder
   orders?: Prisma.MembershipOrderOrderByRelationAggregateInput
   subscriptions?: Prisma.MonthlySubscriptionOrderByRelationAggregateInput
 }
@@ -286,7 +273,6 @@ export type MembershipPlanWhereUniqueInput = Prisma.AtLeast<{
   classesPerWeek?: Prisma.IntFilter<"MembershipPlan"> | number
   isPublic?: Prisma.BoolFilter<"MembershipPlan"> | boolean
   isSingleClass?: Prisma.BoolFilter<"MembershipPlan"> | boolean
-  credits?: Prisma.IntFilter<"MembershipPlan"> | number
   orders?: Prisma.MembershipOrderListRelationFilter
   subscriptions?: Prisma.MonthlySubscriptionListRelationFilter
 }, "id">
@@ -300,7 +286,6 @@ export type MembershipPlanOrderByWithAggregationInput = {
   classesPerWeek?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isSingleClass?: Prisma.SortOrder
-  credits?: Prisma.SortOrder
   _count?: Prisma.MembershipPlanCountOrderByAggregateInput
   _avg?: Prisma.MembershipPlanAvgOrderByAggregateInput
   _max?: Prisma.MembershipPlanMaxOrderByAggregateInput
@@ -320,7 +305,6 @@ export type MembershipPlanScalarWhereWithAggregatesInput = {
   classesPerWeek?: Prisma.IntWithAggregatesFilter<"MembershipPlan"> | number
   isPublic?: Prisma.BoolWithAggregatesFilter<"MembershipPlan"> | boolean
   isSingleClass?: Prisma.BoolWithAggregatesFilter<"MembershipPlan"> | boolean
-  credits?: Prisma.IntWithAggregatesFilter<"MembershipPlan"> | number
 }
 
 export type MembershipPlanCreateInput = {
@@ -332,7 +316,6 @@ export type MembershipPlanCreateInput = {
   classesPerWeek?: number
   isPublic?: boolean
   isSingleClass?: boolean
-  credits?: number
   orders?: Prisma.MembershipOrderCreateNestedManyWithoutPlanInput
   subscriptions?: Prisma.MonthlySubscriptionCreateNestedManyWithoutPlanInput
 }
@@ -346,7 +329,6 @@ export type MembershipPlanUncheckedCreateInput = {
   classesPerWeek?: number
   isPublic?: boolean
   isSingleClass?: boolean
-  credits?: number
   orders?: Prisma.MembershipOrderUncheckedCreateNestedManyWithoutPlanInput
   subscriptions?: Prisma.MonthlySubscriptionUncheckedCreateNestedManyWithoutPlanInput
 }
@@ -360,7 +342,6 @@ export type MembershipPlanUpdateInput = {
   classesPerWeek?: Prisma.IntFieldUpdateOperationsInput | number
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSingleClass?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  credits?: Prisma.IntFieldUpdateOperationsInput | number
   orders?: Prisma.MembershipOrderUpdateManyWithoutPlanNestedInput
   subscriptions?: Prisma.MonthlySubscriptionUpdateManyWithoutPlanNestedInput
 }
@@ -374,7 +355,6 @@ export type MembershipPlanUncheckedUpdateInput = {
   classesPerWeek?: Prisma.IntFieldUpdateOperationsInput | number
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSingleClass?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  credits?: Prisma.IntFieldUpdateOperationsInput | number
   orders?: Prisma.MembershipOrderUncheckedUpdateManyWithoutPlanNestedInput
   subscriptions?: Prisma.MonthlySubscriptionUncheckedUpdateManyWithoutPlanNestedInput
 }
@@ -388,7 +368,6 @@ export type MembershipPlanCreateManyInput = {
   classesPerWeek?: number
   isPublic?: boolean
   isSingleClass?: boolean
-  credits?: number
 }
 
 export type MembershipPlanUpdateManyMutationInput = {
@@ -400,7 +379,6 @@ export type MembershipPlanUpdateManyMutationInput = {
   classesPerWeek?: Prisma.IntFieldUpdateOperationsInput | number
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSingleClass?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  credits?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type MembershipPlanUncheckedUpdateManyInput = {
@@ -412,7 +390,6 @@ export type MembershipPlanUncheckedUpdateManyInput = {
   classesPerWeek?: Prisma.IntFieldUpdateOperationsInput | number
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSingleClass?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  credits?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type MembershipPlanCountOrderByAggregateInput = {
@@ -424,13 +401,11 @@ export type MembershipPlanCountOrderByAggregateInput = {
   classesPerWeek?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isSingleClass?: Prisma.SortOrder
-  credits?: Prisma.SortOrder
 }
 
 export type MembershipPlanAvgOrderByAggregateInput = {
   price?: Prisma.SortOrder
   classesPerWeek?: Prisma.SortOrder
-  credits?: Prisma.SortOrder
 }
 
 export type MembershipPlanMaxOrderByAggregateInput = {
@@ -442,7 +417,6 @@ export type MembershipPlanMaxOrderByAggregateInput = {
   classesPerWeek?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isSingleClass?: Prisma.SortOrder
-  credits?: Prisma.SortOrder
 }
 
 export type MembershipPlanMinOrderByAggregateInput = {
@@ -454,13 +428,11 @@ export type MembershipPlanMinOrderByAggregateInput = {
   classesPerWeek?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isSingleClass?: Prisma.SortOrder
-  credits?: Prisma.SortOrder
 }
 
 export type MembershipPlanSumOrderByAggregateInput = {
   price?: Prisma.SortOrder
   classesPerWeek?: Prisma.SortOrder
-  credits?: Prisma.SortOrder
 }
 
 export type MembershipPlanScalarRelationFilter = {
@@ -513,7 +485,6 @@ export type MembershipPlanCreateWithoutOrdersInput = {
   classesPerWeek?: number
   isPublic?: boolean
   isSingleClass?: boolean
-  credits?: number
   subscriptions?: Prisma.MonthlySubscriptionCreateNestedManyWithoutPlanInput
 }
 
@@ -526,7 +497,6 @@ export type MembershipPlanUncheckedCreateWithoutOrdersInput = {
   classesPerWeek?: number
   isPublic?: boolean
   isSingleClass?: boolean
-  credits?: number
   subscriptions?: Prisma.MonthlySubscriptionUncheckedCreateNestedManyWithoutPlanInput
 }
 
@@ -555,7 +525,6 @@ export type MembershipPlanUpdateWithoutOrdersInput = {
   classesPerWeek?: Prisma.IntFieldUpdateOperationsInput | number
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSingleClass?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  credits?: Prisma.IntFieldUpdateOperationsInput | number
   subscriptions?: Prisma.MonthlySubscriptionUpdateManyWithoutPlanNestedInput
 }
 
@@ -568,7 +537,6 @@ export type MembershipPlanUncheckedUpdateWithoutOrdersInput = {
   classesPerWeek?: Prisma.IntFieldUpdateOperationsInput | number
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSingleClass?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  credits?: Prisma.IntFieldUpdateOperationsInput | number
   subscriptions?: Prisma.MonthlySubscriptionUncheckedUpdateManyWithoutPlanNestedInput
 }
 
@@ -581,7 +549,6 @@ export type MembershipPlanCreateWithoutSubscriptionsInput = {
   classesPerWeek?: number
   isPublic?: boolean
   isSingleClass?: boolean
-  credits?: number
   orders?: Prisma.MembershipOrderCreateNestedManyWithoutPlanInput
 }
 
@@ -594,7 +561,6 @@ export type MembershipPlanUncheckedCreateWithoutSubscriptionsInput = {
   classesPerWeek?: number
   isPublic?: boolean
   isSingleClass?: boolean
-  credits?: number
   orders?: Prisma.MembershipOrderUncheckedCreateNestedManyWithoutPlanInput
 }
 
@@ -623,7 +589,6 @@ export type MembershipPlanUpdateWithoutSubscriptionsInput = {
   classesPerWeek?: Prisma.IntFieldUpdateOperationsInput | number
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSingleClass?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  credits?: Prisma.IntFieldUpdateOperationsInput | number
   orders?: Prisma.MembershipOrderUpdateManyWithoutPlanNestedInput
 }
 
@@ -636,7 +601,6 @@ export type MembershipPlanUncheckedUpdateWithoutSubscriptionsInput = {
   classesPerWeek?: Prisma.IntFieldUpdateOperationsInput | number
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSingleClass?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  credits?: Prisma.IntFieldUpdateOperationsInput | number
   orders?: Prisma.MembershipOrderUncheckedUpdateManyWithoutPlanNestedInput
 }
 
@@ -689,7 +653,6 @@ export type MembershipPlanSelect<ExtArgs extends runtime.Types.Extensions.Intern
   classesPerWeek?: boolean
   isPublic?: boolean
   isSingleClass?: boolean
-  credits?: boolean
   orders?: boolean | Prisma.MembershipPlan$ordersArgs<ExtArgs>
   subscriptions?: boolean | Prisma.MembershipPlan$subscriptionsArgs<ExtArgs>
   _count?: boolean | Prisma.MembershipPlanCountOutputTypeDefaultArgs<ExtArgs>
@@ -704,7 +667,6 @@ export type MembershipPlanSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   classesPerWeek?: boolean
   isPublic?: boolean
   isSingleClass?: boolean
-  credits?: boolean
 }, ExtArgs["result"]["membershipPlan"]>
 
 export type MembershipPlanSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -716,7 +678,6 @@ export type MembershipPlanSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   classesPerWeek?: boolean
   isPublic?: boolean
   isSingleClass?: boolean
-  credits?: boolean
 }, ExtArgs["result"]["membershipPlan"]>
 
 export type MembershipPlanSelectScalar = {
@@ -728,10 +689,9 @@ export type MembershipPlanSelectScalar = {
   classesPerWeek?: boolean
   isPublic?: boolean
   isSingleClass?: boolean
-  credits?: boolean
 }
 
-export type MembershipPlanOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description" | "price" | "isActive" | "classesPerWeek" | "isPublic" | "isSingleClass" | "credits", ExtArgs["result"]["membershipPlan"]>
+export type MembershipPlanOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description" | "price" | "isActive" | "classesPerWeek" | "isPublic" | "isSingleClass", ExtArgs["result"]["membershipPlan"]>
 export type MembershipPlanInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   orders?: boolean | Prisma.MembershipPlan$ordersArgs<ExtArgs>
   subscriptions?: boolean | Prisma.MembershipPlan$subscriptionsArgs<ExtArgs>
@@ -755,7 +715,6 @@ export type $MembershipPlanPayload<ExtArgs extends runtime.Types.Extensions.Inte
     classesPerWeek: number
     isPublic: boolean
     isSingleClass: boolean
-    credits: number
   }, ExtArgs["result"]["membershipPlan"]>
   composites: {}
 }
@@ -1189,7 +1148,6 @@ export interface MembershipPlanFieldRefs {
   readonly classesPerWeek: Prisma.FieldRef<"MembershipPlan", 'Int'>
   readonly isPublic: Prisma.FieldRef<"MembershipPlan", 'Boolean'>
   readonly isSingleClass: Prisma.FieldRef<"MembershipPlan", 'Boolean'>
-  readonly credits: Prisma.FieldRef<"MembershipPlan", 'Int'>
 }
     
 

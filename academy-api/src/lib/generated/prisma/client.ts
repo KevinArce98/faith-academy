@@ -47,6 +47,16 @@ export { Prisma }
  */
 export type UserProfile = Prisma.UserProfileModel
 /**
+ * Model PushToken
+ * 
+ */
+export type PushToken = Prisma.PushTokenModel
+/**
+ * Model Notification
+ * 
+ */
+export type Notification = Prisma.NotificationModel
+/**
  * Model RefreshToken
  * 
  */
@@ -77,11 +87,6 @@ export type MembershipPlan = Prisma.MembershipPlanModel
  */
 export type MembershipOrder = Prisma.MembershipOrderModel
 /**
- * Model CreditLedger
- * 
- */
-export type CreditLedger = Prisma.CreditLedgerModel
-/**
  * Model Class
  * 
  */
@@ -97,20 +102,10 @@ export type ClassSlot = Prisma.ClassSlotModel
  */
 export type Attendance = Prisma.AttendanceModel
 /**
- * Model ClassWaitlist
- * 
- */
-export type ClassWaitlist = Prisma.ClassWaitlistModel
-/**
  * Model UserSkill
  * 
  */
 export type UserSkill = Prisma.UserSkillModel
-/**
- * Model Streak
- * 
- */
-export type Streak = Prisma.StreakModel
 /**
  * Model Content
  * 
