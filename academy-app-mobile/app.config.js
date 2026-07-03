@@ -46,6 +46,9 @@ module.exports = () => ({
       ],
       ['expo-notifications', { color: tokens.colors.primary }],
       'expo-status-bar',
+      ...(tokens.fonts.enabled && tokens.fonts.files.length
+        ? [['expo-font', { fonts: tokens.fonts.files }]]
+        : []),
     ],
     experiments: {
       typedRoutes: true,

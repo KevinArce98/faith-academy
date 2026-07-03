@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import { Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 
 import { Button } from '@/components/ui/Button';
 import { ErrorBanner } from '@/components/ui/ErrorBanner';
@@ -13,7 +13,7 @@ import { useApiClient } from '@/lib/api';
 import { useAuth } from '@/lib/auth/useAuth';
 import { getErrorMessage } from '@/lib/errorMessages';
 import { type SignInFormValues, signInSchema } from '@/lib/validations/auth';
-import { theme } from '@/theme';
+import { logoImage, theme } from '@/theme';
 
 export default function SignIn() {
   const router = useRouter();
@@ -63,7 +63,11 @@ export default function SignIn() {
         {/* Logo / nombre */}
         <View className="mb-10 items-center gap-2">
           <View className="h-16 w-16 rounded-2xl bg-primary items-center justify-center">
-            <Text className="text-2xl font-bold text-white">{theme.studio.logoText}</Text>
+            {logoImage ? (
+              <Image source={logoImage} className="h-10 w-10" resizeMode="contain" />
+            ) : (
+              <Text className="text-2xl font-bold text-white">{theme.studio.logoText}</Text>
+            )}
           </View>
           <Text className="text-xl font-bold text-dark">{theme.studio.name}</Text>
         </View>

@@ -28,11 +28,9 @@ module.exports = {
   studio: {
     name: 'StudioFlow Academy',
     tagline: 'Academy',
-    /** Texto corto para el logo si no hay imagen */
+    /** Texto corto del logo (fallback si no hay imagen). */
     logoText: 'SF',
-    /** Ruta a la imagen del logo (require('../assets/logo.png')) o null */
-    logoImage: null,
-  },
+    },
 
   /** Identidad nativa — se aplica en app.config.js (bundle, scheme, nombre). */
   app: {
@@ -54,5 +52,23 @@ module.exports = {
 
   typography: {
     fontFamily: 'System',
+  },
+
+  /**
+   * Fuente de marca. Por defecto usa la del SISTEMA. Para una fuente propia:
+   *   1) Copiá los .ttf a assets/fonts/ (un archivo por peso).
+   *   2) En src/lib/fonts.ts descomentá/ajustá los require() (Metro exige rutas
+   *      literales) usando estos mismos nombres como keys.
+   *   3) Poné enabled: true, los nombres regular/bold/black, y las rutas en files.
+   * Muchas fuentes no traen Medium(500)/SemiBold(600): la app mapea
+   * 400/500→regular, 600/700/800→bold, 900→black.
+   */
+  fonts: {
+    enabled: false,
+    regular: 'Brand-Regular',
+    bold: 'Brand-Bold',
+    black: 'Brand-Black',
+    /** Rutas de los .ttf para embeber en el build nativo (plugin expo-font). */
+    files: [],
   },
 };

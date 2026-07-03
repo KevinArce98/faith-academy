@@ -20,7 +20,7 @@ export const Input = forwardRef<TextInput, InputProps>(
           ref={ref}
           className={cn(
             'h-12 rounded-xl border border-gray-200 bg-white px-4 text-base text-dark',
-            'focus:border-primary',
+            'focus:border-primary leading-5',
             error && 'border-danger',
             className,
           )}

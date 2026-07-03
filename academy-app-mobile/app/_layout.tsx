@@ -1,12 +1,16 @@
 import '../global.css';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { AuthProvider } from '@/lib/auth/AuthProvider';
+import { applyBrandFont, brandFonts } from '@/lib/fonts';
+
+applyBrandFont();
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -18,6 +22,10 @@ const queryClient = new QueryClient({
 });
 
 export default function RootLayout() {
+  const [fontsLoaded, fontError] = useFonts(brandFonts);
+
+  if (!fontsLoaded && !fontError) return null;
+
   return (
     <GestureHandlerRootView className="flex-1">
       <SafeAreaProvider>

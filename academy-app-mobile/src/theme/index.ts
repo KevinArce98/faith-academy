@@ -1,6 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const tokens = require('./tokens') as {
-  studio: { name: string; tagline: string; logoText: string; logoImage: number | null };
+  studio: { name: string; tagline: string; logoText: string };
   app: {
     slug: string;
     scheme: string;
@@ -30,8 +30,17 @@ const tokens = require('./tokens') as {
     danger: string;
   };
   typography: { fontFamily: string };
+  fonts: {
+    enabled: boolean;
+    regular: string;
+    bold: string;
+    black: string;
+    files: string[];
+  };
 };
 
 export const theme = tokens;
 export type Theme = typeof tokens;
 export default tokens;
+
+export const logoImage: number | null = null;

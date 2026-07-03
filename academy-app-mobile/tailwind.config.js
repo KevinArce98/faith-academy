@@ -22,7 +22,9 @@ module.exports = {
         'text-muted': tokens.colors.textMuted,
       },
       fontFamily: {
-        sans: [tokens.typography.fontFamily],
+        sans: [
+          tokens.fonts.enabled ? tokens.fonts.regular : tokens.typography.fontFamily,
+        ],
       },
     },
   },
