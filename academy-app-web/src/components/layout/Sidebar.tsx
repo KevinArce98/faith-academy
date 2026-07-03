@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 
+import { BrandMark } from '@/components/ui/BrandMark';
 import { Button } from '@/components/ui/Button';
 import { useApiClient } from '@/lib/api';
 import { useAuth } from '@/lib/auth/useAuth';
@@ -132,11 +133,7 @@ export function Sidebar({ user, onClose }: SidebarProps) {
     <aside className="bg-dark flex h-screen w-full flex-col md:fixed md:top-0 md:left-0 md:z-30 md:w-65">
       {/* ── Logo ──────────────────────────────────── */}
       <div className="flex items-center gap-3 border-b border-white/10 px-5 py-5">
-        <div className="bg-primary flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
-          <span className="text-sm leading-none font-bold text-white">
-            {studioConfig.studio.logoText}
-          </span>
-        </div>
+        <BrandMark size={32} textClassName="text-sm leading-none" />
         <div className="min-w-0 flex-1">
           <p className="truncate text-[18px] leading-tight font-bold text-white">
             {studioConfig.studio.name}
