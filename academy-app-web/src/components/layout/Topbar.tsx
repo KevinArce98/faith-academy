@@ -15,7 +15,7 @@ import { timeAgo } from '@/utils/general';
 
 const ROUTE_LABELS: Record<string, string> = {
   dashboard: 'Inicio',
-  students: 'Estudiantes',
+  students: 'Alumnos',
   teachers: 'Profesores',
   payments: 'Pagos',
   classes: 'Clases',
