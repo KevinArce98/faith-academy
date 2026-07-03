@@ -1,6 +1,7 @@
 import { Bell, Building2, Globe, Palette, Settings as SettingsIcon, Shield } from 'lucide-react';
 import { Navigate, useOutletContext } from 'react-router-dom';
 
+import { BrandMark } from '@/components/ui/BrandMark';
 import studioConfig from '@/lib/config/studio.config';
 import { type Role, isAdmin } from '@/lib/roles';
 
@@ -36,9 +37,7 @@ export default function Settings() {
       <div className="divide-y divide-gray-50 rounded-2xl border border-gray-50 bg-white shadow-sm">
         <div className="bg-dark/5 rounded-t-2xl px-6 py-4">
           <div className="flex items-center gap-3">
-            <div className="bg-primary flex h-10 w-10 items-center justify-center rounded-xl">
-              <span className="text-sm font-bold text-white">{studioConfig.studio.logoText}</span>
-            </div>
+            <BrandMark size={40} className="rounded-xl" textClassName="text-sm" />
             <div>
               <p className="text-dark font-bold">{studioConfig.studio.name}</p>
               <p className="text-xs text-gray-400">{studioConfig.studio.tagline}</p>
