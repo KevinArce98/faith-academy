@@ -31,5 +31,3 @@ lerna-debug.log*
 .expo/
 
 memory
-academy-app-mobile/.expo/*
-academy-app-mobile/ios/*
