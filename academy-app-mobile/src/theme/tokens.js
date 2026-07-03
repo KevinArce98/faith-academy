@@ -46,7 +46,7 @@ module.exports = {
     version: '1.0.0',
     /** Pegar tras correr `eas init` (necesario para push). null = sin push. */
     easProjectId: '070bf616-4019-4ea2-8fdb-4fcca0573f72',
-    owner: null,
+    owner: 'kevinarce98',
   },
 
   /** Localización — moneda y formato de fechas/números. */
