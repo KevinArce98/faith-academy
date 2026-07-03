@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { Button } from '@/components/ui/Button';
+import { DatePicker } from '@/components/ui/DatePicker';
 import { Input } from '@/components/ui/Input';
 import { SelectMenu } from '@/components/ui/SelectMenu';
 import { Textarea } from '@/components/ui/Textarea';
@@ -195,11 +196,10 @@ export function NewStudentModal({ plans, onClose }: { plans: Plan[]; onClose: ()
                   error={fieldErrors.enrollmentFee?.message}
                   {...register('enrollmentFee')}
                 />
-                <Input
-                  type="date"
+                <DatePicker
                   label="Fecha de matrícula"
-                  error={fieldErrors.enrolledAt?.message}
-                  {...register('enrolledAt')}
+                  value={watch('enrolledAt') ?? ''}
+                  onChange={(v) => setValue('enrolledAt', v)}
                 />
               </div>
               <Textarea
