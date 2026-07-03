@@ -34,7 +34,7 @@ type NavItem = {
 function getBaseNavItems(role: Role): NavItem[] {
   const items: NavItem[] = [
     { href: '/', icon: LayoutDashboard, label: 'Inicio' },
-    { href: '/students', icon: Users, label: 'Estudiantes' },
+    { href: '/students', icon: Users, label: 'Alumnos' },
   ];
 
   if (role === 'ADMIN') {
