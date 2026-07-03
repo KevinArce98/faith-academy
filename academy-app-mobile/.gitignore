@@ -5,5 +5,10 @@
 expo-env.d.ts
 # @end expo-cli
 
+# Native prebuild output (managed workflow vía app.config.js — se regenera con
+# `expo prebuild` / `expo run:ios` / `expo run:android`, nunca se versiona).
+/ios
+/android
+
 # Expo build cache (no versionar)
 .expo/
