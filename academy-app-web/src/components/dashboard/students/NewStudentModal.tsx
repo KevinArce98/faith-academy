@@ -57,7 +57,7 @@ export function NewStudentModal({ plans, onClose }: { plans: Plan[]; onClose: ()
           name: form.name,
           email: form.email,
           phone: form.phone,
-          planId: form.planId || null,
+          planId: form.planId || '',
           enrollmentFee: form.enrollmentFee ? parseFloat(form.enrollmentFee) : undefined,
           enrolledAt: form.enrolledAt || undefined,
         }),

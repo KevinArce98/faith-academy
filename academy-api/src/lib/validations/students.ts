@@ -13,7 +13,9 @@ export const createStudentSchema = z.object({
 	name: z.string().min(1, 'El nombre es requerido'),
 	email: z.email('Email inválido'),
 	phone: z.string().optional(),
-	planId: z.string().min(1).optional().or(z.literal('')),
+	// Acepta string vacío ("sin plan" desde el form), string con id, o
+	// null/undefined (algunos clientes mandan null en vez de omitir la key).
+	planId: z.string().nullish(),
 	notes: z.string().optional(),
 	...matriculaFields,
 });
@@ -22,7 +24,9 @@ export const updateStudentSchema = z.object({
 	name: z.string().min(1, 'El nombre es requerido'),
 	email: z.email('Email inválido'),
 	phone: z.string().optional(),
-	planId: z.string().min(1).optional().or(z.literal('')),
+	// Acepta string vacío ("sin plan" desde el form), string con id, o
+	// null/undefined (algunos clientes mandan null en vez de omitir la key).
+	planId: z.string().nullish(),
 	notes: z.string().optional(),
 	...matriculaFields,
 });
