@@ -51,33 +51,35 @@ export type StudioConfig = {
   };
 };
 
+// Cliente: FAITH — Dance & Art Academy (Costa Rica). https://www.faith-cr.com
 const studioConfig: StudioConfig = {
   studio: {
-    name: 'StudioFlow Academy',
-    tagline: 'Academy',
-    logoText: 'SF',
+    name: 'Faith',
+    tagline: 'Dance & Art Academy',
+    logoText: 'f',
     logoUrl: '/logo.svg',
-    favicon: undefined,
+    favicon: '/favicon.svg',
   },
   colors: {
-    primary: '#EE005A',
-    primaryLight: '#FF4D85',
-    primaryDark: '#C4004A',
-    dark: '#012641',
-    darkMid: '#01325A',
-    darkLight: '#024A85',
-    background: '#F5F8FC',
+    primary: '#008EA6',
+    primaryLight: '#33A6BA',
+    primaryDark: '#007184',
+    dark: '#231F20',
+    darkMid: '#3A3536',
+    darkLight: '#544D4E',
+    background: '#F2F7F8',
     surface: '#FFFFFF',
-    textPrimary: '#012641',
-    textMuted: '#4B6280',
+    textPrimary: '#231F20',
+    textMuted: '#5C6B6E',
     success: '#10B981',
     warning: '#F59E0B',
     danger: '#FF3B30',
   },
   typography: {
-    fontFamily: 'Inter',
+    fontFamily: 'Lato',
     fontFamilyMono: 'JetBrains Mono',
-    googleFontsUrl: undefined,
+    googleFontsUrl:
+      'https://fonts.googleapis.com/css2?family=Lato:wght@400;500;700;900&display=swap',
   },
   features: {
     lms: false,
@@ -88,9 +90,10 @@ const studioConfig: StudioConfig = {
     { position: 3, pct: 20 },
   ],
   metadata: {
-    title: 'StudioFlow Academy',
-    description: 'Plataforma de gestión para estudios de danza y artes escénicas.',
-    keywords: ['academia', 'danza', 'clases', 'studio'],
+    title: 'Faith Dance & Art Academy',
+    description:
+      'Plataforma de gestión de Faith Dance & Art Academy — clases, mensualidades y pagos.',
+    keywords: ['academia', 'danza', 'arte', 'clases', 'faith'],
   },
 };
 

@@ -4,27 +4,18 @@ import { StyleSheet, Text as RNText } from 'react-native';
 import { theme } from '@/theme';
 
 /**
- * Fuente de marca. Por defecto la app usa la fuente del SISTEMA (theme.fonts
- * .enabled === false). Para una fuente propia (mismo patrón para cada cliente):
- *
- *   1) Copiá los .ttf a assets/fonts/ (un archivo por peso).
- *   2) Descomentá/ajustá los require() de abajo — Metro EXIGE rutas literales,
- *      por eso viven acá y no en tokens.js. Las keys deben coincidir con
- *      theme.fonts.regular/bold/black.
- *   3) En src/theme/tokens.js: fonts.enabled = true, los nombres, y las rutas
- *      en fonts.files (para embeberlas en el build nativo vía plugin expo-font).
- *
- * Ejemplo (Lato):
- *   'Lato-Regular': require('../../assets/fonts/Lato-Regular.ttf'),
- *   'Lato-Bold': require('../../assets/fonts/Lato-Bold.ttf'),
- *   'Lato-Black': require('../../assets/fonts/Lato-Black.ttf'),
+ * Fuente de marca (Lato). Metro exige rutas literales en require(), por eso los
+ * archivos se listan acá. Las keys deben coincidir con theme.fonts
+ * .regular/bold/black. Se cargan con useFonts(brandFonts) en el layout raíz.
  */
 export const brandFonts: Record<string, number> = {
-  // 'Brand-Regular': require('../../assets/fonts/Brand-Regular.ttf'),
-  // 'Brand-Bold': require('../../assets/fonts/Brand-Bold.ttf'),
-  // 'Brand-Black': require('../../assets/fonts/Brand-Black.ttf'),
+  'Lato-Regular': require('../../assets/fonts/Lato-Regular.ttf'),
+  'Lato-Bold': require('../../assets/fonts/Lato-Bold.ttf'),
+  'Lato-Black': require('../../assets/fonts/Lato-Black.ttf'),
 };
 
+// Lato no trae Medium(500)/SemiBold(600): 400/500 → regular, 600/700/800 →
+// bold, 900 → black.
 function familyForWeight(weight?: string | number): string {
   const f = theme.fonts;
   let w = 400;

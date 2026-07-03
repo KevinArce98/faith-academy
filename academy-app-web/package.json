@@ -11,7 +11,7 @@
     "format": "prettier --write ."
   },
   "dependencies": {
-    "@fontsource/inter": "^5.2.8",
+    "@fontsource/lato": "^5.2.5",
     "@formkit/auto-animate": "^0.9.0",
     "@fullcalendar/core": "^6.1.21",
     "@fullcalendar/interaction": "^6.1.21",

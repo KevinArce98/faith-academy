@@ -3,21 +3,25 @@
  * Controla colores, nombre, logo, identidad nativa (bundle/scheme), moneda y
  * locale. Se refleja automáticamente en Tailwind, en el runtime (`theme`) y en
  * la config nativa (`app.config.js`).
+ *
+ * Cliente: FAITH — Dance & Art Academy (Costa Rica). https://www.faith-cr.com
  */
 
 const colors = {
-  primary: '#EE005A',
-  primaryLight: '#FF4D85',
-  primaryDark: '#C4004A',
-  dark: '#012641',
-  darkMid: '#01325A',
-  darkLight: '#024A85',
-  background: '#F5F8FC',
+  // Teal de marca (#008EA6). Light/Dark derivados para estados y gradientes.
+  primary: '#008EA6',
+  primaryLight: '#33A6BA',
+  primaryDark: '#007184',
+  // Neutro oscuro de marca (#231F20) + variantes para superficies/avatares.
+  dark: '#231F20',
+  darkMid: '#3A3536',
+  darkLight: '#544D4E',
+  background: '#F2F7F8',
   surface: '#FFFFFF',
-  textPrimary: '#012641',
-  textMuted: '#4B6280',
+  textPrimary: '#231F20',
+  textMuted: '#5C6B6E',
   // Grises de UI (bordes, placeholders) — derivan del theme, no hardcodear.
-  border: '#EEF2F7',
+  border: '#E4ECED',
   placeholder: '#9CA3AF',
   success: '#10B981',
   warning: '#F59E0B',
@@ -26,20 +30,22 @@ const colors = {
 
 module.exports = {
   studio: {
-    name: 'StudioFlow Academy',
-    tagline: 'Academy',
+    name: 'Faith Dance & Art',
+    tagline: 'Dance & Art Academy',
     /** Texto corto del logo (fallback si no hay imagen). */
-    logoText: 'SF',
-    },
+    logoText: 'F',
+    // La imagen del logo NO va acá: app.config.js carga este archivo en Node y
+    // no puede require() binarios. El require() del asset vive en theme/index.ts.
+  },
 
   /** Identidad nativa — se aplica en app.config.js (bundle, scheme, nombre). */
   app: {
-    slug: 'studio-flow-academy',
-    scheme: 'sfacademy',
-    bundleId: 'com.studioflow.academy',
+    slug: 'faith-academy',
+    scheme: 'faithacademy',
+    bundleId: 'com.faithcr.academy',
     version: '1.0.0',
     /** Pegar tras correr `eas init` (necesario para push). null = sin push. */
-    easProjectId: null,
+    easProjectId: '070bf616-4019-4ea2-8fdb-4fcca0573f72',
     owner: null,
   },
 
@@ -55,20 +61,20 @@ module.exports = {
   },
 
   /**
-   * Fuente de marca. Por defecto usa la del SISTEMA. Para una fuente propia:
-   *   1) Copiá los .ttf a assets/fonts/ (un archivo por peso).
-   *   2) En src/lib/fonts.ts descomentá/ajustá los require() (Metro exige rutas
-   *      literales) usando estos mismos nombres como keys.
-   *   3) Poné enabled: true, los nombres regular/bold/black, y las rutas en files.
-   * Muchas fuentes no traen Medium(500)/SemiBold(600): la app mapea
-   * 400/500→regular, 600/700/800→bold, 900→black.
+   * Fuente de marca: Lato (guía de marca FAITH). Cargada en app/_layout.tsx
+   * (useFonts) + embebida en el build vía plugin expo-font (app.config.js).
+   * Los require() de los .ttf están en src/lib/fonts.ts (Metro exige literales).
+   * Mapeo: 400/500→Regular, 600/700/800→Bold, 900→Black.
    */
   fonts: {
-    enabled: false,
-    regular: 'Brand-Regular',
-    bold: 'Brand-Bold',
-    black: 'Brand-Black',
-    /** Rutas de los .ttf para embeber en el build nativo (plugin expo-font). */
-    files: [],
+    enabled: true,
+    regular: 'Lato-Regular',
+    bold: 'Lato-Bold',
+    black: 'Lato-Black',
+    files: [
+      './assets/fonts/Lato-Regular.ttf',
+      './assets/fonts/Lato-Bold.ttf',
+      './assets/fonts/Lato-Black.ttf',
+    ],
   },
 };

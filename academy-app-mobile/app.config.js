@@ -1,6 +1,3 @@
-// Config nativa derivada de src/theme/tokens.js — no edites valores de marca
-// aquí, edítalos en tokens.js. Tras `eas init`, pega el projectId/owner en
-// tokens.app.
 const tokens = require('./src/theme/tokens');
 
 module.exports = () => ({
