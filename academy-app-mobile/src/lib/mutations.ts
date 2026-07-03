@@ -27,7 +27,7 @@ export function useCreateStudent(cb?: Callbacks<Record<string, unknown>, CreateU
     onMutate: cb?.onMutate,
     onSuccess: (data, vars) => {
       qc.invalidateQueries({ queryKey: qk.students });
-      qc.invalidateQueries({ queryKey: qk.dashboard() });
+      qc.invalidateQueries({ queryKey: qk.dashboardAll });
       cb?.onSuccess?.(data, vars);
     },
     onError: cb?.onError,
@@ -181,7 +181,7 @@ export function useTogglePlan(cb?: Callbacks<{ id: string; isActive: boolean }>)
       api(`/api/v1/plans/${id}/toggle`, { method: 'PATCH', body: JSON.stringify({ isActive }) }),
     onSuccess: (data, vars) => {
       qc.invalidateQueries({ queryKey: qk.plans });
-      qc.invalidateQueries({ queryKey: qk.dashboard() });
+      qc.invalidateQueries({ queryKey: qk.dashboardAll });
       cb?.onSuccess?.(data, vars);
     },
     onError: cb?.onError,
@@ -213,7 +213,7 @@ export function useApproveOrder(cb?: Callbacks<string>) {
       api(`/api/v1/payments/orders/${orderId}/approve`, { method: 'POST' }),
     onSuccess: (data, vars) => {
       qc.invalidateQueries({ queryKey: qk.payments });
-      qc.invalidateQueries({ queryKey: qk.dashboard() });
+      qc.invalidateQueries({ queryKey: qk.dashboardAll });
       cb?.onSuccess?.(data, vars);
     },
     onError: cb?.onError,
@@ -232,7 +232,7 @@ export function useRejectOrder(cb?: Callbacks<{ orderId: string; notes?: string 
       }),
     onSuccess: (data, vars) => {
       qc.invalidateQueries({ queryKey: qk.payments });
-      qc.invalidateQueries({ queryKey: qk.dashboard() });
+      qc.invalidateQueries({ queryKey: qk.dashboardAll });
       cb?.onSuccess?.(data, vars);
     },
     onError: cb?.onError,
@@ -265,7 +265,7 @@ export function usePaySubscription(cb?: Callbacks<PayPendingInput>) {
             body: JSON.stringify({ studentId: p.studentId, planId: p.planId, isPaid: true }),
           }),
     onSuccess: (data, vars) => {
-      qc.invalidateQueries({ queryKey: qk.dashboard() });
+      qc.invalidateQueries({ queryKey: qk.dashboardAll });
       qc.invalidateQueries({ queryKey: qk.students });
       cb?.onSuccess?.(data, vars);
     },

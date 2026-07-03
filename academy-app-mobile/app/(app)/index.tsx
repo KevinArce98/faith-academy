@@ -294,8 +294,15 @@ export default function Dashboard() {
   if (active.isError) {
     return (
       <SafeAreaView className="flex-1 bg-background items-center justify-center px-6">
-        <Text className="text-sm text-danger text-center">Error al cargar los datos. Intenta de nuevo.</Text>
-        <Button label="Cerrar sesión" variant="ghost" color="neutral" size="sm" className="mt-4" onPress={clearToken} />
+        <Text className="text-sm text-danger text-center">No se pudieron cargar los datos. Revisa tu conexión.</Text>
+        <Button
+          label={active.isFetching ? 'Reintentando...' : 'Reintentar'}
+          size="sm"
+          className="mt-4"
+          loading={active.isFetching}
+          onPress={() => active.refetch()}
+        />
+        <Button label="Cerrar sesión" variant="ghost" color="neutral" size="sm" className="mt-2" onPress={clearToken} />
       </SafeAreaView>
     );
   }

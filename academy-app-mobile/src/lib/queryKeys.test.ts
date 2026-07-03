@@ -9,11 +9,15 @@ describe('queryKeys', () => {
     expect(qk.assignableTeachers).toEqual(['assignable-teachers']);
   });
 
-  it('dashboard se invalida por prefijo', () => {
-    expect(qk.dashboard('ADMIN')).toEqual(['dashboard', 'ADMIN']);
-    expect(qk.dashboard()).toEqual(['dashboard', '']);
-    // El prefijo ['dashboard'] hace match con ['dashboard', role] en TanStack.
-    expect(qk.dashboard('ADMIN')[0]).toBe(qk.dashboard()[0]);
+  it('cada dashboard de rol tiene su propia key; se invalidan por prefijo', () => {
+    expect(qk.dashboard('admin')).toEqual(['dashboard', 'admin']);
+    expect(qk.dashboard('teacher')).toEqual(['dashboard', 'teacher']);
+    expect(qk.dashboard('student')).toEqual(['dashboard', 'student']);
+    // Las tres keys son distintas (no comparten cache → no cruzan queryFn).
+    expect(qk.dashboard('admin')).not.toEqual(qk.dashboard('student'));
+    // El prefijo ['dashboard'] hace match con las tres en TanStack.
+    expect(qk.dashboardAll).toEqual(['dashboard']);
+    expect(qk.dashboard('admin')[0]).toBe(qk.dashboardAll[0]);
   });
 
   it('keys parametrizadas incluyen sus argumentos', () => {
@@ -27,6 +31,6 @@ describe('queryKeys', () => {
     expect(qkRoot.plans).toBe(qk.plans[0]);
     expect(qkRoot.payouts).toBe(qk.payouts('x')[0]);
     expect(qkRoot.monthlyAttendance).toBe(qk.monthlyAttendance('x', 'y')[0]);
-    expect(qkRoot.dashboard).toBe(qk.dashboard()[0]);
+    expect(qkRoot.dashboard).toBe(qk.dashboardAll[0]);
   });
 });

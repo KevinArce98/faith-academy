@@ -1,4 +1,6 @@
-import { FlatList, Text, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useState } from 'react';
+import { FlatList, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Card } from '@/components/ui/Card';
@@ -9,7 +11,8 @@ import { RoleGuard } from '@/components/auth/RoleGuard';
 import { usePullRefresh } from '@/hooks/usePullRefresh';
 import { usePayouts } from '@/lib/queries';
 import { qkRoot } from '@/lib/queryKeys';
-import { currentMonth, formatMonthYear, formatPrice } from '@/utils/general';
+import { theme } from '@/theme';
+import { currentMonth, formatMonthYear, formatPrice, shiftMonth } from '@/utils/general';
 
 export default function PayoutsScreen() {
   return (
@@ -19,42 +22,84 @@ export default function PayoutsScreen() {
   );
 }
 
+function MonthNavigator({
+  period,
+  onChange,
+}: {
+  period: string;
+  onChange: (p: string) => void;
+}) {
+  // No se navega al futuro: no hay nómina de meses que no han ocurrido.
+  const atCurrent = period >= currentMonth();
+
+  return (
+    <View className="flex-row items-center justify-between">
+      <TouchableOpacity
+        onPress={() => onChange(shiftMonth(period, -1))}
+        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        className="h-9 w-9 items-center justify-center rounded-full bg-white"
+      >
+        <Ionicons name="chevron-back" size={20} color={theme.colors.dark} />
+      </TouchableOpacity>
+
+      <Text className="text-2xl font-bold text-dark">{formatMonthYear(period)}</Text>
+
+      <TouchableOpacity
+        disabled={atCurrent}
+        onPress={() => onChange(shiftMonth(period, 1))}
+        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        className="h-9 w-9 items-center justify-center rounded-full bg-white"
+      >
+        <Ionicons
+          name="chevron-forward"
+          size={20}
+          color={atCurrent ? theme.colors.placeholder : theme.colors.dark}
+        />
+      </TouchableOpacity>
+    </View>
+  );
+}
+
 function Payouts() {
-  const period = currentMonth();
+  const [period, setPeriod] = useState(currentMonth());
   const { data, isLoading, isError } = usePayouts(period);
 
   const refresh = usePullRefresh([qkRoot.payouts]);
 
-  if (isLoading) return <SafeAreaView className="flex-1 bg-background"><InlineSpinner /></SafeAreaView>;
-  if (isError || !data) {
-    return (
-      <SafeAreaView className="flex-1 bg-background px-4 pt-6">
-        <Text className="text-sm text-danger">Error al cargar la nómina.</Text>
-      </SafeAreaView>
-    );
-  }
+  const header = (
+    <View className="gap-5 mb-4">
+      <Text className="text-xs font-semibold uppercase tracking-wide text-gray-400">
+        Nómina
+      </Text>
+      <MonthNavigator period={period} onChange={setPeriod} />
+
+      {data && (
+        <View className="flex-row gap-3 flex-wrap">
+          <Kpi label="Recaudado" value={formatPrice(data.totals.collected)} subColor="text-success" className="flex-1 min-w-[140px]" />
+          <Kpi label="Por cobrar" value={formatPrice(data.totals.pending)} valueColor="text-warning" className="flex-1 min-w-[140px]" />
+          <Kpi label="Asignado" value={formatPrice(data.totals.allocated)} className="flex-1 min-w-[140px]" />
+          <Kpi label="Sin asignar" value={formatPrice(data.totals.unallocated)} className="flex-1 min-w-[140px]" />
+        </View>
+      )}
+    </View>
+  );
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
       <FlatList
-        data={data.payouts}
+        data={data?.payouts ?? []}
         keyExtractor={(t) => t.teacherId}
         refreshControl={refresh}
         contentContainerClassName="px-4 py-6 gap-4"
-        ListHeaderComponent={
-          <View className="gap-5 mb-4">
-            <Text className="text-2xl font-bold text-dark">Nómina — {formatMonthYear(data.period)}</Text>
-
-            <View className="flex-row gap-3 flex-wrap">
-              <Kpi label="Recaudado" value={formatPrice(data.totals.collected)} subColor="text-success" className="flex-1 min-w-[140px]" />
-              <Kpi label="Por cobrar" value={formatPrice(data.totals.pending)} valueColor="text-warning" className="flex-1 min-w-[140px]" />
-              <Kpi label="Asignado" value={formatPrice(data.totals.allocated)} className="flex-1 min-w-[140px]" />
-              <Kpi label="Sin asignar" value={formatPrice(data.totals.unallocated)} className="flex-1 min-w-[140px]" />
-            </View>
-          </View>
-        }
+        ListHeaderComponent={header}
         ListEmptyComponent={
-          <EmptyState message="No hay nómina para este período." icon="cash-outline" />
+          isLoading ? (
+            <InlineSpinner />
+          ) : isError ? (
+            <Text className="text-sm text-danger">Error al cargar la nómina.</Text>
+          ) : (
+            <EmptyState message="No hay nómina para este período." icon="cash-outline" />
+          )
         }
         renderItem={({ item: t }) => (
           <Card>

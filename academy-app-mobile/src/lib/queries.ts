@@ -170,7 +170,7 @@ export function useSubscriptions(period: string) {
 export function useAdminDashboard(role: Role | undefined) {
   const api = useApiClient();
   return useQuery<AdminDashboard>({
-    queryKey: qk.dashboard(role),
+    queryKey: qk.dashboard('admin'),
     queryFn: () => api<AdminDashboard>('/api/v1/dashboard/admin'),
     enabled: role === 'ADMIN',
   });
@@ -179,7 +179,7 @@ export function useAdminDashboard(role: Role | undefined) {
 export function useTeacherDashboard(role: Role | undefined) {
   const api = useApiClient();
   return useQuery<TeacherDashboard>({
-    queryKey: qk.dashboard(role),
+    queryKey: qk.dashboard('teacher'),
     queryFn: () => api<TeacherDashboard>('/api/v1/dashboard/teacher'),
     enabled: role === 'TEACHER',
   });
@@ -188,7 +188,7 @@ export function useTeacherDashboard(role: Role | undefined) {
 export function useStudentDashboard(role: Role | undefined) {
   const api = useApiClient();
   return useQuery<StudentDashboard>({
-    queryKey: qk.dashboard(role),
+    queryKey: qk.dashboard('student'),
     queryFn: () => api<StudentDashboard>('/api/v1/dashboard/student'),
     enabled: role === 'STUDENT',
   });

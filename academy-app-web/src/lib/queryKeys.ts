@@ -3,12 +3,17 @@
  * y hace las invalidaciones consistentes. Las keys parametrizadas son funciones;
  * las fijas son tuplas `as const`.
  *
- * Nota de convención: `dashboard(role)` produce `['dashboard', role]`, pero se
- * invalida por prefijo con `['dashboard']` (match por prefijo de TanStack Query).
+ * Nota de convención: cada dashboard de rol tiene su PROPIA key
+ * `['dashboard', variant]` (variant = 'admin'|'teacher'|'student') — NO comparten
+ * key porque cada uno pega a un endpoint distinto (compartirla haría que un
+ * refetch por prefijo use la queryFn equivocada → 403). Se invalidan todos por
+ * prefijo con `qk.dashboardAll` = `['dashboard']`.
  */
 export const qk = {
   me: ['me'] as const,
-  dashboard: (role?: string) => ['dashboard', role ?? ''] as const,
+  dashboard: (variant: 'admin' | 'teacher' | 'student') =>
+    ['dashboard', variant] as const,
+  dashboardAll: ['dashboard'] as const,
 
   plans: ['plans'] as const,
   activePlans: ['plans-options'] as const,

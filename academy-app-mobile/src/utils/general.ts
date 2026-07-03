@@ -84,6 +84,13 @@ export function currentMonth(): string {
   return `${now.getUTCFullYear()}-${m}`;
 }
 
+/** Desplaza un período "YYYY-MM" en `delta` meses (negativo = atrás). */
+export function shiftMonth(period: string, delta: number): string {
+  const [y, m] = period.split('-').map(Number);
+  const d = new Date(Date.UTC(y, m - 1 + delta, 1));
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}`;
+}
+
 export function todayYmd(): string {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;

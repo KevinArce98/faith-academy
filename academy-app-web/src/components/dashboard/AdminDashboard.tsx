@@ -40,7 +40,7 @@ export function AdminDashboard({ data }: { data: AdminDashboardData }) {
             }),
           }),
     onSuccess: () => {
-      for (const key of [['dashboard'], qk.students, ['subscriptions']]) {
+      for (const key of [qk.dashboardAll, qk.students, ['subscriptions']]) {
         queryClient.invalidateQueries({ queryKey: key });
       }
     },
