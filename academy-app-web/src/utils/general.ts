@@ -49,3 +49,7 @@ export function formatPrice(price: number | string) {
     minimumFractionDigits: 0,
   }).format(Number(price));
 }
+
+export function isPdfUrl(url: string) {
+  return url.toLowerCase().split('?')[0].endsWith('.pdf');
+}

@@ -1,12 +1,12 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { AnimatePresence } from 'framer-motion';
-import { Check, X } from 'lucide-react';
+import { Check, FileText, X } from 'lucide-react';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/Button';
 import { useApiClient } from '@/lib/api';
 import { cn } from '@/lib/cn';
-import { formatPrice, getInitials, timeAgo } from '@/utils/general';
+import { formatPrice, getInitials, isPdfUrl, timeAgo } from '@/utils/general';
 
 import { ReceiptModal } from './ReceiptModal';
 import type { Order } from './payments.types';
@@ -130,7 +130,12 @@ export function PaymentCard({ order, isAdmin = false }: PaymentCardProps) {
           className="hover:border-primary/30 mb-2 flex h-24 cursor-pointer items-center justify-center rounded-xl border border-gray-100 bg-gray-50 transition-colors"
           onClick={() => setReceiptOpen(true)}
         >
-          {order.receiptUrl ? (
+          {order.receiptUrl && isPdfUrl(order.receiptUrl) ? (
+            <div className="flex flex-col items-center gap-1 text-gray-400">
+              <FileText className="h-8 w-8" />
+              <span className="text-xs font-medium">PDF</span>
+            </div>
+          ) : order.receiptUrl ? (
             <img
               src={order.receiptUrl}
               alt="Comprobante"
