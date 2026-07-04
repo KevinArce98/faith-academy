@@ -18,10 +18,10 @@ import { useAdminEnrollment } from '@/lib/mutations';
 import { useClasses, useSubscriptions } from '@/lib/queries';
 import { qk, qkRoot } from '@/lib/queryKeys';
 import { theme } from '@/theme';
-import { currentMonth, formatMonthYear } from '@/utils/general';
+import { currentMonth, formatDateOnly, formatMonthYear } from '@/utils/general';
 import { cn } from '@/utils/cn';
 
-type AttendanceRecord = { studentId: string; classId: string };
+type AttendanceRecord = { studentId: string; classId: string; sessionDate: string | null };
 
 export default function MonthlyAttendanceScreen() {
   return (
@@ -57,8 +57,10 @@ function MonthlyAttendance() {
   });
 
   const classes = classesData ?? [];
-  const attRecords = new Set(
-    (attData?.records ?? []).filter((r) => r.classId === classId).map((r) => r.studentId)
+  const attByStudent = new Map(
+    (attData?.records ?? [])
+      .filter((r) => r.classId === classId)
+      .map((r) => [r.studentId, r] as const)
   );
 
   const students = useMemo(() => {
@@ -132,7 +134,7 @@ function MonthlyAttendance() {
               students.length > 0 ? (
                 <View className="flex-row items-center justify-between pb-1">
                   <Text className="font-bold text-dark">Alumnos</Text>
-                  <Text className="text-sm text-gray-400">{attRecords.size} inscritos</Text>
+                  <Text className="text-sm text-gray-400">{attByStudent.size} inscritos</Text>
                 </View>
               ) : null
             }
@@ -140,11 +142,13 @@ function MonthlyAttendance() {
               <EmptyState message="No hay alumnos con mensualidad activa." icon="person-outline" />
             }
             renderItem={({ item: sub }) => {
-              const enrolled = attRecords.has(sub.studentId);
+              const record = attByStudent.get(sub.studentId);
+              const enrolled = !!record;
+              const locked = !!record?.sessionDate;
               const saving = savingId === sub.studentId;
               return (
                 <TouchableOpacity
-                  disabled={saving}
+                  disabled={saving || locked}
                   onPress={() => mutation.mutate({ studentId: sub.studentId, enrolled })}
                   className={cn(
                     'flex-row items-center gap-3 rounded-xl p-3 border',
@@ -152,14 +156,25 @@ function MonthlyAttendance() {
                   )}
                 >
                   <Avatar name={sub.student.name} size="sm" />
-                  <Text className="flex-1 text-sm font-medium text-dark" numberOfLines={1}>{sub.student.name}</Text>
-                  <View className={cn('w-7 h-7 rounded-full items-center justify-center', enrolled ? 'bg-primary' : 'bg-gray-200')}>
-                    <Ionicons
-                      name={enrolled ? 'checkmark' : 'add'}
-                      size={16}
-                      color={enrolled ? '#ffffff' : theme.colors.textMuted}
-                    />
+                  <View className="flex-1">
+                    <Text className="text-sm font-medium text-dark" numberOfLines={1}>{sub.student.name}</Text>
+                    {locked && record?.sessionDate && (
+                      <Text className="text-xs text-primary" numberOfLines={1}>
+                        Solo esta clase · {formatDateOnly(record.sessionDate)}
+                      </Text>
+                    )}
                   </View>
+                  {locked ? (
+                    <Ionicons name="lock-closed" size={16} color={theme.colors.primary} />
+                  ) : (
+                    <View className={cn('w-7 h-7 rounded-full items-center justify-center', enrolled ? 'bg-primary' : 'bg-gray-200')}>
+                      <Ionicons
+                        name={enrolled ? 'checkmark' : 'add'}
+                        size={16}
+                        color={enrolled ? '#ffffff' : theme.colors.textMuted}
+                      />
+                    </View>
+                  )}
                 </TouchableOpacity>
               );
             }}

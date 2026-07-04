@@ -225,6 +225,19 @@ monthlyAttendanceRoutes.delete(
 			? parseMonthPeriod(parsed.period)
 			: monthPeriod();
 
+		// Una reserva de clase suelta (sessionDate seteada) no se quita desde acá:
+		// es la clase/fecha que el alumno pagó, no una inscripción mensual libre.
+		const existing = await db.monthlyAttendance.findUnique({
+			where: { studentId_classId_period: { studentId, classId, period } },
+			select: { sessionDate: true },
+		});
+		if (existing?.sessionDate) {
+			throw badRequest(
+				'SINGLE_CLASS_LOCKED',
+				'Esta es una reserva de clase suelta; no se puede quitar la inscripción.',
+			);
+		}
+
 		await db.monthlyAttendance.deleteMany({
 			where: { studentId, classId, period },
 		});
