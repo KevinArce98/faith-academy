@@ -13,7 +13,8 @@ import { useApiClient } from '@/lib/api';
 import { useAuth } from '@/lib/auth/useAuth';
 import { getErrorMessage } from '@/lib/errorMessages';
 import { type SignInFormValues, signInSchema } from '@/lib/validations/auth';
-import { logoImage, theme } from '@/theme';
+import { theme } from '@/theme';
+import { logoImage } from '@/theme/logo';
 
 export default function SignIn() {
   const router = useRouter();
