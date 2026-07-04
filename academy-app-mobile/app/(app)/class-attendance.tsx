@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Avatar } from '@/components/ui/Avatar';
 import { Card } from '@/components/ui/Card';
+import { DatePicker } from '@/components/ui/DatePicker';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { InlineSpinner } from '@/components/ui/Spinner';
 import { RoleGuard } from '@/components/auth/RoleGuard';
@@ -33,7 +34,7 @@ function ClassAttendance() {
   const api = useApiClient();
   const params = useLocalSearchParams<{ classId?: string }>();
 
-  const [date] = useState(todayYmd());
+  const [date, setDate] = useState(todayYmd());
   const [classId, setClassId] = useState(params.classId ?? '');
   const [savingId, setSavingId] = useState<string | null>(null);
 
@@ -81,7 +82,7 @@ function ClassAttendance() {
 
         <Card>
           <Text className="text-sm font-medium text-dark mb-2">Fecha</Text>
-          <Text className="text-base text-dark">{date}</Text>
+          <DatePicker value={date} onChange={setDate} />
         </Card>
 
         <Card>
