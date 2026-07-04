@@ -51,7 +51,6 @@ export function Sheet({ visible, onClose, title, children, bare }: SheetProps) {
               contentContainerClassName={cn('px-6 pt-6 gap-5')}
               contentContainerStyle={{ paddingBottom: BOTTOM_PAD }}
               keyboardShouldPersistTaps="handled"
-              automaticallyAdjustKeyboardInsets
             >
               {children}
             </ScrollView>
