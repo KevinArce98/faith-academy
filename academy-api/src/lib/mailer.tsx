@@ -1,5 +1,8 @@
 import { Resend } from 'resend';
 
+import { PasswordResetEmail } from '../emails/PasswordResetEmail.js';
+import { VerificationEmail } from '../emails/VerificationEmail.js';
+
 let _resend: Resend | null = null;
 
 function getResend(): Resend {
@@ -22,11 +25,7 @@ export async function sendVerificationEmail(
 		from: getFrom(),
 		to,
 		subject: 'Verifica tu correo electrónico',
-		html: `
-      <p>Tu código de verificación es:</p>
-      <h1 style="letter-spacing:8px;font-size:36px;">${code}</h1>
-      <p>Expira en 24 horas.</p>
-    `,
+		react: <VerificationEmail code={code} />,
 	});
 }
 
@@ -38,10 +37,6 @@ export async function sendPasswordResetEmail(
 		from: getFrom(),
 		to,
 		subject: 'Restablece tu contraseña',
-		html: `
-      <p>Tu código para restablecer la contraseña es:</p>
-      <h1 style="letter-spacing:8px;font-size:36px;">${code}</h1>
-      <p>Expira en 15 minutos.</p>
-    `,
+		react: <PasswordResetEmail code={code} />,
 	});
 }
