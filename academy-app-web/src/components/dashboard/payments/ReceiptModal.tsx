@@ -1,10 +1,10 @@
 import { motion } from 'framer-motion';
-import { X } from 'lucide-react';
+import { ExternalLink, X } from 'lucide-react';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/Button';
 import { modalVariants, overlayVariants } from '@/lib/animations';
-import { formatPrice, getInitials } from '@/utils/general';
+import { formatPrice, getInitials, isPdfUrl } from '@/utils/general';
 
 import type { Plan, Student } from './payments.types';
 
@@ -63,7 +63,20 @@ export function ReceiptModal({
           </Button>
         </div>
         <div className="flex min-h-48 items-center justify-center bg-gray-50 p-6">
-          {url.startsWith('http') ? (
+          {url.startsWith('http') && isPdfUrl(url) ? (
+            <div className="flex w-full flex-col items-center gap-3">
+              <iframe src={url} title="Comprobante" className="h-80 w-full rounded-lg border border-gray-100 bg-white shadow" />
+              <a
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary flex items-center gap-1 text-xs font-semibold hover:underline"
+              >
+                <ExternalLink className="h-3.5 w-3.5" />
+                Abrir PDF en una pestaña nueva
+              </a>
+            </div>
+          ) : url.startsWith('http') ? (
             <img src={url} alt="Comprobante" className="max-h-64 rounded-lg shadow" />
           ) : (
             <div className="w-64 space-y-2 rounded-xl bg-white p-6 text-center shadow-md">
