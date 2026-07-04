@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import { theme } from '@/theme';
 import { cn } from '@/utils/cn';
 
@@ -24,7 +24,10 @@ export function Sheet({ visible, onClose, title, children, bare }: SheetProps) {
       onRequestClose={onClose}
       statusBarTranslucent
     >
-      <View className="flex-1 justify-end">
+      <KeyboardAvoidingView
+        className="flex-1 justify-end"
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
         <Pressable className="absolute inset-0 bg-black/40" onPress={onClose} />
 
         <View className="max-h-[85%] rounded-t-3xl bg-surface">
@@ -54,7 +57,7 @@ export function Sheet({ visible, onClose, title, children, bare }: SheetProps) {
             </ScrollView>
           )}
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
