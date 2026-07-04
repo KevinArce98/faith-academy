@@ -15,7 +15,10 @@ export function getRegisteredPushToken(): string | null {
 export function usePushNotifications(enabled: boolean) {
   const api = useApiClient();
   const router = useRouter();
+  const routerRef = useRef(router);
+  routerRef.current = router;
   const didRegister = useRef(false);
+  const handledResponseIds = useRef(new Set<string>());
 
   useEffect(() => {
     if (!enabled || didRegister.current) return;
@@ -35,18 +38,26 @@ export function usePushNotifications(enabled: boolean) {
     })();
   }, [enabled, api]);
 
+  // Deps vacío a propósito: getLastNotificationResponse() sigue devolviendo la
+  // misma respuesta hasta que el SO la limpia, así que si este efecto
+  // dependiera de `router` (cuya referencia puede cambiar entre renders),
+  // cada re-ejecución volvería a navegar a la misma ruta → loop infinito
+  // ("Maximum update depth exceeded"). router.push es imperativo, no necesita
+  // estar en deps; se lee de un ref para evitar closures obsoletos.
   useEffect(() => {
-    const sub = Notifications.addNotificationResponseReceivedListener((response) => {
+    function handle(response: Notifications.NotificationResponse) {
+      const id = response.notification.request.identifier;
+      if (handledResponseIds.current.has(id)) return;
+      handledResponseIds.current.add(id);
       const route = routeForNotification(response.notification.request.content.data);
-      if (route) router.push(route as never);
-    });
-
-    const last = Notifications.getLastNotificationResponse();
-    if (last) {
-      const route = routeForNotification(last.notification.request.content.data);
-      if (route) router.push(route as never);
+      if (route) routerRef.current.push(route as never);
     }
 
+    const sub = Notifications.addNotificationResponseReceivedListener(handle);
+
+    const last = Notifications.getLastNotificationResponse();
+    if (last) handle(last);
+
     return () => sub.remove();
-  }, [router]);
+  }, []);
 }
