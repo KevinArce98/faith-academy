@@ -87,6 +87,11 @@ export type MembershipPlan = Prisma.MembershipPlanModel
  */
 export type MembershipOrder = Prisma.MembershipOrderModel
 /**
+ * Model EnrollmentPayment
+ * 
+ */
+export type EnrollmentPayment = Prisma.EnrollmentPaymentModel
+/**
  * Model Class
  * 
  */

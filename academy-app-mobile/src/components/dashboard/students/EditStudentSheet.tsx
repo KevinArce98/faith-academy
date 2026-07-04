@@ -10,8 +10,9 @@ import { Select } from '@/components/ui/Select';
 import { Sheet } from '@/components/ui/Sheet';
 import { getErrorMessage } from '@/lib/errorMessages';
 import { currentSubscription, type Student } from '@/lib/interfaces/students';
-import { useUpdateStudent } from '@/lib/mutations';
-import { usePlans } from '@/lib/queries';
+import { useMarkEnrollmentPaid, useUpdateStudent } from '@/lib/mutations';
+import { useEnrollmentStatusFor, usePlans } from '@/lib/queries';
+import { cn } from '@/utils/cn';
 
 type EditStudentSheetProps = {
   student: Student | null;
@@ -39,9 +40,17 @@ function EditStudentForm({ student, onClose }: { student: Student; onClose: () =
   );
   const [enrolledAt, setEnrolledAt] = useState(student.enrolledAt?.slice(0, 10) ?? '');
   const [error, setError] = useState<string | null>(null);
+  const [enrollmentError, setEnrollmentError] = useState<string | null>(null);
 
   const { data: plansData } = usePlans();
   const plans = (plansData ?? []).filter((p) => p.isActive);
+
+  const { data: enrollmentStatus } = useEnrollmentStatusFor(student.id);
+
+  const markPaidMutation = useMarkEnrollmentPaid({
+    onSuccess: () => setEnrollmentError(null),
+    onError: (err) => setEnrollmentError(getErrorMessage(err, 'No se pudo marcar la matrícula.')),
+  });
 
   const updateMutation = useUpdateStudent(student.id, {
     onSuccess: () => onClose(),
@@ -118,6 +127,42 @@ function EditStudentForm({ student, onClose }: { student: Student; onClose: () =
           <DatePicker label="Fecha matrícula" value={enrolledAt} onChange={setEnrolledAt} />
         </View>
       </View>
+
+      {enrollmentStatus && (
+        <View className="flex-row items-center justify-between rounded-xl bg-gray-50 px-3 py-2.5">
+          <Text className="text-sm text-gray-500">Estado de matrícula</Text>
+          <Text
+            className={cn(
+              'rounded-full px-2 py-0.5 text-xs font-semibold',
+              enrollmentStatus.active
+                ? 'bg-success/10 text-success'
+                : enrollmentStatus.pending
+                  ? 'bg-warning/10 text-warning'
+                  : 'bg-gray-200 text-gray-500',
+            )}
+          >
+            {enrollmentStatus.active
+              ? 'Al día'
+              : enrollmentStatus.pending
+                ? 'En revisión'
+                : 'Pendiente'}
+          </Text>
+        </View>
+      )}
+      {enrollmentError && <Text className="text-sm text-danger">{enrollmentError}</Text>}
+      {enrollmentStatus &&
+        !enrollmentStatus.active &&
+        !enrollmentStatus.pending &&
+        student.enrollmentFee != null &&
+        student.enrollmentFee > 0 && (
+          <Button
+            variant="outlined"
+            label={markPaidMutation.isPending ? 'Guardando...' : 'Marcar matrícula pagada'}
+            className="w-full"
+            loading={markPaidMutation.isPending}
+            onPress={() => markPaidMutation.mutate(student.id)}
+          />
+        )}
 
       {error && <Text className="text-sm text-danger">{error}</Text>}
 

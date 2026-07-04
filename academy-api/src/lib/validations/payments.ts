@@ -20,6 +20,16 @@ export const rejectOrderSchema = z.object({
 	notes: z.string().optional().default(''),
 });
 
+// Matrícula: el alumno sube su comprobante (monto = su enrollmentFee, no viaja).
+export const createEnrollmentSchema = z.object({
+	receiptKey: z.string().min(1),
+});
+
+// Admin marca la matrícula de un alumno como pagada (sin comprobante).
+export const markEnrollmentPaidSchema = z.object({
+	studentId: z.string().min(1),
+});
+
 export type UploadUrlInput = z.infer<typeof uploadUrlSchema>;
 export type CreateOrderInput = z.infer<typeof createOrderSchema>;
 export type RejectOrderInput = z.infer<typeof rejectOrderSchema>;

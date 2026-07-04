@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Pressable, SectionList, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { EnrollmentPaymentCard } from '@/components/dashboard/payments/EnrollmentPaymentCard';
 import { PaymentAdminActions } from '@/components/dashboard/payments/PaymentAdminActions';
 import { ReceiptViewer } from '@/components/dashboard/payments/ReceiptViewer';
 import { UploadPaymentSheet } from '@/components/dashboard/payments/UploadPaymentSheet';
@@ -31,7 +32,7 @@ function Payments() {
   const { data: me, isLoading: meLoading } = useMe();
   const { data: orders = [], isLoading: ordersLoading } = usePaymentOrders(!!me);
 
-  const refresh = usePullRefresh([qkRoot.payments]);
+  const refresh = usePullRefresh([qkRoot.payments, qkRoot.enrollmentStatus]);
 
   if (meLoading || ordersLoading) {
     return <SafeAreaView className="flex-1 bg-background"><InlineSpinner /></SafeAreaView>;
@@ -58,6 +59,8 @@ function Payments() {
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
       <View className="px-4 pt-6 gap-4">
         <Text className="text-2xl font-bold text-dark">{staff ? 'Pagos' : 'Mis Pagos'}</Text>
+
+        {student && <EnrollmentPaymentCard />}
 
         {student && (
           <Pressable

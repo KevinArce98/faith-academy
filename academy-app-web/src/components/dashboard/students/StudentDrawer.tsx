@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { X } from 'lucide-react';
 import { useState } from 'react';
@@ -9,7 +9,10 @@ import { useScrollLock } from '@/hooks/useScrollLock';
 import { useApiClient } from '@/lib/api';
 import { slideInRight } from '@/lib/animations';
 import { cn } from '@/lib/cn';
+import { getErrorMessage } from '@/lib/errorMessages';
 import { type Student, currentSubscription } from '@/lib/interfaces/students';
+import { useEnrollmentStatusFor } from '@/lib/queries';
+import { qk } from '@/lib/queryKeys';
 import { formatPrice, getInitials } from '@/utils/general';
 
 const monthLabel = (iso: string) =>
@@ -37,11 +40,29 @@ type HistoryMonth = {
 export function StudentDrawer({ student, onClose }: { student: Student; onClose: () => void }) {
   const [tab, setTab] = useState<'info' | 'pagos' | 'asistencia' | 'progreso'>('info');
   const apiClient = useApiClient();
+  const queryClient = useQueryClient();
+  const [enrollmentError, setEnrollmentError] = useState<string | null>(null);
 
   const { data: history, isLoading: historyLoading } = useQuery<{ months: HistoryMonth[] }>({
     queryKey: ['student-history', student.id],
     queryFn: () => apiClient<{ months: HistoryMonth[] }>(`/api/v1/students/${student.id}/history`),
     enabled: tab === 'asistencia',
+  });
+
+  const { data: enrollmentStatus } = useEnrollmentStatusFor(student.id, tab === 'info');
+
+  const markPaidMutation = useMutation({
+    mutationFn: () =>
+      apiClient('/api/v1/payments/enrollment/mark-paid', {
+        method: 'POST',
+        body: JSON.stringify({ studentId: student.id }),
+      }),
+    onSuccess: () => {
+      setEnrollmentError(null);
+      queryClient.invalidateQueries({ queryKey: qk.enrollmentStatus(student.id) });
+      queryClient.invalidateQueries({ queryKey: qk.payments });
+    },
+    onError: (err) => setEnrollmentError(getErrorMessage(err, 'No se pudo marcar la matrícula.')),
   });
 
   const sub = currentSubscription(student);
@@ -156,6 +177,55 @@ export function StudentDrawer({ student, onClose }: { student: Student; onClose:
                   </span>
                 </div>
               )}
+              {enrollmentStatus && (
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-500">Estado</span>
+                  <span
+                    className={cn(
+                      'rounded-full px-2 py-0.5 text-xs font-semibold',
+                      enrollmentStatus.active
+                        ? 'bg-success/10 text-success'
+                        : enrollmentStatus.pending
+                          ? 'bg-warning/10 text-warning'
+                          : 'bg-gray-100 text-gray-500'
+                    )}
+                  >
+                    {enrollmentStatus.active
+                      ? 'Al día'
+                      : enrollmentStatus.pending
+                        ? 'En revisión'
+                        : 'Pendiente'}
+                  </span>
+                </div>
+              )}
+              {enrollmentStatus?.active && enrollmentStatus.expiresAt && (
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-500">Vence</span>
+                  <span className="text-dark">
+                    {new Intl.DateTimeFormat('es-CR', {
+                      day: 'numeric',
+                      month: 'short',
+                      year: 'numeric',
+                    }).format(new Date(enrollmentStatus.expiresAt))}
+                  </span>
+                </div>
+              )}
+              {enrollmentError && <p className="text-danger text-xs">{enrollmentError}</p>}
+              {enrollmentStatus &&
+                !enrollmentStatus.active &&
+                !enrollmentStatus.pending &&
+                student.enrollmentFee != null &&
+                student.enrollmentFee > 0 && (
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    className="h-9 w-full rounded-lg text-xs"
+                    disabled={markPaidMutation.isPending}
+                    onClick={() => markPaidMutation.mutate()}
+                  >
+                    {markPaidMutation.isPending ? 'Guardando...' : 'Marcar matrícula pagada'}
+                  </Button>
+                )}
             </div>
           </>
         )}

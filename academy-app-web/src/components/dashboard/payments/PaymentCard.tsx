@@ -37,16 +37,25 @@ export function PaymentCard({ order, isAdmin = false }: PaymentCardProps) {
   const expired = status === 'EXPIRED';
   const statusDate = approved || rejected ? (approvedAt ?? order.createdAt) : order.createdAt;
 
+  const basePath =
+    order.kind === 'ENROLLMENT' ? '/api/v1/payments/enrollment' : '/api/v1/payments/orders';
+
   const approveMutation = useMutation({
     mutationFn: async () => {
-      await apiClient(`/api/v1/payments/orders/${order.id}/approve`, {
+      await apiClient(`${basePath}/${order.id}/approve`, {
         method: 'POST',
       });
     },
     onSuccess: () => {
       setStatus('ACTIVE');
       setApprovedAt(new Date());
-      for (const key of ['payments', 'students', 'subscriptions', 'dashboard']) {
+      for (const key of [
+        'payments',
+        'students',
+        'subscriptions',
+        'dashboard',
+        'enrollment-status',
+      ]) {
         queryClient.invalidateQueries({ queryKey: [key] });
       }
     },
@@ -54,7 +63,7 @@ export function PaymentCard({ order, isAdmin = false }: PaymentCardProps) {
 
   const rejectMutation = useMutation({
     mutationFn: async () => {
-      await apiClient(`/api/v1/payments/orders/${order.id}/reject`, {
+      await apiClient(`${basePath}/${order.id}/reject`, {
         method: 'POST',
         body: JSON.stringify({ notes: '' }),
       });
@@ -92,11 +101,13 @@ export function PaymentCard({ order, isAdmin = false }: PaymentCardProps) {
               <span
                 className={cn(
                   'rounded-full px-2 py-0.5 text-xs font-medium',
-                  order.plan.name.toLowerCase().includes('vip')
-                    ? 'bg-primary text-white'
-                    : order.plan.name.toLowerCase().includes('pro')
-                      ? 'bg-dark text-white'
-                      : 'bg-gray-100 text-gray-600'
+                  order.kind === 'ENROLLMENT'
+                    ? 'bg-warning/15 text-warning'
+                    : order.plan.name.toLowerCase().includes('vip')
+                      ? 'bg-primary text-white'
+                      : order.plan.name.toLowerCase().includes('pro')
+                        ? 'bg-dark text-white'
+                        : 'bg-gray-100 text-gray-600'
                 )}
               >
                 {order.plan.name}

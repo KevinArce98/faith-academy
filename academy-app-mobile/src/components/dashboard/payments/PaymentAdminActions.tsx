@@ -34,7 +34,10 @@ export function PaymentAdminActions({ order }: PaymentAdminActionsProps) {
   function confirmApprove() {
     Alert.alert('Aprobar pago', `¿Aprobar el pago de ${order.plan.name}?`, [
       { text: 'Cancelar', style: 'cancel' },
-      { text: 'Aprobar', onPress: () => approveMutation.mutate(order.id) },
+      {
+        text: 'Aprobar',
+        onPress: () => approveMutation.mutate({ id: order.id, kind: order.kind }),
+      },
     ]);
   }
 
@@ -92,7 +95,9 @@ export function PaymentAdminActions({ order }: PaymentAdminActionsProps) {
           label={rejectMutation.isPending ? 'Rechazando...' : 'Rechazar pago'}
           className="w-full"
           loading={rejectMutation.isPending}
-          onPress={() => rejectMutation.mutate({ orderId: order.id, notes: notes.trim() })}
+          onPress={() =>
+            rejectMutation.mutate({ id: order.id, kind: order.kind, notes: notes.trim() })
+          }
         />
       </Sheet>
 

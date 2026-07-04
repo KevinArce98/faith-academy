@@ -3,17 +3,78 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Hono } from 'hono';
 
 import { db } from '../lib/db.js';
-import { AppError, badRequest, forbidden, notFound } from '../lib/errors.js';
+import { AppError, badRequest, conflict, forbidden, notFound } from '../lib/errors.js';
 import { adminUserIds, notify } from '../lib/push.js';
 import { parseBody } from '../lib/request.js';
 import {
+	createEnrollmentSchema,
 	createOrderSchema,
+	markEnrollmentPaidSchema,
 	rejectOrderSchema,
 	uploadUrlSchema,
 } from '../lib/validations/payments.js';
 import { requireAuth, requireRole } from '../middleware/requireRole.js';
+import {
+	approveEnrollment,
+	enrollmentStatus,
+	markEnrollmentPaid,
+	rejectEnrollment,
+} from '../services/enrollment.js';
 import { approveOrder, rejectOrder } from '../services/orders.js';
 import type { AuthVariables } from '../types/auth.js';
+
+// Ítem normalizado del listado de pagos: plan (mensualidad/clase suelta) o
+// matrícula. La matrícula sintetiza un `plan` para que la UI la renderice igual.
+type PlanItemSource = {
+	id: string;
+	status: string;
+	createdAt: Date;
+	approvedAt: Date | null;
+	receiptUrl: string | null;
+	expiresAt: Date | null;
+	notes: string | null;
+	bookingDate: Date | null;
+	bookingClass: { name: string } | null;
+	plan: { id: string; name: string; price: unknown };
+	student?: { id: string; name: string | null; email: string };
+};
+
+type EnrollmentItemSource = {
+	id: string;
+	amount: unknown;
+	status: string;
+	createdAt: Date;
+	approvedAt: Date | null;
+	receiptUrl: string | null;
+	expiresAt: Date | null;
+	notes: string | null;
+	student?: { id: string; name: string | null; email: string };
+};
+
+function planItem(o: PlanItemSource) {
+	return { ...o, kind: 'PLAN' as const };
+}
+
+function enrollmentItem(e: EnrollmentItemSource) {
+	return {
+		id: e.id,
+		kind: 'ENROLLMENT' as const,
+		status: e.status,
+		createdAt: e.createdAt,
+		approvedAt: e.approvedAt,
+		receiptUrl: e.receiptUrl,
+		expiresAt: e.expiresAt,
+		notes: e.notes,
+		bookingDate: null,
+		bookingClass: null,
+		...(e.student ? { student: e.student } : {}),
+		plan: { id: '', name: 'Matrícula', price: Number(e.amount) },
+	};
+}
+
+function sortByCreatedDesc<T extends { createdAt: Date }>(items: T[]): T[] {
+	return items.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+}
 
 const paymentsRoutes = new Hono<{ Variables: AuthVariables }>();
 
@@ -40,30 +101,41 @@ paymentsRoutes.get('/orders', requireAuth, async (c) => {
 	const user = c.get('user');
 
 	if (user.role === 'STUDENT') {
-		const orders = await db.membershipOrder.findMany({
-			where: { studentId: user.id },
-			include: { plan: true, bookingClass: { select: { name: true } } },
-			orderBy: { createdAt: 'desc' },
-		});
+		const [orders, enrollments] = await Promise.all([
+			db.membershipOrder.findMany({
+				where: { studentId: user.id },
+				include: { plan: true, bookingClass: { select: { name: true } } },
+			}),
+			db.enrollmentPayment.findMany({ where: { studentId: user.id } }),
+		]);
 
-		return c.json({ orders });
+		const items = sortByCreatedDesc([
+			...orders.map(planItem),
+			...enrollments.map(enrollmentItem),
+		]);
+		return c.json({ orders: items });
 	}
 
-	// Solo ADMIN ve las órdenes de pago de todos los alumnos.
+	// Solo ADMIN ve los pagos de todos los alumnos.
 	if (user.role !== 'ADMIN') throw forbidden();
 
-	const orders = await db.membershipOrder.findMany({
-		include: {
-			plan: true,
-			student: {
-				select: { id: true, name: true, email: true },
+	const studentSelect = { select: { id: true, name: true, email: true } };
+	const [orders, enrollments] = await Promise.all([
+		db.membershipOrder.findMany({
+			include: {
+				plan: true,
+				student: studentSelect,
+				bookingClass: { select: { name: true } },
 			},
-			bookingClass: { select: { name: true } },
-		},
-		orderBy: { createdAt: 'desc' },
-	});
+		}),
+		db.enrollmentPayment.findMany({ include: { student: studentSelect } }),
+	]);
 
-	return c.json({ orders });
+	const items = sortByCreatedDesc([
+		...orders.map(planItem),
+		...enrollments.map(enrollmentItem),
+	]);
+	return c.json({ orders: items });
 });
 
 paymentsRoutes.post('/orders', requireRole('STUDENT'), async (c) => {
@@ -145,6 +217,112 @@ paymentsRoutes.post('/orders/:id/reject', requireRole('ADMIN'), async (c) => {
 	const updated = await rejectOrder(c.req.param('id'), parsed.notes);
 	return c.json(updated);
 });
+
+// ── Matrícula (anual, por aniversario) ──────────────────────────────────────
+
+// Estado de matrícula del alumno (para mostrar/ocultar "Pagar mi matrícula").
+paymentsRoutes.get('/enrollment/me', requireRole('STUDENT'), async (c) => {
+	const user = c.get('user');
+	return c.json(await enrollmentStatus(user.id));
+});
+
+// Estado de matrícula de un alumno (lo consulta el admin en la ficha).
+paymentsRoutes.get(
+	'/enrollment/status/:studentId',
+	requireRole('ADMIN'),
+	async (c) => {
+		return c.json(await enrollmentStatus(c.req.param('studentId')));
+	},
+);
+
+// El alumno sube el comprobante de su matrícula (monto = su enrollmentFee).
+paymentsRoutes.post('/enrollment', requireRole('STUDENT'), async (c) => {
+	const user = c.get('user');
+	const { receiptKey } = await parseBody(c, createEnrollmentSchema);
+
+	if (!receiptKey.startsWith(`receipts/${user.id}/`)) {
+		throw badRequest('INVALID_RECEIPT', 'Comprobante inválido.');
+	}
+
+	const profile = await db.userProfile.findUnique({
+		where: { id: user.id },
+		select: { enrollmentFee: true, name: true },
+	});
+	const fee = profile?.enrollmentFee != null ? Number(profile.enrollmentFee) : 0;
+	if (fee <= 0) {
+		throw badRequest(
+			'NO_ENROLLMENT_FEE',
+			'No tienes un monto de matrícula configurado. Contacta al administrador.',
+		);
+	}
+
+	// No permitir un segundo pago si ya hay uno pendiente o una matrícula vigente.
+	const now = new Date();
+	const existing = await db.enrollmentPayment.findFirst({
+		where: {
+			studentId: user.id,
+			OR: [
+				{ status: 'PENDING_REVIEW' },
+				{ status: 'ACTIVE', expiresAt: { gt: now } },
+			],
+		},
+	});
+	if (existing) {
+		throw conflict(
+			'ENROLLMENT_ALREADY',
+			existing.status === 'PENDING_REVIEW'
+				? 'Ya tienes un pago de matrícula en revisión.'
+				: 'Tu matrícula ya está al día.',
+		);
+	}
+
+	const receiptUrl = `${process.env.CLOUDFLARE_R2_PUBLIC_URL}/${receiptKey}`;
+	const payment = await db.enrollmentPayment.create({
+		data: { studentId: user.id, amount: fee, receiptUrl, status: 'PENDING_REVIEW' },
+	});
+
+	void adminUserIds().then((ids) =>
+		notify(ids, {
+			type: 'PAYMENT_SUBMITTED',
+			title: 'Nuevo comprobante de matrícula',
+			body: `${profile?.name ?? 'Un alumno'} envió el comprobante de su matrícula.`,
+			data: { screen: 'payments' },
+		}),
+	);
+
+	return c.json(payment, 201);
+});
+
+paymentsRoutes.post(
+	'/enrollment/mark-paid',
+	requireRole('ADMIN'),
+	async (c) => {
+		const admin = c.get('user');
+		const { studentId } = await parseBody(c, markEnrollmentPaidSchema);
+		const created = await markEnrollmentPaid(studentId, admin.id);
+		return c.json(created, 201);
+	},
+);
+
+paymentsRoutes.post(
+	'/enrollment/:id/approve',
+	requireRole('ADMIN'),
+	async (c) => {
+		const admin = c.get('user');
+		const updated = await approveEnrollment(c.req.param('id'), admin.id);
+		return c.json(updated);
+	},
+);
+
+paymentsRoutes.post(
+	'/enrollment/:id/reject',
+	requireRole('ADMIN'),
+	async (c) => {
+		const parsed = await parseBody(c, rejectOrderSchema);
+		const updated = await rejectEnrollment(c.req.param('id'), parsed.notes);
+		return c.json(updated);
+	},
+);
 
 paymentsRoutes.post('/upload-url', requireAuth, async (c) => {
 	const user = c.get('user');

@@ -3,6 +3,7 @@ export type PaymentStudent = { id: string; name: string; email: string };
 
 export type Order = {
   id: string;
+  kind: 'PLAN' | 'ENROLLMENT';
   status: 'PENDING_REVIEW' | 'ACTIVE' | 'EXPIRED' | 'REJECTED';
   createdAt: string;
   approvedAt: string | null;
@@ -13,6 +14,14 @@ export type Order = {
   bookingClass?: { name: string } | null;
   student?: PaymentStudent;
   plan: PaymentPlan;
+};
+
+// Estado de matrícula (pago anual, no confundir con EnrollData de clases mensuales).
+export type EnrollmentStatus = {
+  fee: number | null;
+  active: boolean;
+  pending: boolean;
+  expiresAt: string | null;
 };
 
 export const ORDER_STATUS_LABEL: Record<Order['status'], string> = {
