@@ -205,12 +205,40 @@ export function useDeletePlan(cb?: Callbacks<string>) {
 
 // ── Pagos ─────────────────────────────────────────────────────────────────────
 
-export function useApproveOrder(cb?: Callbacks<string>) {
+type OrderKind = 'PLAN' | 'ENROLLMENT';
+
+function basePathFor(kind?: OrderKind): string {
+  return kind === 'ENROLLMENT' ? '/api/v1/payments/enrollment' : '/api/v1/payments/orders';
+}
+
+export function useApproveOrder(cb?: Callbacks<{ id: string; kind?: OrderKind }>) {
   const api = useApiClient();
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (orderId: string) =>
-      api(`/api/v1/payments/orders/${orderId}/approve`, { method: 'POST' }),
+    mutationFn: ({ id, kind }: { id: string; kind?: OrderKind }) =>
+      api(`${basePathFor(kind)}/${id}/approve`, { method: 'POST' }),
+    onSuccess: (data, vars) => {
+      qc.invalidateQueries({ queryKey: qk.payments });
+      qc.invalidateQueries({ queryKey: qk.dashboardAll });
+      qc.invalidateQueries({ queryKey: qk.enrollmentStatus() });
+      cb?.onSuccess?.(data, vars);
+    },
+    onError: cb?.onError,
+    onSettled: cb?.onSettled,
+  });
+}
+
+export function useRejectOrder(
+  cb?: Callbacks<{ id: string; kind?: OrderKind; notes?: string }>,
+) {
+  const api = useApiClient();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, kind, notes }: { id: string; kind?: OrderKind; notes?: string }) =>
+      api(`${basePathFor(kind)}/${id}/reject`, {
+        method: 'POST',
+        body: JSON.stringify({ notes }),
+      }),
     onSuccess: (data, vars) => {
       qc.invalidateQueries({ queryKey: qk.payments });
       qc.invalidateQueries({ queryKey: qk.dashboardAll });
@@ -221,18 +249,19 @@ export function useApproveOrder(cb?: Callbacks<string>) {
   });
 }
 
-export function useRejectOrder(cb?: Callbacks<{ orderId: string; notes?: string }>) {
+/** El admin marca la matrícula de un alumno como pagada (sin comprobante). */
+export function useMarkEnrollmentPaid(cb?: Callbacks<string>) {
   const api = useApiClient();
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ orderId, notes }: { orderId: string; notes?: string }) =>
-      api(`/api/v1/payments/orders/${orderId}/reject`, {
+    mutationFn: (studentId: string) =>
+      api('/api/v1/payments/enrollment/mark-paid', {
         method: 'POST',
-        body: JSON.stringify({ notes }),
+        body: JSON.stringify({ studentId }),
       }),
     onSuccess: (data, vars) => {
       qc.invalidateQueries({ queryKey: qk.payments });
-      qc.invalidateQueries({ queryKey: qk.dashboardAll });
+      qc.invalidateQueries({ queryKey: qk.enrollmentStatus(vars) });
       cb?.onSuccess?.(data, vars);
     },
     onError: cb?.onError,

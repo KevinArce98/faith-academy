@@ -64,7 +64,8 @@ model UserProfile {
   monthlyAttendance  MonthlyAttendance[]
   sessionAttendances SessionAttendance[]
 
-  orders       MembershipOrder[]
+  orders             MembershipOrder[]
+  enrollmentPayments EnrollmentPayment[]
   attendances  Attendance[]
   skills       UserSkill[]
   familyMember FamilyMember?
@@ -198,6 +199,29 @@ model MembershipOrder {
   @@index([studentId])
   @@index([status])
   @@index([expiresAt])
+  @@index([studentId, status])
+}
+
+// Pago de matrícula (anual, por aniversario). El alumno sube comprobante y el
+// admin aprueba (o el admin la marca pagada a mano, sin receipt). Vale 1 año
+// desde la aprobación: al día si hay uno ACTIVE con expiresAt > now.
+model EnrollmentPayment {
+  id           String      @id @default(cuid())
+  studentId    String
+  amount       Decimal     @db.Decimal(10, 2) // snapshot del enrollmentFee al pagar
+  status       OrderStatus @default(PENDING_REVIEW)
+  receiptUrl   String? // null cuando el admin la marca a mano
+  startsAt     DateTime?
+  expiresAt    DateTime?
+  approvedById String?
+  approvedAt   DateTime?
+  notes        String?
+  createdAt    DateTime    @default(now())
+
+  student UserProfile @relation(fields: [studentId], references: [id])
+
+  @@index([studentId])
+  @@index([status])
   @@index([studentId, status])
 }
 

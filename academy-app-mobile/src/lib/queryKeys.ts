@@ -23,6 +23,9 @@ export const qk = {
   payments: ['payments'] as const,
   notifications: ['notifications'] as const,
   myEnrollments: ['my-enrollments'] as const,
+  // Matrícula anual (distinto de myEnrollments, que es inscripción a clases).
+  enrollmentStatus: (studentId?: string) =>
+    ['enrollment-status', studentId ?? 'me'] as const,
 
   subscriptions: (period: string) => ['subscriptions', period] as const,
   payouts: (period: string) => ['payouts', period] as const,
@@ -45,6 +48,7 @@ export const qkRoot = {
   payments: 'payments',
   notifications: 'notifications',
   myEnrollments: 'my-enrollments',
+  enrollmentStatus: 'enrollment-status',
   subscriptions: 'subscriptions',
   payouts: 'payouts',
   monthlyAttendance: 'monthly-attendance',

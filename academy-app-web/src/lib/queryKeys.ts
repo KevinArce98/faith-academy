@@ -25,6 +25,9 @@ export const qk = {
   notifications: ['notifications'] as const,
   myEnrollments: ['my-enrollments'] as const,
   reports: ['reports'] as const,
+  // Matrícula anual (distinto de myEnrollments, que es inscripción a clases).
+  enrollmentStatus: (studentId?: string) =>
+    ['enrollment-status', studentId ?? 'me'] as const,
 
   subscriptions: (period: string) => ['subscriptions', period] as const,
   payouts: (period: string) => ['payouts', period] as const,

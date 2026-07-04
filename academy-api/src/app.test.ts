@@ -98,6 +98,9 @@ describe.runIf(RUN_DB)('flujo de plata (integración)', () => {
 			await db.monthlySubscription.deleteMany({
 				where: { studentId: ids.student },
 			});
+			await db.enrollmentPayment.deleteMany({
+				where: { studentId: ids.student },
+			});
 		}
 		if (ids.class) await db.class.deleteMany({ where: { id: ids.class } });
 		if (ids.plan)
@@ -197,5 +200,35 @@ describe.runIf(RUN_DB)('flujo de plata (integración)', () => {
 		);
 		expect(marta).toBeTruthy();
 		expect(marta.total).toBe(40000);
+	});
+
+	it('matrícula: el alumno tiene enrollmentFee y arranca sin matrícula al día', async () => {
+		// El alumno se creó con enrollmentFee 12000 más arriba.
+		const meRes = await auth(
+			`/api/v1/payments/enrollment/status/${ids.student}`,
+		);
+		expect(meRes.status).toBe(200);
+		const status = await meRes.json();
+		expect(status.fee).toBe(12000);
+		expect(status.active).toBe(false);
+	});
+
+	it('matrícula: el admin la marca pagada y el alumno queda al día por 1 año', async () => {
+		const markRes = await auth('/api/v1/payments/enrollment/mark-paid', {
+			method: 'POST',
+			body: JSON.stringify({ studentId: ids.student }),
+		});
+		expect(markRes.status).toBe(201);
+
+		const statusRes = await auth(
+			`/api/v1/payments/enrollment/status/${ids.student}`,
+		);
+		const status = await statusRes.json();
+		expect(status.active).toBe(true);
+		expect(status.expiresAt).toBeTruthy();
+		// Vence ~1 año después (aniversario).
+		const days =
+			(new Date(status.expiresAt).getTime() - Date.now()) / 86_400_000;
+		expect(days).toBeGreaterThan(360);
 	});
 });

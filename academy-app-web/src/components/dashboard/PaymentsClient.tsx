@@ -2,6 +2,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { ChevronDown, Plus, SlidersHorizontal, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
+import { EnrollmentPaymentCard } from '@/components/dashboard/payments/EnrollmentPaymentCard';
 import { PaymentCard } from '@/components/dashboard/payments/PaymentCard';
 import {
   type PlanOption,
@@ -200,6 +201,8 @@ export function PaymentsClient({
 
   return (
     <div className="space-y-6">
+      {!isAdmin && <EnrollmentPaymentCard />}
+
       {/* Header */}
       <div className="flex flex-wrap items-center gap-2 md:gap-3">
         <h1 className="text-dark text-2xl font-bold md:text-3xl">

@@ -393,6 +393,7 @@ export const ModelName = {
   FamilyMember: 'FamilyMember',
   MembershipPlan: 'MembershipPlan',
   MembershipOrder: 'MembershipOrder',
+  EnrollmentPayment: 'EnrollmentPayment',
   Class: 'Class',
   ClassSlot: 'ClassSlot',
   Attendance: 'Attendance',
@@ -416,7 +417,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "userProfile" | "pushToken" | "notification" | "refreshToken" | "emailToken" | "family" | "familyMember" | "membershipPlan" | "membershipOrder" | "class" | "classSlot" | "attendance" | "userSkill" | "content" | "monthlySubscription" | "monthlyAttendance" | "sessionAttendance"
+    modelProps: "userProfile" | "pushToken" | "notification" | "refreshToken" | "emailToken" | "family" | "familyMember" | "membershipPlan" | "membershipOrder" | "enrollmentPayment" | "class" | "classSlot" | "attendance" | "userSkill" | "content" | "monthlySubscription" | "monthlyAttendance" | "sessionAttendance"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1083,6 +1084,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.MembershipOrderCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.MembershipOrderCountAggregateOutputType> | number
+        }
+      }
+    }
+    EnrollmentPayment: {
+      payload: Prisma.$EnrollmentPaymentPayload<ExtArgs>
+      fields: Prisma.EnrollmentPaymentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.EnrollmentPaymentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EnrollmentPaymentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.EnrollmentPaymentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EnrollmentPaymentPayload>
+        }
+        findFirst: {
+          args: Prisma.EnrollmentPaymentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EnrollmentPaymentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.EnrollmentPaymentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EnrollmentPaymentPayload>
+        }
+        findMany: {
+          args: Prisma.EnrollmentPaymentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EnrollmentPaymentPayload>[]
+        }
+        create: {
+          args: Prisma.EnrollmentPaymentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EnrollmentPaymentPayload>
+        }
+        createMany: {
+          args: Prisma.EnrollmentPaymentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.EnrollmentPaymentCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EnrollmentPaymentPayload>[]
+        }
+        delete: {
+          args: Prisma.EnrollmentPaymentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EnrollmentPaymentPayload>
+        }
+        update: {
+          args: Prisma.EnrollmentPaymentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EnrollmentPaymentPayload>
+        }
+        deleteMany: {
+          args: Prisma.EnrollmentPaymentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.EnrollmentPaymentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.EnrollmentPaymentUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EnrollmentPaymentPayload>[]
+        }
+        upsert: {
+          args: Prisma.EnrollmentPaymentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EnrollmentPaymentPayload>
+        }
+        aggregate: {
+          args: Prisma.EnrollmentPaymentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateEnrollmentPayment>
+        }
+        groupBy: {
+          args: Prisma.EnrollmentPaymentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EnrollmentPaymentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.EnrollmentPaymentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EnrollmentPaymentCountAggregateOutputType> | number
         }
       }
     }
@@ -1839,6 +1914,23 @@ export const MembershipOrderScalarFieldEnum = {
 export type MembershipOrderScalarFieldEnum = (typeof MembershipOrderScalarFieldEnum)[keyof typeof MembershipOrderScalarFieldEnum]
 
 
+export const EnrollmentPaymentScalarFieldEnum = {
+  id: 'id',
+  studentId: 'studentId',
+  amount: 'amount',
+  status: 'status',
+  receiptUrl: 'receiptUrl',
+  startsAt: 'startsAt',
+  expiresAt: 'expiresAt',
+  approvedById: 'approvedById',
+  approvedAt: 'approvedAt',
+  notes: 'notes',
+  createdAt: 'createdAt'
+} as const
+
+export type EnrollmentPaymentScalarFieldEnum = (typeof EnrollmentPaymentScalarFieldEnum)[keyof typeof EnrollmentPaymentScalarFieldEnum]
+
+
 export const ClassScalarFieldEnum = {
   id: 'id',
   teacherId: 'teacherId',
@@ -2284,6 +2376,7 @@ export type GlobalOmitConfig = {
   familyMember?: Prisma.FamilyMemberOmit
   membershipPlan?: Prisma.MembershipPlanOmit
   membershipOrder?: Prisma.MembershipOrderOmit
+  enrollmentPayment?: Prisma.EnrollmentPaymentOmit
   class?: Prisma.ClassOmit
   classSlot?: Prisma.ClassSlotOmit
   attendance?: Prisma.AttendanceOmit

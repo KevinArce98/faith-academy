@@ -9,7 +9,7 @@ import type {
   TeacherDashboard,
 } from '@/lib/interfaces/dashboard';
 import type { EnrollData, SubscriptionWithStudent } from '@/lib/interfaces/enrollment';
-import type { Order } from '@/lib/interfaces/payments';
+import type { EnrollmentStatus, Order } from '@/lib/interfaces/payments';
 import type { PayoutsResponse } from '@/lib/interfaces/payouts';
 import type { Plan } from '@/lib/interfaces/plans';
 import type { Student } from '@/lib/interfaces/students';
@@ -113,6 +113,27 @@ export function usePaymentOrders(enabled = true) {
       const res = await api<Order[] | { orders: Order[] }>('/api/v1/payments/orders');
       return Array.isArray(res) ? res : res.orders;
     },
+    enabled,
+  });
+}
+
+/** Estado de matrícula del alumno autenticado (para "Pagar mi matrícula"). */
+export function useEnrollmentStatus(enabled = true) {
+  const api = useApiClient();
+  return useQuery<EnrollmentStatus>({
+    queryKey: qk.enrollmentStatus(),
+    queryFn: () => api<EnrollmentStatus>('/api/v1/payments/enrollment/me'),
+    enabled,
+  });
+}
+
+/** Estado de matrícula de un alumno puntual (lo consulta el admin en su ficha). */
+export function useEnrollmentStatusFor(studentId: string, enabled = true) {
+  const api = useApiClient();
+  return useQuery<EnrollmentStatus>({
+    queryKey: qk.enrollmentStatus(studentId),
+    queryFn: () =>
+      api<EnrollmentStatus>(`/api/v1/payments/enrollment/status/${studentId}`),
     enabled,
   });
 }

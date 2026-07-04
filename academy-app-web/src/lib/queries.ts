@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 
 import type { Cls } from '@/components/dashboard/classes/classes.types';
-import type { Order } from '@/components/dashboard/payments/payments.types';
+import type { EnrollmentStatus, Order } from '@/components/dashboard/payments/payments.types';
 import { useApiClient } from '@/lib/api';
 import type { MeResponse } from '@/lib/interfaces/auth';
 import type {
@@ -146,6 +146,27 @@ export function useMyEnrollments() {
   return useQuery<EnrollData>({
     queryKey: qk.myEnrollments,
     queryFn: () => api<EnrollData>('/api/v1/monthly-attendance/me'),
+  });
+}
+
+/** Estado de matrícula del alumno autenticado (para "Pagar mi matrícula"). */
+export function useEnrollmentStatus(enabled = true) {
+  const api = useApiClient();
+  return useQuery<EnrollmentStatus>({
+    queryKey: qk.enrollmentStatus(),
+    queryFn: () => api<EnrollmentStatus>('/api/v1/payments/enrollment/me'),
+    enabled,
+  });
+}
+
+/** Estado de matrícula de un alumno puntual (lo consulta el admin en la ficha). */
+export function useEnrollmentStatusFor(studentId: string, enabled = true) {
+  const api = useApiClient();
+  return useQuery<EnrollmentStatus>({
+    queryKey: qk.enrollmentStatus(studentId),
+    queryFn: () =>
+      api<EnrollmentStatus>(`/api/v1/payments/enrollment/status/${studentId}`),
+    enabled,
   });
 }
 

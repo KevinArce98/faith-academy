@@ -60,6 +60,7 @@ export const ModelName = {
   FamilyMember: 'FamilyMember',
   MembershipPlan: 'MembershipPlan',
   MembershipOrder: 'MembershipOrder',
+  EnrollmentPayment: 'EnrollmentPayment',
   Class: 'Class',
   ClassSlot: 'ClassSlot',
   Attendance: 'Attendance',
@@ -206,6 +207,23 @@ export const MembershipOrderScalarFieldEnum = {
 } as const
 
 export type MembershipOrderScalarFieldEnum = (typeof MembershipOrderScalarFieldEnum)[keyof typeof MembershipOrderScalarFieldEnum]
+
+
+export const EnrollmentPaymentScalarFieldEnum = {
+  id: 'id',
+  studentId: 'studentId',
+  amount: 'amount',
+  status: 'status',
+  receiptUrl: 'receiptUrl',
+  startsAt: 'startsAt',
+  expiresAt: 'expiresAt',
+  approvedById: 'approvedById',
+  approvedAt: 'approvedAt',
+  notes: 'notes',
+  createdAt: 'createdAt'
+} as const
+
+export type EnrollmentPaymentScalarFieldEnum = (typeof EnrollmentPaymentScalarFieldEnum)[keyof typeof EnrollmentPaymentScalarFieldEnum]
 
 
 export const ClassScalarFieldEnum = {

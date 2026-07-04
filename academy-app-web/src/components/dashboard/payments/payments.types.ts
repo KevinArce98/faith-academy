@@ -4,6 +4,7 @@ export type Student = { id: string; name: string; email: string };
 
 export type Order = {
   id: string;
+  kind: 'PLAN' | 'ENROLLMENT';
   status: string;
   createdAt: Date | string;
   approvedAt: Date | string | null;
@@ -17,3 +18,11 @@ export type Order = {
 };
 
 export type TabKey = 'PENDING_REVIEW' | 'ACTIVE' | 'REJECTED' | 'ALL';
+
+// Estado de matrícula (pago anual, no confundir con EnrollData de clases mensuales).
+export type EnrollmentStatus = {
+  fee: number | null;
+  active: boolean;
+  pending: boolean;
+  expiresAt: string | null;
+};
