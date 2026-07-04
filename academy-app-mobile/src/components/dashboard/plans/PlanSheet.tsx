@@ -56,7 +56,11 @@ function PlanForm({ plan, onClose }: { plan: Plan | undefined; onClose: () => vo
       setError('El precio debe ser un número válido.');
       return;
     }
-    const classesPerWeek = form.unlimited ? 0 : parseInt(form.classesPerWeek || '0', 10);
+    const classesPerWeek = form.unlimited
+      ? 0
+      : form.isSingleClass
+        ? 1
+        : parseInt(form.classesPerWeek || '0', 10);
 
     saveMutation.mutate({
       name,
@@ -91,11 +95,11 @@ function PlanForm({ plan, onClose }: { plan: Plan | undefined; onClose: () => vo
           <Input
             label="Clases / semana"
             placeholder={form.unlimited ? 'Ilimitadas' : 'Ej. 2'}
-            value={form.classesPerWeek}
+            value={form.isSingleClass ? '1' : form.classesPerWeek}
             onChangeText={(classesPerWeek) => setForm((p) => ({ ...p, classesPerWeek }))}
             keyboardType="numeric"
-            editable={!form.unlimited}
-            className={form.unlimited ? 'bg-gray-50' : undefined}
+            editable={!form.unlimited && !form.isSingleClass}
+            className={form.unlimited || form.isSingleClass ? 'bg-gray-50' : undefined}
           />
         </View>
       </View>
