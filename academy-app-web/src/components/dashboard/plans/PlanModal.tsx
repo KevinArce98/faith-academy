@@ -59,10 +59,15 @@ export function PlanModal({ plan, onClose, onSuccess }: PlanModalProps) {
   });
 
   const unlimited = watch('unlimited');
+  const isSingleClass = watch('isSingleClass');
 
   useEffect(() => {
     if (unlimited) setValue('classesPerWeek', '');
   }, [unlimited, setValue]);
+
+  useEffect(() => {
+    if (isSingleClass) setValue('classesPerWeek', '1');
+  }, [isSingleClass, setValue]);
 
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -167,8 +172,14 @@ export function PlanModal({ plan, onClose, onSuccess }: PlanModalProps) {
                   min="0"
                   label="Clases por semana"
                   placeholder={unlimited ? 'Ilimitadas' : 'Ej. 2'}
-                  hint={unlimited ? 'Sin límite de clases' : 'Cuántas clases/semana incluye'}
-                  disabled={unlimited}
+                  hint={
+                    unlimited
+                      ? 'Sin límite de clases'
+                      : isSingleClass
+                        ? 'No aplica para plan de una sola clase'
+                        : 'Cuántas clases/semana incluye'
+                  }
+                  disabled={unlimited || isSingleClass}
                   error={fieldErrors.classesPerWeek?.message}
                   {...register('classesPerWeek')}
                 />
