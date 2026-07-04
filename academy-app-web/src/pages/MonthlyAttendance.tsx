@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Check, Loader2, Search, Users } from 'lucide-react';
+import { Check, Loader2, Lock, Search, Users } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 import { LEVEL_LABELS } from '@/components/dashboard/classes/classes.types';
@@ -28,7 +28,7 @@ type Subscription = {
   plan: Plan;
   student: StudentLite;
 };
-type AttendanceRecord = { studentId: string; classId: string };
+type AttendanceRecord = { studentId: string; classId: string; sessionDate: string | null };
 
 function currentMonth(): string {
   const now = new Date();
@@ -84,8 +84,8 @@ export default function MonthlyAttendance() {
     return m;
   }, [allEnrollData]);
 
-  const attendedSet = useMemo(
-    () => new Set((attendanceData?.records ?? []).map((r) => r.studentId)),
+  const attendanceByStudent = useMemo(
+    () => new Map((attendanceData?.records ?? []).map((r) => [r.studentId, r] as const)),
     [attendanceData]
   );
 
@@ -110,8 +110,13 @@ export default function MonthlyAttendance() {
     return plan.classesPerWeek === 0 ? '∞' : String(plan.classesPerWeek);
   }
 
-  async function toggle(studentId: string, present: boolean) {
-    if (!classId) return;
+  function formatSessionDate(iso: string): string {
+    const [y, m, d] = iso.slice(0, 10).split('-').map(Number);
+    return new Date(y, m - 1, d).toLocaleDateString('es-CR', { day: 'numeric', month: 'short' });
+  }
+
+  async function toggle(studentId: string, present: boolean, locked: boolean) {
+    if (!classId || locked) return;
     setSavingId(studentId);
     setError(null);
     try {
@@ -138,7 +143,7 @@ export default function MonthlyAttendance() {
         <h1 className="text-dark text-2xl font-bold md:text-3xl">Inscripciones del mes</h1>
         {classId && (
           <span className="bg-primary/10 text-primary inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-semibold">
-            <Users className="h-4 w-4" /> {attendedSet.size} inscritos
+            <Users className="h-4 w-4" /> {attendanceByStudent.size} inscritos
           </span>
         )}
       </div>
@@ -189,7 +194,9 @@ export default function MonthlyAttendance() {
           ) : (
             students.map((sub) => {
               const s = sub.student;
-              const present = attendedSet.has(s.id);
+              const record = attendanceByStudent.get(s.id);
+              const present = !!record;
+              const locked = !!record?.sessionDate;
               const saving = savingId === s.id;
               const enrolled = enrollCountByStudent.get(s.id) ?? 0;
               const cap = allowanceLabel(sub.plan);
@@ -198,12 +205,17 @@ export default function MonthlyAttendance() {
                   key={s.id}
                   type="button"
                   title={
-                    present ? 'Clic para quitar la inscripción' : 'Clic para inscribir en la clase'
+                    locked
+                      ? 'Reserva de clase suelta: no se puede cambiar'
+                      : present
+                        ? 'Clic para quitar la inscripción'
+                        : 'Clic para inscribir en la clase'
                   }
-                  onClick={() => toggle(s.id, present)}
-                  disabled={saving}
+                  onClick={() => toggle(s.id, present, locked)}
+                  disabled={saving || locked}
                   className={cn(
-                    'flex cursor-pointer items-center gap-3 rounded-xl border p-3 text-left transition-all hover:shadow-sm active:scale-[0.99] disabled:cursor-wait disabled:opacity-70',
+                    'flex items-center gap-3 rounded-xl border p-3 text-left transition-all disabled:cursor-wait',
+                    locked ? 'cursor-default' : 'cursor-pointer hover:shadow-sm active:scale-[0.99] disabled:opacity-70',
                     present
                       ? 'border-primary bg-primary/5 hover:bg-primary/10'
                       : 'border-gray-200 bg-white hover:border-primary/40 hover:bg-gray-50'
@@ -220,20 +232,30 @@ export default function MonthlyAttendance() {
                   <div className="min-w-0 flex-1">
                     <p className="text-dark truncate text-sm font-medium">{s.name}</p>
                     <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-gray-400">
-                      <span>{formatPrice(sub.amount)}</span>
-                      {sub.paidAt && (
+                      {locked ? (
+                        <span className="text-primary font-medium">
+                          Solo esta clase · {formatSessionDate(record.sessionDate!)}
+                        </span>
+                      ) : (
                         <>
+                          <span>{formatPrice(sub.amount)}</span>
+                          {sub.paidAt && (
+                            <>
+                              <span>·</span>
+                              <span>Pagó {formatPaidAt(sub.paidAt)}</span>
+                            </>
+                          )}
                           <span>·</span>
-                          <span>Pagó {formatPaidAt(sub.paidAt)}</span>
+                          <span>
+                            {enrolled} de {cap} clase{cap !== '1' ? 's' : ''}
+                          </span>
                         </>
                       )}
-                      <span>·</span>
-                      <span>
-                        {enrolled} de {cap} clase{cap !== '1' ? 's' : ''}
-                      </span>
                     </div>
                   </div>
-                  {saving ? (
+                  {locked ? (
+                    <Lock className="h-4 w-4 shrink-0 text-primary" />
+                  ) : saving ? (
                     <Loader2 className="text-primary h-5 w-5 shrink-0 animate-spin" />
                   ) : (
                     <div
