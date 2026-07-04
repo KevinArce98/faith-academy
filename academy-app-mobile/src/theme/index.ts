@@ -42,5 +42,3 @@ const tokens = require('./tokens') as {
 export const theme = tokens;
 export type Theme = typeof tokens;
 export default tokens;
-
-export const logoImage: number | null = null;
