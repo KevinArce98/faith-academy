@@ -122,12 +122,11 @@ export default function AppLayout() {
         }}
       />
 
-      {/* ── Más (ADMIN) ── */}
+      {/* ── Más (todos los roles: Mi Cuenta; el resto del menú es solo admin) ── */}
       <Tabs.Screen
         name="more"
         options={{
           title: 'Más',
-          href: admin ? undefined : null,
           tabBarIcon: tabIcon('grid'),
         }}
       />

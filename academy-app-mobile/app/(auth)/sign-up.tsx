@@ -3,10 +3,19 @@ import { useMutation } from '@tanstack/react-query';
 import { Link, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Linking,
+  Platform,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from 'react-native';
 
 import { VerificationCodeInput } from '@/components/auth/VerificationCodeInput';
 import { Button } from '@/components/ui/Button';
+import { Checkbox } from '@/components/ui/Checkbox';
 import { ErrorBanner } from '@/components/ui/ErrorBanner';
 import { Input } from '@/components/ui/Input';
 import { PasswordInput } from '@/components/ui/PasswordInput';
@@ -15,6 +24,11 @@ import { useAuth } from '@/lib/auth/useAuth';
 import { getErrorMessage } from '@/lib/errorMessages';
 import { type SignUpFormValues, type VerifyCodeFormValues, signUpSchema } from '@/lib/validations/auth';
 import { theme } from '@/theme';
+
+function openLegalUrl(url: string | null) {
+  if (!url) return;
+  Linking.openURL(url);
+}
 
 export default function SignUp() {
   const { verifyEmail } = useLocalSearchParams<{ verifyEmail?: string }>();
@@ -29,14 +43,19 @@ export default function SignUp() {
     formState: { errors },
   } = useForm<SignUpFormValues>({
     resolver: zodResolver(signUpSchema),
-    defaultValues: { name: '', email: '', password: '' },
+    defaultValues: { name: '', email: '', password: '', termsAccepted: false },
   });
 
   const signUpMutation = useMutation({
     mutationFn: async (form: SignUpFormValues) => {
       await api('/api/v1/auth/register', {
         method: 'POST',
-        body: JSON.stringify({ email: form.email, password: form.password, name: form.name }),
+        body: JSON.stringify({
+          email: form.email,
+          password: form.password,
+          name: form.name,
+          termsAccepted: form.termsAccepted,
+        }),
       });
       return form.email;
     },
@@ -150,6 +169,40 @@ export default function SignUp() {
                 value={value}
                 error={errors.password?.message}
               />
+            )}
+          />
+
+          <Controller
+            control={control}
+            name="termsAccepted"
+            render={({ field: { onChange, value } }) => (
+              <View className="gap-1">
+                <Pressable
+                  onPress={() => onChange(!value)}
+                  className="flex-row items-start gap-2"
+                >
+                  <Checkbox value={value} onValueChange={onChange} className="mt-0.5" />
+                  <Text className="flex-1 text-sm text-gray-500">
+                    Acepto los{' '}
+                    <Text
+                      className="text-primary font-medium"
+                      onPress={() => openLegalUrl(theme.legal.termsUrl)}
+                    >
+                      Términos y Condiciones
+                    </Text>{' '}
+                    y la{' '}
+                    <Text
+                      className="text-primary font-medium"
+                      onPress={() => openLegalUrl(theme.legal.privacyUrl)}
+                    >
+                      Política de Privacidad
+                    </Text>
+                  </Text>
+                </Pressable>
+                {errors.termsAccepted?.message && (
+                  <Text className="text-xs text-danger">{errors.termsAccepted.message}</Text>
+                )}
+              </View>
             )}
           />
 

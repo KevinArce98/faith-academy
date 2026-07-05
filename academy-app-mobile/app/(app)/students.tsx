@@ -105,7 +105,7 @@ function StudentRow({ student: s, onPress }: { student: Student; onPress: () => 
     <Pressable onPress={onPress}>
       <Card className={cn(!s.isActive && 'opacity-60')}>
         <View className="flex-row items-center gap-3">
-          <Avatar name={s.name ?? s.email} />
+          <Avatar name={s.name ?? s.email} uri={s.avatarUrl} />
           <View className="flex-1 min-w-0">
             <View className="flex-row items-center gap-2">
               <Text className="font-semibold text-dark" numberOfLines={1}>{s.name ?? '—'}</Text>

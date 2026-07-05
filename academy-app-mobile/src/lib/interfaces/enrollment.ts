@@ -13,5 +13,5 @@ export type SubscriptionWithStudent = {
   studentId: string;
   isPaid: boolean;
   amount: number;
-  student: { id: string; name: string; email: string };
+  student: { id: string; name: string; avatarUrl?: string | null; email: string };
 };
