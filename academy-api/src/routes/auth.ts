@@ -231,8 +231,9 @@ authRoutes.post('/me/avatar-upload-url', authMiddleware, async (c) => {
 
 	const command = new PutObjectCommand({ Bucket: R2_BUCKET, Key: key });
 	const uploadUrl = await getSignedUrl(getR2(), command, { expiresIn: R2_UPLOAD_EXPIRES_IN });
+	const publicUrl = `${process.env.CLOUDFLARE_R2_PUBLIC_URL}/${key}`;
 
-	return c.json({ uploadUrl, key });
+	return c.json({ uploadUrl, key, publicUrl });
 });
 
 // POST /auth/me/change-password — requiere la contraseña actual.
