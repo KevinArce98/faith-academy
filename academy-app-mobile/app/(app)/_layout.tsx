@@ -137,6 +137,8 @@ export default function AppLayout() {
       <Tabs.Screen name="monthly-attendance" options={{ href: null }} />
       <Tabs.Screen name="notifications" options={{ href: null }} />
       <Tabs.Screen name="student-history" options={{ href: null }} />
+      {/* Mi Cuenta: accesible desde "Más" y el avatar del home, no como tab propio. */}
+      <Tabs.Screen name="account" options={{ href: null }} />
     </Tabs>
   );
 }

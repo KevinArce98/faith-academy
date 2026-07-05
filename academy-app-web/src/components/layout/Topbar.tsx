@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Bell, Menu, X } from 'lucide-react';
 import { useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 import { Button } from '@/components/ui/Button';
 import { Spinner } from '@/components/ui/Spinner';
@@ -24,7 +24,7 @@ const ROUTE_LABELS: Record<string, string> = {
   'my-classes': 'Mis Clases',
   payouts: 'Pago a profes',
   plans: 'Planes',
-  settings: 'Configuración',
+  account: 'Mi Cuenta',
   'video-library': 'Biblioteca de Videos',
   reports: 'Reportes',
 };
@@ -141,14 +141,16 @@ export function Topbar({ userInitials, userAvatarUrl, onMenuClick }: TopbarProps
           )}
         </Button>
 
-        {/* Avatar */}
-        {userAvatarUrl ? (
-          <img src={userAvatarUrl} alt="" className="h-8 w-8 rounded-full object-cover" />
-        ) : (
-          <div className="bg-primary flex h-8 w-8 items-center justify-center rounded-full">
-            <span className="text-xs font-bold text-white">{userInitials}</span>
-          </div>
-        )}
+        {/* Avatar → Mi Cuenta */}
+        <Link to="/account" title="Mi Cuenta" className="shrink-0 active:scale-95">
+          {userAvatarUrl ? (
+            <img src={userAvatarUrl} alt="" className="h-8 w-8 rounded-full object-cover" />
+          ) : (
+            <div className="bg-primary flex h-8 w-8 items-center justify-center rounded-full">
+              <span className="text-xs font-bold text-white">{userInitials}</span>
+            </div>
+          )}
+        </Link>
       </header>
 
       {/* ── Notification Drawer ──────────────────────── */}

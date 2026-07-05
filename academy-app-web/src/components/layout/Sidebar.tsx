@@ -12,7 +12,6 @@ import {
   PlayCircle,
   Tag,
   UserCheck,
-  UserCircle,
   Users,
   X,
 } from 'lucide-react';
@@ -79,7 +78,6 @@ function getBaseNavItems(role: Role): NavItem[] {
   }
 
   items.push({ href: '/plans', icon: Tag, label: 'Planes' });
-  items.push({ href: '/account', icon: UserCircle, label: 'Mi Cuenta' });
 
   return items;
 }
@@ -178,27 +176,34 @@ export function Sidebar({ user, onClose }: SidebarProps) {
 
       {/* ── User ──────────────────────────────────── */}
       <div className="flex items-center gap-3 border-t border-white/10 px-4 py-4">
-        {user.avatarUrl ? (
-          <img
-            src={user.avatarUrl}
-            alt={user.name}
-            className="h-9 w-9 shrink-0 rounded-full object-cover"
-          />
-        ) : (
-          <div className="bg-primary flex h-9 w-9 shrink-0 items-center justify-center rounded-full">
-            <span className="text-sm font-bold text-white">{user.initials}</span>
+        <NavLink
+          to="/account"
+          onClick={onClose}
+          title="Mi Cuenta"
+          className="flex min-w-0 flex-1 items-center gap-3 rounded-lg -mx-1 px-1 py-1 hover:bg-white/5"
+        >
+          {user.avatarUrl ? (
+            <img
+              src={user.avatarUrl}
+              alt={user.name}
+              className="h-9 w-9 shrink-0 rounded-full object-cover"
+            />
+          ) : (
+            <div className="bg-primary flex h-9 w-9 shrink-0 items-center justify-center rounded-full">
+              <span className="text-sm font-bold text-white">{user.initials}</span>
+            </div>
+          )}
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-semibold text-white">{user.name}</p>
+            <p className="truncate text-xs text-white/40 capitalize">
+              {user.role === 'ADMIN'
+                ? 'Administrador'
+                : user.role === 'TEACHER'
+                  ? 'Profesor'
+                  : 'Alumno'}
+            </p>
           </div>
-        )}
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-semibold text-white">{user.name}</p>
-          <p className="truncate text-xs text-white/40 capitalize">
-            {user.role === 'ADMIN'
-              ? 'Administrador'
-              : user.role === 'TEACHER'
-                ? 'Profesor'
-                : 'Alumno'}
-          </p>
-        </div>
+        </NavLink>
         <Button
           variant="text"
           color="neutral"
