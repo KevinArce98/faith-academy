@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { HelpCircle, Mail, MessageCircle, ShieldCheck, User } from 'lucide-react';
+import { Check, HelpCircle, Mail, MessageCircle, ShieldCheck, User } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -8,7 +8,7 @@ import { VerificationCodeForm } from '@/components/auth/VerificationCodeForm';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { PasswordInput } from '@/components/ui/PasswordInput';
-import { InlineSpinner } from '@/components/ui/Spinner';
+import { InlineSpinner, Spinner } from '@/components/ui/Spinner';
 import { useApiClient } from '@/lib/api';
 import { useAuth } from '@/lib/auth/useAuth';
 import { cn } from '@/lib/cn';
@@ -49,6 +49,7 @@ export default function Account() {
   const [emailError, setEmailError] = useState<string | null>(null);
   const [avatarError, setAvatarError] = useState<string | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [avatarSuccess, setAvatarSuccess] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -121,6 +122,7 @@ export default function Account() {
     }
 
     setAvatarError(null);
+    setAvatarSuccess(false);
     setUploadingAvatar(true);
     try {
       const blob = await resizeImageToSquare(file);
@@ -129,6 +131,8 @@ export default function Account() {
 
       await api('/api/v1/auth/me/avatar', { method: 'POST', body: formData });
       await invalidateMe();
+      setAvatarSuccess(true);
+      setTimeout(() => setAvatarSuccess(false), 3000);
     } catch (err) {
       setAvatarError(getErrorMessage(err, 'No se pudo subir la foto.'));
     } finally {
@@ -219,8 +223,13 @@ export default function Account() {
                 </span>
               </div>
             )}
-            <div className="bg-dark/50 absolute inset-0 flex items-center justify-center rounded-full text-[10px] font-semibold text-white opacity-0 transition-opacity group-hover:opacity-100">
-              {uploadingAvatar ? '...' : 'Cambiar'}
+            <div
+              className={cn(
+                'bg-dark/50 absolute inset-0 flex items-center justify-center rounded-full text-[10px] font-semibold text-white transition-opacity',
+                uploadingAvatar ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+              )}
+            >
+              {uploadingAvatar ? <Spinner size="sm" className="border-white/40 border-t-white" /> : 'Cambiar'}
             </div>
           </button>
           <input
@@ -237,6 +246,11 @@ export default function Account() {
         </div>
 
         {avatarError && <p className="text-danger mb-3 text-xs">{avatarError}</p>}
+        {avatarSuccess && (
+          <p className="text-success mb-3 flex items-center gap-1 text-xs">
+            <Check className="h-3.5 w-3.5" /> Foto actualizada.
+          </p>
+        )}
 
         <div className="grid gap-4 sm:grid-cols-2">
           <Input label="Nombre" value={name} onChange={(e) => setName(e.target.value)} />
