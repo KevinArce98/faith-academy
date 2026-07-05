@@ -7,11 +7,13 @@ import { useNavigate } from 'react-router-dom';
 
 import { VerificationCodeForm } from '@/components/auth/VerificationCodeForm';
 import { Button } from '@/components/ui/Button';
+import { Checkbox } from '@/components/ui/Checkbox';
 import { Input } from '@/components/ui/Input';
 import { PasswordInput } from '@/components/ui/PasswordInput';
 import { Spinner } from '@/components/ui/Spinner';
 import { useApiClient } from '@/lib/api';
 import { useAuth } from '@/lib/auth/useAuth';
+import studioConfig from '@/lib/config/studio.config';
 import { getErrorMessage } from '@/lib/errorMessages';
 import {
   type SignUpFormValues,
@@ -32,7 +34,7 @@ export default function SignUp() {
     formState: { errors },
   } = useForm<SignUpFormValues>({
     resolver: zodResolver(signUpSchema),
-    defaultValues: { name: '', email: '', password: '' },
+    defaultValues: { name: '', email: '', password: '', termsAccepted: false },
   });
 
   useEffect(() => {
@@ -43,7 +45,12 @@ export default function SignUp() {
     mutationFn: async (form: SignUpFormValues) => {
       await api('/api/v1/auth/register', {
         method: 'POST',
-        body: JSON.stringify({ email: form.email, password: form.password, name: form.name }),
+        body: JSON.stringify({
+          email: form.email,
+          password: form.password,
+          name: form.name,
+          termsAccepted: form.termsAccepted,
+        }),
       });
       return { email: form.email };
     },
@@ -138,6 +145,43 @@ export default function SignUp() {
           error={errors.password?.message}
           {...register('password')}
         />
+
+        <div className="flex flex-col gap-1">
+          <label className="flex cursor-pointer items-start gap-2 text-sm text-gray-500">
+            <Checkbox className="mt-0.5" {...register('termsAccepted')} />
+            <span>
+              Acepto los{' '}
+              {studioConfig.legal.termsUrl ? (
+                <a
+                  href={studioConfig.legal.termsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline"
+                >
+                  Términos y Condiciones
+                </a>
+              ) : (
+                'Términos y Condiciones'
+              )}{' '}
+              y la{' '}
+              {studioConfig.legal.privacyUrl ? (
+                <a
+                  href={studioConfig.legal.privacyUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline"
+                >
+                  Política de Privacidad
+                </a>
+              ) : (
+                'Política de Privacidad'
+              )}
+            </span>
+          </label>
+          {errors.termsAccepted?.message && (
+            <p className="text-danger text-xs">{errors.termsAccepted.message}</p>
+          )}
+        </div>
 
         <Button
           type="submit"

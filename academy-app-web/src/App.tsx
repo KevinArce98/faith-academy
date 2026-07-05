@@ -24,7 +24,7 @@ const Payments = lazy(() => import('@/pages/Payments'));
 const Plans = lazy(() => import('@/pages/Plans'));
 const Reports = lazy(() => import('@/pages/Reports'));
 const VideoLibrary = lazy(() => import('@/pages/VideoLibrary'));
-const Settings = lazy(() => import('@/pages/Settings'));
+const Account = lazy(() => import('@/pages/Account'));
 
 export default function App() {
   return (
@@ -55,7 +55,7 @@ export default function App() {
             <Route path="/plans" element={<Plans />} />
             <Route path="/reports" element={<Reports />} />
             <Route path="/video-library" element={<VideoLibrary />} />
-            <Route path="/settings" element={<Settings />} />
+            <Route path="/account" element={<Account />} />
           </Route>
 
           {/* ── Fallback ─────────────────────────────────────── */}

@@ -8,7 +8,7 @@ import { Sidebar } from './Sidebar';
 import { Topbar } from './Topbar';
 
 type DashboardShellProps = {
-  user: { name: string; role: Role; initials: string };
+  user: { name: string; role: Role; initials: string; avatarUrl?: string | null };
   children: React.ReactNode;
 };
 
@@ -52,7 +52,11 @@ export function DashboardShell({ user, children }: DashboardShellProps) {
       </AnimatePresence>
 
       {/* Topbar */}
-      <Topbar userInitials={user.initials} onMenuClick={() => setSidebarOpen(true)} />
+      <Topbar
+        userInitials={user.initials}
+        userAvatarUrl={user.avatarUrl}
+        onMenuClick={() => setSidebarOpen(true)}
+      />
 
       {/* Main content */}
       <main className="min-h-screen pt-14 md:ml-65">

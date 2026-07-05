@@ -1,6 +1,6 @@
 export type Plan = { id: string; name: string; price: number };
 
-export type Student = { id: string; name: string; email: string };
+export type Student = { id: string; name: string; avatarUrl?: string | null; email: string };
 
 export type Order = {
   id: string;

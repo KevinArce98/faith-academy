@@ -24,6 +24,7 @@ export function isSubscriptionExpired(sub: Subscription | null): boolean {
 export type Student = {
   id: string;
   name: string;
+  avatarUrl?: string | null;
   email: string;
   phone?: string;
   role: string;

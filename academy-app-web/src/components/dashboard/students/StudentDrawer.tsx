@@ -89,9 +89,17 @@ export function StudentDrawer({ student, onClose }: { student: Student; onClose:
 
       {/* Avatar + info */}
       <div className="flex flex-col items-center gap-2 border-b border-gray-50 px-6 pt-4 pb-5">
-        <div className="bg-primary flex h-16 w-16 items-center justify-center rounded-full">
-          <span className="text-xl font-bold text-white">{getInitials(student.name)}</span>
-        </div>
+        {student.avatarUrl ? (
+          <img
+            src={student.avatarUrl}
+            alt={student.name}
+            className="h-16 w-16 rounded-full object-cover"
+          />
+        ) : (
+          <div className="bg-primary flex h-16 w-16 items-center justify-center rounded-full">
+            <span className="text-xl font-bold text-white">{getInitials(student.name)}</span>
+          </div>
+        )}
         <h3 className="text-dark text-lg font-bold">{student.name}</h3>
         <p className="text-sm text-gray-400">{student.email}</p>
         {student.isActive ? (

@@ -49,6 +49,14 @@ export type StudioConfig = {
     keywords?: string[];
     openGraph?: OpenGraphMetadata;
   };
+  legal: {
+    privacyUrl?: string;
+    termsUrl?: string;
+  };
+  support: {
+    email?: string;
+    whatsapp?: string;
+  };
 };
 
 const studioConfig: StudioConfig = {
@@ -91,6 +99,14 @@ const studioConfig: StudioConfig = {
     title: 'StudioFlow Academy',
     description: 'Plataforma de gestión para estudios de danza y artes escénicas.',
     keywords: ['academia', 'danza', 'clases', 'studio'],
+  },
+  legal: {
+    privacyUrl: undefined,
+    termsUrl: undefined,
+  },
+  support: {
+    email: undefined,
+    whatsapp: undefined,
   },
 };
 
