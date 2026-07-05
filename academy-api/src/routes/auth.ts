@@ -236,6 +236,74 @@ authRoutes.post('/me/avatar-upload-url', authMiddleware, async (c) => {
 	return c.json({ uploadUrl, key, publicUrl });
 });
 
+const AVATAR_ALLOWED_EXTS = new Set(['jpg', 'jpeg', 'png', 'webp']);
+const AVATAR_MAX_BYTES = 5 * 1024 * 1024;
+
+// POST /auth/me/avatar — subida directa (multipart) vía la API, sube a R2, borra
+// el avatar viejo y actualiza avatarUrl en un solo request. El navegador no
+// puede hacer PUT directo a R2 (CORS no configurado en el bucket para eso, y
+// mobile no tiene ese problema porque no aplica CORS) — este endpoint evita
+// necesitar tocar la config de R2, mismo patrón que /payments/upload.
+authRoutes.post('/me/avatar', authMiddleware, async (c) => {
+	const user = await getCurrentUser(c);
+	if (!user) return c.json({ error: 'UNAUTHENTICATED' }, 401);
+
+	if (!R2_BUCKET || !process.env.CLOUDFLARE_R2_ENDPOINT) {
+		return c.json({ error: 'R2_NOT_CONFIGURED' }, 500);
+	}
+
+	let formData: FormData;
+	try {
+		formData = await c.req.formData();
+	} catch {
+		return c.json({ error: 'INVALID_REQUEST' }, 400);
+	}
+
+	const file = formData.get('file');
+	if (!(file instanceof File)) {
+		return c.json({ error: 'FILE_REQUIRED' }, 422);
+	}
+
+	if (file.size > AVATAR_MAX_BYTES) {
+		return c.json({ error: 'FILE_TOO_LARGE' }, 413);
+	}
+
+	const ext = file.name.split('.').pop()?.toLowerCase() ?? '';
+	if (!AVATAR_ALLOWED_EXTS.has(ext)) {
+		return c.json({ error: 'INVALID_FILE_TYPE' }, 422);
+	}
+
+	const key = `avatars/${user.id}/${Date.now()}.${ext}`;
+	const buffer = Buffer.from(await file.arrayBuffer());
+
+	await getR2().send(
+		new PutObjectCommand({
+			Bucket: R2_BUCKET,
+			Key: key,
+			Body: buffer,
+			ContentType: file.type,
+		}),
+	);
+
+	const publicUrl = `${process.env.CLOUDFLARE_R2_PUBLIC_URL}/${key}`;
+
+	// Borrar el avatar viejo de R2 (best-effort, no bloquea la respuesta).
+	const oldUrl = user.avatarUrl;
+	if (oldUrl?.startsWith(`${process.env.CLOUDFLARE_R2_PUBLIC_URL}/`)) {
+		const oldKey = oldUrl.slice(`${process.env.CLOUDFLARE_R2_PUBLIC_URL}/`.length);
+		await getR2()
+			.send(new DeleteObjectCommand({ Bucket: R2_BUCKET, Key: oldKey }))
+			.catch(() => null);
+	}
+
+	const updated = await db.userProfile.update({
+		where: { id: user.id },
+		data: { avatarUrl: publicUrl },
+	});
+
+	return c.json({ avatarUrl: updated.avatarUrl });
+});
+
 // POST /auth/me/change-password — requiere la contraseña actual.
 authRoutes.post('/me/change-password', authMiddleware, async (c) => {
 	const user = await getCurrentUser(c);

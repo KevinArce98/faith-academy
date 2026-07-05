@@ -124,24 +124,10 @@ export default function Account() {
     setUploadingAvatar(true);
     try {
       const blob = await resizeImageToSquare(file);
-      const ext = 'jpg';
-      const { uploadUrl, publicUrl } = await api<{
-        uploadUrl: string;
-        key: string;
-        publicUrl: string;
-      }>('/api/v1/auth/me/avatar-upload-url', { method: 'POST', body: JSON.stringify({ ext }) });
+      const formData = new FormData();
+      formData.append('file', blob, 'avatar.jpg');
 
-      const putRes = await fetch(uploadUrl, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'image/jpeg' },
-        body: blob,
-      });
-      if (!putRes.ok) throw new Error('Error al subir la imagen.');
-
-      await api('/api/v1/auth/me', {
-        method: 'PATCH',
-        body: JSON.stringify({ avatarUrl: publicUrl }),
-      });
+      await api('/api/v1/auth/me/avatar', { method: 'POST', body: formData });
       await invalidateMe();
     } catch (err) {
       setAvatarError(getErrorMessage(err, 'No se pudo subir la foto.'));
