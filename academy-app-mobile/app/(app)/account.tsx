@@ -3,7 +3,7 @@ import * as FileSystem from 'expo-file-system/legacy';
 import * as ImageManipulator from 'expo-image-manipulator';
 import * as ImagePicker from 'expo-image-picker';
 import { useEffect, useState } from 'react';
-import { Linking, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Linking, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { VerificationCodeInput } from '@/components/auth/VerificationCodeInput';
@@ -15,13 +15,23 @@ import { Input } from '@/components/ui/Input';
 import { PasswordInput } from '@/components/ui/PasswordInput';
 import { InlineSpinner } from '@/components/ui/Spinner';
 import { Switch } from '@/components/ui/Switch';
-import { useApiClient } from '@/lib/api';
+import { apiUrl, MOBILE_HEADERS, refreshAccessToken, useApiClient } from '@/lib/api';
 import { useAuth } from '@/lib/auth/useAuth';
 import { getErrorMessage } from '@/lib/errorMessages';
 import type { VerifyCodeFormValues } from '@/lib/validations/auth';
 import { useMe } from '@/lib/queries';
 import { qk } from '@/lib/queryKeys';
 import { theme } from '@/theme';
+
+function parseError(body: string): string | null {
+  try {
+    const parsed = JSON.parse(body);
+    if (typeof parsed?.error === 'string') return parsed.error;
+  } catch {
+    // body no es JSON
+  }
+  return null;
+}
 
 function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -35,7 +45,7 @@ function SectionCard({ title, children }: { title: string; children: React.React
 export default function AccountScreen() {
   const api = useApiClient();
   const queryClient = useQueryClient();
-  const { setToken } = useAuth();
+  const { getToken, setToken } = useAuth();
   const { data: me, isLoading } = useMe();
 
   const [name, setName] = useState('');
@@ -47,6 +57,7 @@ export default function AccountScreen() {
   const [profileSuccess, setProfileSuccess] = useState(false);
   const [emailError, setEmailError] = useState<string | null>(null);
   const [avatarError, setAvatarError] = useState<string | null>(null);
+  const [avatarSuccess, setAvatarSuccess] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
   useEffect(() => {
@@ -115,6 +126,7 @@ export default function AccountScreen() {
 
   async function handlePickAvatar() {
     setAvatarError(null);
+    setAvatarSuccess(false);
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!perm.granted) {
       setAvatarError('Necesitamos permiso para acceder a tus fotos.');
@@ -142,26 +154,37 @@ export default function AccountScreen() {
         { compress: 0.8, format: ImageManipulator.SaveFormat.JPEG },
       );
 
-      const { uploadUrl, publicUrl } = await api<{
-        uploadUrl: string;
-        key: string;
-        publicUrl: string;
-      }>('/api/v1/auth/me/avatar-upload-url', { method: 'POST', body: JSON.stringify({ ext: 'jpg' }) });
+      // Misma ruta que payments: sube vía la API (multipart), no directo a R2.
+      // El navegador necesitaría CORS configurado en el bucket para un PUT
+      // directo; mobile no tiene ese problema pero usamos el mismo endpoint
+      // para no mantener dos flujos de subida distintos.
+      const send = (token: string | null) =>
+        FileSystem.uploadAsync(apiUrl('/api/v1/auth/me/avatar'), manipulated.uri, {
+          httpMethod: 'POST',
+          uploadType: FileSystem.FileSystemUploadType.MULTIPART,
+          fieldName: 'file',
+          mimeType: 'image/jpeg',
+          headers: {
+            ...MOBILE_HEADERS,
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+        });
 
-      const res = await FileSystem.uploadAsync(uploadUrl, manipulated.uri, {
-        httpMethod: 'PUT',
-        uploadType: FileSystem.FileSystemUploadType.BINARY_CONTENT,
-        headers: { 'Content-Type': 'image/jpeg' },
-      });
+      let res = await send(getToken());
+      if (res.status === 401) {
+        const refreshed = await refreshAccessToken();
+        if (refreshed) {
+          setToken(refreshed.token, refreshed.refreshToken);
+          res = await send(refreshed.token);
+        }
+      }
       if (res.status < 200 || res.status >= 300) {
-        throw new Error('No se pudo subir la imagen.');
+        throw new Error(parseError(res.body) ?? 'No se pudo subir la foto.');
       }
 
-      await api('/api/v1/auth/me', {
-        method: 'PATCH',
-        body: JSON.stringify({ avatarUrl: publicUrl }),
-      });
       await invalidateMe();
+      setAvatarSuccess(true);
+      setTimeout(() => setAvatarSuccess(false), 3000);
     } catch (err) {
       setAvatarError(getErrorMessage(err, 'No se pudo subir la foto.'));
     } finally {
@@ -244,8 +267,13 @@ export default function AccountScreen() {
 
         <SectionCard title="Perfil">
           <View className="flex-row items-center gap-4">
-            <Pressable onPress={handlePickAvatar} disabled={uploadingAvatar}>
+            <Pressable onPress={handlePickAvatar} disabled={uploadingAvatar} className="relative">
               <Avatar name={me.name ?? me.email} uri={me.avatarUrl} size="lg" />
+              {uploadingAvatar && (
+                <View className="absolute inset-0 items-center justify-center rounded-full bg-dark/50">
+                  <ActivityIndicator color="#fff" size="small" />
+                </View>
+              )}
             </Pressable>
             <View className="flex-1">
               <Text className="text-sm font-semibold text-dark">{me.name}</Text>
@@ -258,7 +286,8 @@ export default function AccountScreen() {
             </View>
           </View>
 
-          {avatarError && <Text className="text-xs text-danger">{avatarError}</Text>}
+          {avatarError && <ErrorBanner message={avatarError} />}
+          {avatarSuccess && <SuccessBanner message="Foto actualizada." />}
 
           <Input label="Nombre" value={name} onChangeText={setName} />
           <Input label="Teléfono" value={phone} onChangeText={setPhone} keyboardType="phone-pad" />

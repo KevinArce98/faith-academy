@@ -1,5 +1,4 @@
 import { DeleteObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { type Context, Hono } from 'hono';
 import { getCookie } from 'hono/cookie';
 import { z } from 'zod';
@@ -16,7 +15,7 @@ import {
 	sendPasswordResetEmail,
 	sendVerificationEmail,
 } from '../lib/mailer.js';
-import { getR2, R2_BUCKET, R2_UPLOAD_EXPIRES_IN } from '../lib/r2.js';
+import { getR2, R2_BUCKET } from '../lib/r2.js';
 import {
 	issueRefreshToken,
 	revokeAllForUser,
@@ -76,16 +75,11 @@ const forgotPasswordSchema = z.object({
 const updateMeSchema = z.object({
 	name: z.string().min(1, 'El nombre es requerido').optional(),
 	phone: z.string().nullish(),
-	avatarUrl: z.string().nullish(),
 	notificationsEnabled: z.boolean().optional(),
 });
 
 const updateEmailSchema = z.object({
 	email: z.email('Email inválido'),
-});
-
-const avatarUploadUrlSchema = z.object({
-	ext: z.enum(['jpg', 'jpeg', 'png', 'webp']),
 });
 
 const changePasswordSchema = z.object({
@@ -123,7 +117,8 @@ authRoutes.get('/me', authMiddleware, async (c) => {
 	});
 });
 
-// PATCH /auth/me — el usuario edita su propio perfil (nombre, teléfono, avatar, notificaciones).
+// PATCH /auth/me — el usuario edita su propio perfil (nombre, teléfono, notificaciones).
+// El avatar tiene su propio endpoint (POST /me/avatar), no se setea acá.
 authRoutes.patch('/me', authMiddleware, async (c) => {
 	const user = await getCurrentUser(c);
 	if (!user) return c.json({ error: 'UNAUTHENTICATED' }, 401);
@@ -134,25 +129,13 @@ authRoutes.patch('/me', authMiddleware, async (c) => {
 		return c.json({ error: 'BAD_REQUEST', details: parsed.error.flatten() }, 400);
 	}
 
-	const { name, phone, avatarUrl, notificationsEnabled } = parsed.data;
-
-	// Si cambia el avatar y había uno previo en R2, borrar el objeto viejo (best-effort).
-	if (avatarUrl !== undefined && user.avatarUrl && user.avatarUrl !== avatarUrl) {
-		const publicUrl = process.env.CLOUDFLARE_R2_PUBLIC_URL;
-		if (publicUrl && user.avatarUrl.startsWith(`${publicUrl}/`)) {
-			const oldKey = user.avatarUrl.slice(publicUrl.length + 1);
-			await getR2()
-				.send(new DeleteObjectCommand({ Bucket: R2_BUCKET, Key: oldKey }))
-				.catch(() => null);
-		}
-	}
+	const { name, phone, notificationsEnabled } = parsed.data;
 
 	const updated = await db.userProfile.update({
 		where: { id: user.id },
 		data: {
 			...(name !== undefined ? { name } : {}),
 			...(phone !== undefined ? { phone } : {}),
-			...(avatarUrl !== undefined ? { avatarUrl } : {}),
 			...(notificationsEnabled !== undefined ? { notificationsEnabled } : {}),
 		},
 	});
@@ -209,31 +192,6 @@ authRoutes.patch('/me/email', authMiddleware, async (c) => {
 	await sendVerificationEmail(email, code).catch(() => null);
 
 	return c.json({ success: true, emailVerified: false });
-});
-
-// POST /auth/me/avatar-upload-url — URL firmada para subir la foto de perfil directo a R2.
-authRoutes.post('/me/avatar-upload-url', authMiddleware, async (c) => {
-	const user = await getCurrentUser(c);
-	if (!user) return c.json({ error: 'UNAUTHENTICATED' }, 401);
-
-	const body = await c.req.json().catch(() => null);
-	const parsed = avatarUploadUrlSchema.safeParse(body);
-	if (!parsed.success) {
-		return c.json({ error: 'BAD_REQUEST', details: parsed.error.flatten() }, 400);
-	}
-
-	if (!R2_BUCKET || !process.env.CLOUDFLARE_R2_ENDPOINT) {
-		return c.json({ error: 'R2_NOT_CONFIGURED' }, 500);
-	}
-
-	const { ext } = parsed.data;
-	const key = `avatars/${user.id}/${Date.now()}.${ext}`;
-
-	const command = new PutObjectCommand({ Bucket: R2_BUCKET, Key: key });
-	const uploadUrl = await getSignedUrl(getR2(), command, { expiresIn: R2_UPLOAD_EXPIRES_IN });
-	const publicUrl = `${process.env.CLOUDFLARE_R2_PUBLIC_URL}/${key}`;
-
-	return c.json({ uploadUrl, key, publicUrl });
 });
 
 const AVATAR_ALLOWED_EXTS = new Set(['jpg', 'jpeg', 'png', 'webp']);
