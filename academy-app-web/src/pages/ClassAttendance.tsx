@@ -20,7 +20,7 @@ type Cls = {
   slots: Slot[];
   oneOffDate?: string | null; // "YYYY-MM-DD" si es clase única
 };
-type RosterStudent = { id: string; name: string };
+type RosterStudent = { id: string; name: string; avatarUrl?: string | null };
 
 function today(): string {
   const d = new Date();
@@ -162,14 +162,22 @@ export default function ClassAttendance() {
                     : 'border-gray-200 bg-white hover:border-primary/40 hover:bg-gray-50'
                 )}
               >
-                <div
-                  className={cn(
-                    'flex h-9 w-9 shrink-0 items-center justify-center rounded-full',
-                    present ? 'bg-primary' : 'bg-dark'
-                  )}
-                >
-                  <span className="text-xs font-bold text-white">{getInitials(s.name)}</span>
-                </div>
+                {s.avatarUrl ? (
+                  <img
+                    src={s.avatarUrl}
+                    alt={s.name}
+                    className="h-9 w-9 shrink-0 rounded-full object-cover"
+                  />
+                ) : (
+                  <div
+                    className={cn(
+                      'flex h-9 w-9 shrink-0 items-center justify-center rounded-full',
+                      present ? 'bg-primary' : 'bg-dark'
+                    )}
+                  >
+                    <span className="text-xs font-bold text-white">{getInitials(s.name)}</span>
+                  </div>
+                )}
                 <div className="min-w-0 flex-1">
                   <p className="text-dark truncate text-sm font-medium">{s.name}</p>
                 </div>

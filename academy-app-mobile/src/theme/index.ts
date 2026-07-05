@@ -37,6 +37,14 @@ const tokens = require('./tokens') as {
     black: string;
     files: string[];
   };
+  legal: {
+    privacyUrl: string | null;
+    termsUrl: string | null;
+  };
+  support: {
+    email: string | null;
+    whatsapp: string | null;
+  };
 };
 
 export const theme = tokens;

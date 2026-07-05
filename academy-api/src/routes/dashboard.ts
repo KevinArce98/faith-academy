@@ -194,6 +194,7 @@ dashboardRoutes.get('/admin', requireRole('ADMIN'), async (c) => {
 			select: {
 				id: true,
 				name: true,
+				avatarUrl: true,
 				email: true,
 				subscriptions: {
 					orderBy: { period: 'desc' },
@@ -233,6 +234,7 @@ dashboardRoutes.get('/admin', requireRole('ADMIN'), async (c) => {
 		subscriptionId: string | null;
 		studentId: string;
 		studentName: string;
+		studentAvatarUrl: string | null;
 		studentEmail: string;
 		planId: string;
 		planName: string;
@@ -255,6 +257,7 @@ dashboardRoutes.get('/admin', requireRole('ADMIN'), async (c) => {
 				subscriptionId: currentSub.id,
 				studentId: s.id,
 				studentName: s.name ?? '',
+				studentAvatarUrl: s.avatarUrl,
 				studentEmail: s.email,
 				planId: currentSub.planId,
 				planName: currentSub.plan?.name ?? '',
@@ -273,6 +276,7 @@ dashboardRoutes.get('/admin', requireRole('ADMIN'), async (c) => {
 				subscriptionId: null,
 				studentId: s.id,
 				studentName: s.name ?? '',
+				studentAvatarUrl: s.avatarUrl,
 				studentEmail: s.email,
 				planId: lastPaid.planId,
 				planName: lastPaid.plan?.name ?? '',
@@ -296,6 +300,7 @@ dashboardRoutes.get('/admin', requireRole('ADMIN'), async (c) => {
 		newStudents: newStudents.map((s) => ({
 			id: s.id,
 			name: s.name,
+			avatarUrl: s.avatarUrl,
 			email: s.email,
 			createdAt: s.createdAt.toISOString(),
 			planName: s.subscriptions[0]?.plan?.name ?? null,

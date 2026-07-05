@@ -175,7 +175,7 @@ monthlyAttendanceRoutes.get(
 				...(studentId ? { studentId } : {}),
 			},
 			include: {
-				student: { select: { id: true, name: true } },
+				student: { select: { id: true, name: true, avatarUrl: true } },
 				class: { select: { id: true, name: true, teacherId: true } },
 			},
 		});

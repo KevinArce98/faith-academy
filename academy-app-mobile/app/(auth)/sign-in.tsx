@@ -3,7 +3,16 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import {
+  Image,
+  KeyboardAvoidingView,
+  Linking,
+  Platform,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from 'react-native';
 
 import { Button } from '@/components/ui/Button';
 import { ErrorBanner } from '@/components/ui/ErrorBanner';
@@ -139,6 +148,24 @@ export default function SignIn() {
             </Pressable>
           </Link>
         </View>
+
+        {(theme.legal.termsUrl || theme.legal.privacyUrl) && (
+          <View className="mt-4 flex-row justify-center gap-2">
+            {theme.legal.termsUrl && (
+              <Pressable onPress={() => Linking.openURL(theme.legal.termsUrl!)}>
+                <Text className="text-xs text-gray-400 underline">Términos y Condiciones</Text>
+              </Pressable>
+            )}
+            {theme.legal.termsUrl && theme.legal.privacyUrl && (
+              <Text className="text-xs text-gray-300">·</Text>
+            )}
+            {theme.legal.privacyUrl && (
+              <Pressable onPress={() => Linking.openURL(theme.legal.privacyUrl!)}>
+                <Text className="text-xs text-gray-400 underline">Privacidad</Text>
+              </Pressable>
+            )}
+          </View>
+        )}
       </ScrollView>
     </KeyboardAvoidingView>
   );

@@ -49,6 +49,14 @@ export type StudioConfig = {
     keywords?: string[];
     openGraph?: OpenGraphMetadata;
   };
+  legal: {
+    privacyUrl?: string;
+    termsUrl?: string;
+  };
+  support: {
+    email?: string;
+    whatsapp?: string;
+  };
 };
 
 // Cliente: FAITH — Dance & Art Academy (Costa Rica). https://www.faith-cr.com
@@ -94,6 +102,14 @@ const studioConfig: StudioConfig = {
     description:
       'Plataforma de gestión de Faith Dance & Art Academy — clases, mensualidades y pagos.',
     keywords: ['academia', 'danza', 'arte', 'clases', 'faith'],
+  },
+  legal: {
+    privacyUrl: undefined,
+    termsUrl: undefined,
+  },
+  support: {
+    email: undefined,
+    whatsapp: undefined,
   },
 };
 

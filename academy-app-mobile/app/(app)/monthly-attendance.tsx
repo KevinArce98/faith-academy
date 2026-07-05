@@ -155,7 +155,7 @@ function MonthlyAttendance() {
                     enrolled ? 'bg-primary/5 border-primary/30' : 'bg-white border-gray-100',
                   )}
                 >
-                  <Avatar name={sub.student.name} size="sm" />
+                  <Avatar name={sub.student.name} uri={sub.student.avatarUrl} size="sm" />
                   <View className="flex-1">
                     <Text className="text-sm font-medium text-dark" numberOfLines={1}>{sub.student.name}</Text>
                     {locked && record?.sessionDate && (

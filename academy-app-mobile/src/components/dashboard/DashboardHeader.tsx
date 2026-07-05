@@ -7,9 +7,9 @@ import { useNotifications } from '@/lib/queries';
 import { theme } from '@/theme';
 import { formatDate, greeting } from '@/utils/general';
 
-type Props = { name: string };
+type Props = { name: string; avatarUrl?: string | null };
 
-export function DashboardHeader({ name }: Props) {
+export function DashboardHeader({ name, avatarUrl }: Props) {
   const router = useRouter();
   const firstName = name.split(' ')[0];
 
@@ -38,7 +38,9 @@ export function DashboardHeader({ name }: Props) {
             </View>
           )}
         </Pressable>
-        <Avatar name={name} size="md" />
+        <Pressable onPress={() => router.push('/(app)/account')}>
+          <Avatar name={name} uri={avatarUrl} size="md" />
+        </Pressable>
       </View>
     </View>
   );

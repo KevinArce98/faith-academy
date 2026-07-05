@@ -2,6 +2,7 @@ export type PendingPayment = {
   subscriptionId: string | null;
   studentId: string;
   studentName: string;
+  studentAvatarUrl?: string | null;
   planName: string;
   amount: number;
   status: 'pending' | 'expired';
@@ -15,7 +16,13 @@ export type AdminDashboard = {
   teacherPayout: number;
   pendingCount: number;
   pendingPayments: PendingPayment[];
-  newStudents: { id: string; name: string | null; email: string; planName: string | null }[];
+  newStudents: {
+    id: string;
+    name: string | null;
+    avatarUrl?: string | null;
+    email: string;
+    planName: string | null;
+  }[];
 };
 
 export type TeacherSlot = { dayOfWeek: number; startTime: string; endTime: string };

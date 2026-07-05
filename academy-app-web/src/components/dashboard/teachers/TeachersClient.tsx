@@ -194,9 +194,17 @@ export function TeachersClient({ teachers, activeCount }: TeachersClientProps) {
                 className="relative rounded-3xl border border-gray-100 bg-white p-5 shadow-sm"
               >
                 <div className="flex items-start gap-4">
-                  <div className="bg-dark flex h-12 w-12 items-center justify-center rounded-full text-lg font-bold text-white">
-                    {getInitials(teacher.name ?? '')}
-                  </div>
+                  {teacher.avatarUrl ? (
+                    <img
+                      src={teacher.avatarUrl}
+                      alt={teacher.name ?? ''}
+                      className="h-12 w-12 shrink-0 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="bg-dark flex h-12 w-12 items-center justify-center rounded-full text-lg font-bold text-white">
+                      {getInitials(teacher.name ?? '')}
+                    </div>
+                  )}
                   <div className="flex-1">
                     <p className="text-dark text-lg font-semibold">
                       {teacher.name ?? 'Sin nombre'}

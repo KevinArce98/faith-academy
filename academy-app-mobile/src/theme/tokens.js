@@ -77,4 +77,16 @@ module.exports = {
       './assets/fonts/Lato-Black.ttf',
     ],
   },
+
+  /** URLs externas a la política de privacidad / términos ya redactados del cliente. */
+  legal: {
+    privacyUrl: null,
+    termsUrl: null,
+  },
+
+  /** Contacto de ayuda y soporte (se muestra en Mi Cuenta). */
+  support: {
+    email: null,
+    whatsapp: null,
+  },
 };

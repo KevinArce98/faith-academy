@@ -14,9 +14,18 @@ export const ROLE_SCREEN_ACCESS: Record<Role, string[]> = {
     '/notifications',
     '/student-history',
     '/more',
+    '/account',
   ],
-  TEACHER: ['/', '/classes', '/class-attendance', '/notifications'],
-  STUDENT: ['/', '/my-classes', '/plans', '/payments', '/notifications'],
+  TEACHER: ['/', '/classes', '/class-attendance', '/notifications', '/more', '/account'],
+  STUDENT: [
+    '/',
+    '/my-classes',
+    '/plans',
+    '/payments',
+    '/notifications',
+    '/more',
+    '/account',
+  ],
 };
 
 export function canAccess(role: Role, screen: string): boolean {

@@ -47,6 +47,8 @@ export type UserProfileMinAggregateOutputType = {
   passwordHash: string | null
   emailVerified: boolean | null
   createdAt: Date | null
+  notificationsEnabled: boolean | null
+  termsAcceptedAt: Date | null
   enrollmentFee: runtime.Decimal | null
   enrolledAt: Date | null
   hourlyRate: runtime.Decimal | null
@@ -63,6 +65,8 @@ export type UserProfileMaxAggregateOutputType = {
   passwordHash: string | null
   emailVerified: boolean | null
   createdAt: Date | null
+  notificationsEnabled: boolean | null
+  termsAcceptedAt: Date | null
   enrollmentFee: runtime.Decimal | null
   enrolledAt: Date | null
   hourlyRate: runtime.Decimal | null
@@ -79,6 +83,8 @@ export type UserProfileCountAggregateOutputType = {
   passwordHash: number
   emailVerified: number
   createdAt: number
+  notificationsEnabled: number
+  termsAcceptedAt: number
   enrollmentFee: number
   enrolledAt: number
   hourlyRate: number
@@ -107,6 +113,8 @@ export type UserProfileMinAggregateInputType = {
   passwordHash?: true
   emailVerified?: true
   createdAt?: true
+  notificationsEnabled?: true
+  termsAcceptedAt?: true
   enrollmentFee?: true
   enrolledAt?: true
   hourlyRate?: true
@@ -123,6 +131,8 @@ export type UserProfileMaxAggregateInputType = {
   passwordHash?: true
   emailVerified?: true
   createdAt?: true
+  notificationsEnabled?: true
+  termsAcceptedAt?: true
   enrollmentFee?: true
   enrolledAt?: true
   hourlyRate?: true
@@ -139,6 +149,8 @@ export type UserProfileCountAggregateInputType = {
   passwordHash?: true
   emailVerified?: true
   createdAt?: true
+  notificationsEnabled?: true
+  termsAcceptedAt?: true
   enrollmentFee?: true
   enrolledAt?: true
   hourlyRate?: true
@@ -242,6 +254,8 @@ export type UserProfileGroupByOutputType = {
   passwordHash: string
   emailVerified: boolean
   createdAt: Date
+  notificationsEnabled: boolean
+  termsAcceptedAt: Date | null
   enrollmentFee: runtime.Decimal | null
   enrolledAt: Date | null
   hourlyRate: runtime.Decimal | null
@@ -281,6 +295,8 @@ export type UserProfileWhereInput = {
   passwordHash?: Prisma.StringFilter<"UserProfile"> | string
   emailVerified?: Prisma.BoolFilter<"UserProfile"> | boolean
   createdAt?: Prisma.DateTimeFilter<"UserProfile"> | Date | string
+  notificationsEnabled?: Prisma.BoolFilter<"UserProfile"> | boolean
+  termsAcceptedAt?: Prisma.DateTimeNullableFilter<"UserProfile"> | Date | string | null
   enrollmentFee?: Prisma.DecimalNullableFilter<"UserProfile"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Prisma.DateTimeNullableFilter<"UserProfile"> | Date | string | null
   hourlyRate?: Prisma.DecimalNullableFilter<"UserProfile"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -309,6 +325,8 @@ export type UserProfileOrderByWithRelationInput = {
   passwordHash?: Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  notificationsEnabled?: Prisma.SortOrder
+  termsAcceptedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   enrollmentFee?: Prisma.SortOrderInput | Prisma.SortOrder
   enrolledAt?: Prisma.SortOrderInput | Prisma.SortOrder
   hourlyRate?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -340,6 +358,8 @@ export type UserProfileWhereUniqueInput = Prisma.AtLeast<{
   passwordHash?: Prisma.StringFilter<"UserProfile"> | string
   emailVerified?: Prisma.BoolFilter<"UserProfile"> | boolean
   createdAt?: Prisma.DateTimeFilter<"UserProfile"> | Date | string
+  notificationsEnabled?: Prisma.BoolFilter<"UserProfile"> | boolean
+  termsAcceptedAt?: Prisma.DateTimeNullableFilter<"UserProfile"> | Date | string | null
   enrollmentFee?: Prisma.DecimalNullableFilter<"UserProfile"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Prisma.DateTimeNullableFilter<"UserProfile"> | Date | string | null
   hourlyRate?: Prisma.DecimalNullableFilter<"UserProfile"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -368,6 +388,8 @@ export type UserProfileOrderByWithAggregationInput = {
   passwordHash?: Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  notificationsEnabled?: Prisma.SortOrder
+  termsAcceptedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   enrollmentFee?: Prisma.SortOrderInput | Prisma.SortOrder
   enrolledAt?: Prisma.SortOrderInput | Prisma.SortOrder
   hourlyRate?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -392,6 +414,8 @@ export type UserProfileScalarWhereWithAggregatesInput = {
   passwordHash?: Prisma.StringWithAggregatesFilter<"UserProfile"> | string
   emailVerified?: Prisma.BoolWithAggregatesFilter<"UserProfile"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"UserProfile"> | Date | string
+  notificationsEnabled?: Prisma.BoolWithAggregatesFilter<"UserProfile"> | boolean
+  termsAcceptedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"UserProfile"> | Date | string | null
   enrollmentFee?: Prisma.DecimalNullableWithAggregatesFilter<"UserProfile"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Prisma.DateTimeNullableWithAggregatesFilter<"UserProfile"> | Date | string | null
   hourlyRate?: Prisma.DecimalNullableWithAggregatesFilter<"UserProfile"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -408,6 +432,8 @@ export type UserProfileCreateInput = {
   passwordHash: string
   emailVerified?: boolean
   createdAt?: Date | string
+  notificationsEnabled?: boolean
+  termsAcceptedAt?: Date | string | null
   enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Date | string | null
   hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -436,6 +462,8 @@ export type UserProfileUncheckedCreateInput = {
   passwordHash: string
   emailVerified?: boolean
   createdAt?: Date | string
+  notificationsEnabled?: boolean
+  termsAcceptedAt?: Date | string | null
   enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Date | string | null
   hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -464,6 +492,8 @@ export type UserProfileUpdateInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -492,6 +522,8 @@ export type UserProfileUncheckedUpdateInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -520,6 +552,8 @@ export type UserProfileCreateManyInput = {
   passwordHash: string
   emailVerified?: boolean
   createdAt?: Date | string
+  notificationsEnabled?: boolean
+  termsAcceptedAt?: Date | string | null
   enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Date | string | null
   hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -536,6 +570,8 @@ export type UserProfileUpdateManyMutationInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -552,6 +588,8 @@ export type UserProfileUncheckedUpdateManyInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -568,6 +606,8 @@ export type UserProfileCountOrderByAggregateInput = {
   passwordHash?: Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  notificationsEnabled?: Prisma.SortOrder
+  termsAcceptedAt?: Prisma.SortOrder
   enrollmentFee?: Prisma.SortOrder
   enrolledAt?: Prisma.SortOrder
   hourlyRate?: Prisma.SortOrder
@@ -589,6 +629,8 @@ export type UserProfileMaxOrderByAggregateInput = {
   passwordHash?: Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  notificationsEnabled?: Prisma.SortOrder
+  termsAcceptedAt?: Prisma.SortOrder
   enrollmentFee?: Prisma.SortOrder
   enrolledAt?: Prisma.SortOrder
   hourlyRate?: Prisma.SortOrder
@@ -605,6 +647,8 @@ export type UserProfileMinOrderByAggregateInput = {
   passwordHash?: Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  notificationsEnabled?: Prisma.SortOrder
+  termsAcceptedAt?: Prisma.SortOrder
   enrollmentFee?: Prisma.SortOrder
   enrolledAt?: Prisma.SortOrder
   hourlyRate?: Prisma.SortOrder
@@ -640,16 +684,16 @@ export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
 }
 
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
+}
+
 export type NullableDecimalFieldUpdateOperationsInput = {
   set?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   increment?: runtime.Decimal | runtime.DecimalJsLike | number | string
   decrement?: runtime.Decimal | runtime.DecimalJsLike | number | string
   multiply?: runtime.Decimal | runtime.DecimalJsLike | number | string
   divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
-}
-
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
 }
 
 export type UserProfileCreateNestedOneWithoutPushTokensInput = {
@@ -831,6 +875,8 @@ export type UserProfileCreateWithoutPushTokensInput = {
   passwordHash: string
   emailVerified?: boolean
   createdAt?: Date | string
+  notificationsEnabled?: boolean
+  termsAcceptedAt?: Date | string | null
   enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Date | string | null
   hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -858,6 +904,8 @@ export type UserProfileUncheckedCreateWithoutPushTokensInput = {
   passwordHash: string
   emailVerified?: boolean
   createdAt?: Date | string
+  notificationsEnabled?: boolean
+  termsAcceptedAt?: Date | string | null
   enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Date | string | null
   hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -901,6 +949,8 @@ export type UserProfileUpdateWithoutPushTokensInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -928,6 +978,8 @@ export type UserProfileUncheckedUpdateWithoutPushTokensInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -955,6 +1007,8 @@ export type UserProfileCreateWithoutNotificationsInput = {
   passwordHash: string
   emailVerified?: boolean
   createdAt?: Date | string
+  notificationsEnabled?: boolean
+  termsAcceptedAt?: Date | string | null
   enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Date | string | null
   hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -982,6 +1036,8 @@ export type UserProfileUncheckedCreateWithoutNotificationsInput = {
   passwordHash: string
   emailVerified?: boolean
   createdAt?: Date | string
+  notificationsEnabled?: boolean
+  termsAcceptedAt?: Date | string | null
   enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Date | string | null
   hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1025,6 +1081,8 @@ export type UserProfileUpdateWithoutNotificationsInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1052,6 +1110,8 @@ export type UserProfileUncheckedUpdateWithoutNotificationsInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1079,6 +1139,8 @@ export type UserProfileCreateWithoutRefreshTokensInput = {
   passwordHash: string
   emailVerified?: boolean
   createdAt?: Date | string
+  notificationsEnabled?: boolean
+  termsAcceptedAt?: Date | string | null
   enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Date | string | null
   hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1106,6 +1168,8 @@ export type UserProfileUncheckedCreateWithoutRefreshTokensInput = {
   passwordHash: string
   emailVerified?: boolean
   createdAt?: Date | string
+  notificationsEnabled?: boolean
+  termsAcceptedAt?: Date | string | null
   enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Date | string | null
   hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1149,6 +1213,8 @@ export type UserProfileUpdateWithoutRefreshTokensInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1176,6 +1242,8 @@ export type UserProfileUncheckedUpdateWithoutRefreshTokensInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1203,6 +1271,8 @@ export type UserProfileCreateWithoutEmailTokensInput = {
   passwordHash: string
   emailVerified?: boolean
   createdAt?: Date | string
+  notificationsEnabled?: boolean
+  termsAcceptedAt?: Date | string | null
   enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Date | string | null
   hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1230,6 +1300,8 @@ export type UserProfileUncheckedCreateWithoutEmailTokensInput = {
   passwordHash: string
   emailVerified?: boolean
   createdAt?: Date | string
+  notificationsEnabled?: boolean
+  termsAcceptedAt?: Date | string | null
   enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Date | string | null
   hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1273,6 +1345,8 @@ export type UserProfileUpdateWithoutEmailTokensInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1300,6 +1374,8 @@ export type UserProfileUncheckedUpdateWithoutEmailTokensInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1327,6 +1403,8 @@ export type UserProfileCreateWithoutFamilyMemberInput = {
   passwordHash: string
   emailVerified?: boolean
   createdAt?: Date | string
+  notificationsEnabled?: boolean
+  termsAcceptedAt?: Date | string | null
   enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Date | string | null
   hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1354,6 +1432,8 @@ export type UserProfileUncheckedCreateWithoutFamilyMemberInput = {
   passwordHash: string
   emailVerified?: boolean
   createdAt?: Date | string
+  notificationsEnabled?: boolean
+  termsAcceptedAt?: Date | string | null
   enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Date | string | null
   hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1397,6 +1477,8 @@ export type UserProfileUpdateWithoutFamilyMemberInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1424,6 +1506,8 @@ export type UserProfileUncheckedUpdateWithoutFamilyMemberInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1451,6 +1535,8 @@ export type UserProfileCreateWithoutOrdersInput = {
   passwordHash: string
   emailVerified?: boolean
   createdAt?: Date | string
+  notificationsEnabled?: boolean
+  termsAcceptedAt?: Date | string | null
   enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Date | string | null
   hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1478,6 +1564,8 @@ export type UserProfileUncheckedCreateWithoutOrdersInput = {
   passwordHash: string
   emailVerified?: boolean
   createdAt?: Date | string
+  notificationsEnabled?: boolean
+  termsAcceptedAt?: Date | string | null
   enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Date | string | null
   hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1521,6 +1609,8 @@ export type UserProfileUpdateWithoutOrdersInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1548,6 +1638,8 @@ export type UserProfileUncheckedUpdateWithoutOrdersInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1575,6 +1667,8 @@ export type UserProfileCreateWithoutEnrollmentPaymentsInput = {
   passwordHash: string
   emailVerified?: boolean
   createdAt?: Date | string
+  notificationsEnabled?: boolean
+  termsAcceptedAt?: Date | string | null
   enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Date | string | null
   hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1602,6 +1696,8 @@ export type UserProfileUncheckedCreateWithoutEnrollmentPaymentsInput = {
   passwordHash: string
   emailVerified?: boolean
   createdAt?: Date | string
+  notificationsEnabled?: boolean
+  termsAcceptedAt?: Date | string | null
   enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Date | string | null
   hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1645,6 +1741,8 @@ export type UserProfileUpdateWithoutEnrollmentPaymentsInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1672,6 +1770,8 @@ export type UserProfileUncheckedUpdateWithoutEnrollmentPaymentsInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1699,6 +1799,8 @@ export type UserProfileCreateWithoutAttendancesInput = {
   passwordHash: string
   emailVerified?: boolean
   createdAt?: Date | string
+  notificationsEnabled?: boolean
+  termsAcceptedAt?: Date | string | null
   enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Date | string | null
   hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1726,6 +1828,8 @@ export type UserProfileUncheckedCreateWithoutAttendancesInput = {
   passwordHash: string
   emailVerified?: boolean
   createdAt?: Date | string
+  notificationsEnabled?: boolean
+  termsAcceptedAt?: Date | string | null
   enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Date | string | null
   hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1769,6 +1873,8 @@ export type UserProfileUpdateWithoutAttendancesInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1796,6 +1902,8 @@ export type UserProfileUncheckedUpdateWithoutAttendancesInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1823,6 +1931,8 @@ export type UserProfileCreateWithoutSkillsInput = {
   passwordHash: string
   emailVerified?: boolean
   createdAt?: Date | string
+  notificationsEnabled?: boolean
+  termsAcceptedAt?: Date | string | null
   enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Date | string | null
   hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1850,6 +1960,8 @@ export type UserProfileUncheckedCreateWithoutSkillsInput = {
   passwordHash: string
   emailVerified?: boolean
   createdAt?: Date | string
+  notificationsEnabled?: boolean
+  termsAcceptedAt?: Date | string | null
   enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Date | string | null
   hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1893,6 +2005,8 @@ export type UserProfileUpdateWithoutSkillsInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1920,6 +2034,8 @@ export type UserProfileUncheckedUpdateWithoutSkillsInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1947,6 +2063,8 @@ export type UserProfileCreateWithoutSubscriptionsInput = {
   passwordHash: string
   emailVerified?: boolean
   createdAt?: Date | string
+  notificationsEnabled?: boolean
+  termsAcceptedAt?: Date | string | null
   enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Date | string | null
   hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1974,6 +2092,8 @@ export type UserProfileUncheckedCreateWithoutSubscriptionsInput = {
   passwordHash: string
   emailVerified?: boolean
   createdAt?: Date | string
+  notificationsEnabled?: boolean
+  termsAcceptedAt?: Date | string | null
   enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Date | string | null
   hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -2017,6 +2137,8 @@ export type UserProfileUpdateWithoutSubscriptionsInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -2044,6 +2166,8 @@ export type UserProfileUncheckedUpdateWithoutSubscriptionsInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -2071,6 +2195,8 @@ export type UserProfileCreateWithoutMonthlyAttendanceInput = {
   passwordHash: string
   emailVerified?: boolean
   createdAt?: Date | string
+  notificationsEnabled?: boolean
+  termsAcceptedAt?: Date | string | null
   enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Date | string | null
   hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -2098,6 +2224,8 @@ export type UserProfileUncheckedCreateWithoutMonthlyAttendanceInput = {
   passwordHash: string
   emailVerified?: boolean
   createdAt?: Date | string
+  notificationsEnabled?: boolean
+  termsAcceptedAt?: Date | string | null
   enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Date | string | null
   hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -2141,6 +2269,8 @@ export type UserProfileUpdateWithoutMonthlyAttendanceInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -2168,6 +2298,8 @@ export type UserProfileUncheckedUpdateWithoutMonthlyAttendanceInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -2195,6 +2327,8 @@ export type UserProfileCreateWithoutSessionAttendancesInput = {
   passwordHash: string
   emailVerified?: boolean
   createdAt?: Date | string
+  notificationsEnabled?: boolean
+  termsAcceptedAt?: Date | string | null
   enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Date | string | null
   hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -2222,6 +2356,8 @@ export type UserProfileUncheckedCreateWithoutSessionAttendancesInput = {
   passwordHash: string
   emailVerified?: boolean
   createdAt?: Date | string
+  notificationsEnabled?: boolean
+  termsAcceptedAt?: Date | string | null
   enrollmentFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Date | string | null
   hourlyRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -2265,6 +2401,8 @@ export type UserProfileUpdateWithoutSessionAttendancesInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -2292,6 +2430,8 @@ export type UserProfileUncheckedUpdateWithoutSessionAttendancesInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  termsAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   enrollmentFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   enrolledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   hourlyRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -2440,6 +2580,8 @@ export type UserProfileSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   passwordHash?: boolean
   emailVerified?: boolean
   createdAt?: boolean
+  notificationsEnabled?: boolean
+  termsAcceptedAt?: boolean
   enrollmentFee?: boolean
   enrolledAt?: boolean
   hourlyRate?: boolean
@@ -2469,6 +2611,8 @@ export type UserProfileSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   passwordHash?: boolean
   emailVerified?: boolean
   createdAt?: boolean
+  notificationsEnabled?: boolean
+  termsAcceptedAt?: boolean
   enrollmentFee?: boolean
   enrolledAt?: boolean
   hourlyRate?: boolean
@@ -2485,6 +2629,8 @@ export type UserProfileSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   passwordHash?: boolean
   emailVerified?: boolean
   createdAt?: boolean
+  notificationsEnabled?: boolean
+  termsAcceptedAt?: boolean
   enrollmentFee?: boolean
   enrolledAt?: boolean
   hourlyRate?: boolean
@@ -2501,12 +2647,14 @@ export type UserProfileSelectScalar = {
   passwordHash?: boolean
   emailVerified?: boolean
   createdAt?: boolean
+  notificationsEnabled?: boolean
+  termsAcceptedAt?: boolean
   enrollmentFee?: boolean
   enrolledAt?: boolean
   hourlyRate?: boolean
 }
 
-export type UserProfileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "phone" | "name" | "avatarUrl" | "role" | "isActive" | "passwordHash" | "emailVerified" | "createdAt" | "enrollmentFee" | "enrolledAt" | "hourlyRate", ExtArgs["result"]["userProfile"]>
+export type UserProfileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "phone" | "name" | "avatarUrl" | "role" | "isActive" | "passwordHash" | "emailVerified" | "createdAt" | "notificationsEnabled" | "termsAcceptedAt" | "enrollmentFee" | "enrolledAt" | "hourlyRate", ExtArgs["result"]["userProfile"]>
 export type UserProfileInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   subscriptions?: boolean | Prisma.UserProfile$subscriptionsArgs<ExtArgs>
   monthlyAttendance?: boolean | Prisma.UserProfile$monthlyAttendanceArgs<ExtArgs>
@@ -2552,6 +2700,8 @@ export type $UserProfilePayload<ExtArgs extends runtime.Types.Extensions.Interna
     passwordHash: string
     emailVerified: boolean
     createdAt: Date
+    notificationsEnabled: boolean
+    termsAcceptedAt: Date | null
     enrollmentFee: runtime.Decimal | null
     enrolledAt: Date | null
     hourlyRate: runtime.Decimal | null
@@ -3000,6 +3150,8 @@ export interface UserProfileFieldRefs {
   readonly passwordHash: Prisma.FieldRef<"UserProfile", 'String'>
   readonly emailVerified: Prisma.FieldRef<"UserProfile", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"UserProfile", 'DateTime'>
+  readonly notificationsEnabled: Prisma.FieldRef<"UserProfile", 'Boolean'>
+  readonly termsAcceptedAt: Prisma.FieldRef<"UserProfile", 'DateTime'>
   readonly enrollmentFee: Prisma.FieldRef<"UserProfile", 'Decimal'>
   readonly enrolledAt: Prisma.FieldRef<"UserProfile", 'DateTime'>
   readonly hourlyRate: Prisma.FieldRef<"UserProfile", 'Decimal'>

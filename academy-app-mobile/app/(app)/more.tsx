@@ -6,6 +6,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { RoleGuard } from '@/components/auth/RoleGuard';
 import { getStoredRefreshToken, useApiClient } from '@/lib/api';
 import { useAuth } from '@/lib/auth/useAuth';
+import { useMe } from '@/lib/queries';
+import { isAdmin } from '@/lib/roles';
 import { getRegisteredPushToken } from '@/lib/usePushNotifications';
 import { theme } from '@/theme';
 import { cn } from '@/utils/cn';
@@ -71,6 +73,8 @@ function More() {
   const router = useRouter();
   const api = useApiClient();
   const { clearToken } = useAuth();
+  const { data: me } = useMe();
+  const admin = isAdmin(me?.role ?? 'STUDENT');
 
   async function handleLogout() {
     Alert.alert('Cerrar sesión', '¿Estás seguro?', [
@@ -108,46 +112,65 @@ function More() {
 
         <View>
           <Text className="mb-2 px-1 text-xs font-semibold uppercase tracking-wide text-gray-400">
-            Administración
+            Cuenta
           </Text>
           <View className="overflow-hidden rounded-2xl border border-gray-100 bg-surface">
-            {MENU.map((item, index) => (
-              <Pressable
-                key={item.route}
-                onPress={() => router.push(item.route)}
-                className={cn(
-                  'flex-row items-center gap-3 px-4 py-4',
-                  index < MENU.length - 1 && 'border-b border-gray-100',
-                )}
-                android_ripple={{ color: theme.colors.border }}
-              >
-                <View className="h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
-                  <Ionicons name={item.icon} size={20} color={theme.colors.primary} />
-                </View>
-                <View className="flex-1">
-                  <Text className="text-[15px] font-semibold text-dark">{item.label}</Text>
-                  <Text className="text-xs text-gray-400">{item.description}</Text>
-                </View>
-                <Ionicons name="chevron-forward" size={18} color={theme.colors.placeholder} />
-              </Pressable>
-            ))}
+            <Pressable
+              onPress={() => router.push('/(app)/account')}
+              className="flex-row items-center gap-3 border-b border-gray-100 px-4 py-4"
+              android_ripple={{ color: theme.colors.border }}
+            >
+              <View className="h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+                <Ionicons name="person-circle-outline" size={20} color={theme.colors.primary} />
+              </View>
+              <View className="flex-1">
+                <Text className="text-[15px] font-semibold text-dark">Mi Cuenta</Text>
+                <Text className="text-xs text-gray-400">Perfil, notificaciones, contraseña</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={18} color={theme.colors.placeholder} />
+            </Pressable>
+            <Pressable
+              onPress={handleLogout}
+              className="flex-row items-center gap-3 px-4 py-4"
+              android_ripple={{ color: theme.colors.border }}
+            >
+              <View className="h-10 w-10 items-center justify-center rounded-xl bg-danger/10">
+                <Ionicons name="log-out-outline" size={20} color={theme.colors.danger} />
+              </View>
+              <Text className="flex-1 text-[15px] font-semibold text-danger">Cerrar sesión</Text>
+            </Pressable>
           </View>
         </View>
 
-        <View>
-          <Text className="mb-2 px-1 text-xs font-semibold uppercase tracking-wide text-gray-400">
-            Cuenta
-          </Text>
-          <Pressable
-            onPress={handleLogout}
-            className="flex-row items-center gap-3 rounded-2xl border border-gray-100 bg-surface px-4 py-4"
-          >
-            <View className="h-10 w-10 items-center justify-center rounded-xl bg-danger/10">
-              <Ionicons name="log-out-outline" size={20} color={theme.colors.danger} />
+        {admin && (
+          <View>
+            <Text className="mb-2 px-1 text-xs font-semibold uppercase tracking-wide text-gray-400">
+              Administración
+            </Text>
+            <View className="overflow-hidden rounded-2xl border border-gray-100 bg-surface">
+              {MENU.map((item, index) => (
+                <Pressable
+                  key={item.route}
+                  onPress={() => router.push(item.route)}
+                  className={cn(
+                    'flex-row items-center gap-3 px-4 py-4',
+                    index < MENU.length - 1 && 'border-b border-gray-100',
+                  )}
+                  android_ripple={{ color: theme.colors.border }}
+                >
+                  <View className="h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+                    <Ionicons name={item.icon} size={20} color={theme.colors.primary} />
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-[15px] font-semibold text-dark">{item.label}</Text>
+                    <Text className="text-xs text-gray-400">{item.description}</Text>
+                  </View>
+                  <Ionicons name="chevron-forward" size={18} color={theme.colors.placeholder} />
+                </Pressable>
+              ))}
             </View>
-            <Text className="flex-1 text-[15px] font-semibold text-danger">Cerrar sesión</Text>
-          </Pressable>
-        </View>
+          </View>
+        )}
 
         <View className="items-center pt-4">
           <View className="mb-2 h-11 w-11 items-center justify-center rounded-2xl bg-primary">

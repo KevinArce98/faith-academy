@@ -87,13 +87,20 @@ export function PaymentCard({ order, isAdmin = false }: PaymentCardProps) {
       >
         <div className="mb-3 flex items-start justify-between">
           <div className="flex items-center gap-3">
-            {order.student && (
-              <div className="bg-dark flex h-10 w-10 shrink-0 items-center justify-center rounded-full">
-                <span className="text-sm font-bold text-white">
-                  {getInitials(order.student.name)}
-                </span>
-              </div>
-            )}
+            {order.student &&
+              (order.student.avatarUrl ? (
+                <img
+                  src={order.student.avatarUrl}
+                  alt={order.student.name}
+                  className="h-10 w-10 shrink-0 rounded-full object-cover"
+                />
+              ) : (
+                <div className="bg-dark flex h-10 w-10 shrink-0 items-center justify-center rounded-full">
+                  <span className="text-sm font-bold text-white">
+                    {getInitials(order.student.name)}
+                  </span>
+                </div>
+              ))}
             <div>
               {order.student && (
                 <p className="text-dark text-sm font-semibold">{order.student.name}</p>

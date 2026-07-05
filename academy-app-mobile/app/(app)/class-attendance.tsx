@@ -20,7 +20,7 @@ import { dayOfWeekFromDate, todayYmd } from '@/utils/general';
 import { cn } from '@/utils/cn';
 import { theme } from '@/theme';
 
-type RosterStudent = { id: string; name: string };
+type RosterStudent = { id: string; name: string; avatarUrl?: string | null };
 
 export default function ClassAttendanceScreen() {
   return (
@@ -142,7 +142,7 @@ function ClassAttendance() {
                     isPresent ? 'bg-success/5 border-success/30' : 'bg-white border-gray-100',
                   )}
                 >
-                  <Avatar name={student.name} size="sm" />
+                  <Avatar name={student.name} uri={student.avatarUrl} size="sm" />
                   <Text className="flex-1 text-sm font-medium text-dark">{student.name}</Text>
                   <View className={cn(
                     'w-7 h-7 rounded-full items-center justify-center',

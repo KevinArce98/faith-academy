@@ -9,6 +9,9 @@ export const signUpSchema = z.object({
   name: z.string().min(1, 'El nombre es requerido'),
   email: z.email('Email inválido'),
   password: z.string().min(8, 'La contraseña debe tener al menos 8 caracteres'),
+  termsAccepted: z
+    .boolean()
+    .refine((v) => v === true, { message: 'Debes aceptar los términos y la política de privacidad.' }),
 });
 
 export const verifyCodeSchema = z.object({

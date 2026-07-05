@@ -12,6 +12,7 @@ import { getInitials } from '@/utils/general';
 type UserProfile = {
   id: string;
   name: string;
+  avatarUrl?: string | null;
   role: Role;
 };
 
@@ -62,7 +63,9 @@ export default function DashboardLayout() {
   const initials = getInitials(displayName);
 
   return (
-    <DashboardShell user={{ name: displayName, role: profile.role, initials }}>
+    <DashboardShell
+      user={{ name: displayName, role: profile.role, initials, avatarUrl: profile.avatarUrl }}
+    >
       <ErrorBoundary>
         <Outlet context={{ role: profile.role, userId: profile.id }} />
       </ErrorBoundary>

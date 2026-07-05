@@ -73,7 +73,7 @@ function Teachers() {
           <Pressable disabled={!admin} onPress={() => setEditing(t)}>
             <Card className={cn(!t.isActive && 'opacity-60')}>
               <View className="flex-row items-center gap-3">
-                <Avatar name={t.name ?? t.email} />
+                <Avatar name={t.name ?? t.email} uri={t.avatarUrl} />
                 <View className="flex-1 min-w-0">
                   <View className="flex-row items-center gap-2">
                     <Text className="font-semibold text-dark" numberOfLines={1}>{t.name ?? '—'}</Text>

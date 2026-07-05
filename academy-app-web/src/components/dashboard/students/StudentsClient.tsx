@@ -303,11 +303,19 @@ export function StudentsClient({ students, plans, total }: StudentsClientProps) 
                     >
                       <TableCell className="pl-5">
                         <div className="flex items-center gap-2.5">
-                          <div className="bg-dark flex h-9 w-9 shrink-0 items-center justify-center rounded-full">
-                            <span className="text-xs font-bold text-white">
-                              {getInitials(student.name)}
-                            </span>
-                          </div>
+                          {student.avatarUrl ? (
+                            <img
+                              src={student.avatarUrl}
+                              alt={student.name}
+                              className="h-9 w-9 shrink-0 rounded-full object-cover"
+                            />
+                          ) : (
+                            <div className="bg-dark flex h-9 w-9 shrink-0 items-center justify-center rounded-full">
+                              <span className="text-xs font-bold text-white">
+                                {getInitials(student.name)}
+                              </span>
+                            </div>
+                          )}
                           <div>
                             <p className="text-dark font-medium">{student.name}</p>
                             <p className="text-xs text-gray-400">{student.email}</p>
@@ -421,11 +429,19 @@ export function StudentsClient({ students, plans, total }: StudentsClientProps) 
                 onClick={() => setSelected(student)}
               >
                 <div className="mb-2 flex items-center gap-2.5">
-                  <div className="bg-dark flex h-10 w-10 shrink-0 items-center justify-center rounded-full">
-                    <span className="text-xs font-bold text-white">
-                      {getInitials(student.name)}
-                    </span>
-                  </div>
+                  {student.avatarUrl ? (
+                    <img
+                      src={student.avatarUrl}
+                      alt={student.name}
+                      className="h-10 w-10 shrink-0 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="bg-dark flex h-10 w-10 shrink-0 items-center justify-center rounded-full">
+                      <span className="text-xs font-bold text-white">
+                        {getInitials(student.name)}
+                      </span>
+                    </div>
+                  )}
                   <div className="min-w-0 flex-1">
                     <p className="text-dark truncate text-sm font-bold">{student.name}</p>
                     <p className="truncate text-xs text-gray-400">{student.email}</p>

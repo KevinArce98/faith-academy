@@ -20,6 +20,7 @@ studentsRoutes.get('/', requireRole('ADMIN', 'TEACHER'), async (c) => {
 		select: {
 			id: true,
 			name: true,
+			avatarUrl: true,
 			email: true,
 			phone: true,
 			role: true,
@@ -87,6 +88,7 @@ studentsRoutes.put('/:id', requireRole('ADMIN', 'TEACHER'), async (c) => {
 			select: {
 				id: true,
 				name: true,
+				avatarUrl: true,
 				email: true,
 				phone: true,
 				role: true,
@@ -149,6 +151,7 @@ studentsRoutes.get('/:id/history', requireRole('ADMIN', 'TEACHER'), async (c) =>
 		select: {
 			id: true,
 			name: true,
+			avatarUrl: true,
 			email: true,
 			phone: true,
 			isActive: true,

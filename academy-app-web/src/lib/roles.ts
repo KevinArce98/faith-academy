@@ -15,10 +15,18 @@ export const ROLE_ROUTE_ACCESS: Record<Role, string[]> = {
     '/plans',
     '/video-library',
     '/reports',
-    '/settings',
+    '/account',
   ],
-  TEACHER: ['/', '/classes', '/class-attendance', '/video-library'],
-  STUDENT: ['/', '/classes', '/my-classes', '/plans', '/payments', '/video-library'],
+  TEACHER: ['/', '/classes', '/class-attendance', '/video-library', '/account'],
+  STUDENT: [
+    '/',
+    '/classes',
+    '/my-classes',
+    '/plans',
+    '/payments',
+    '/video-library',
+    '/account',
+  ],
 };
 
 // ─── Helpers ────────────────────────────────────────────────────────────────

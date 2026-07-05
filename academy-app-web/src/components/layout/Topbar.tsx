@@ -40,10 +40,11 @@ type ApiNotification = {
 
 type TopbarProps = {
   userInitials: string;
+  userAvatarUrl?: string | null;
   onMenuClick?: () => void;
 };
 
-export function Topbar({ userInitials, onMenuClick }: TopbarProps) {
+export function Topbar({ userInitials, userAvatarUrl, onMenuClick }: TopbarProps) {
   const [notifOpen, setNotifOpen] = useState(false);
   const [listRef] = useAutoAnimate<HTMLDivElement>();
   const { pathname } = useLocation();
@@ -141,9 +142,13 @@ export function Topbar({ userInitials, onMenuClick }: TopbarProps) {
         </Button>
 
         {/* Avatar */}
-        <div className="bg-primary flex h-8 w-8 items-center justify-center rounded-full">
-          <span className="text-xs font-bold text-white">{userInitials}</span>
-        </div>
+        {userAvatarUrl ? (
+          <img src={userAvatarUrl} alt="" className="h-8 w-8 rounded-full object-cover" />
+        ) : (
+          <div className="bg-primary flex h-8 w-8 items-center justify-center rounded-full">
+            <span className="text-xs font-bold text-white">{userInitials}</span>
+          </div>
+        )}
       </header>
 
       {/* ── Notification Drawer ──────────────────────── */}

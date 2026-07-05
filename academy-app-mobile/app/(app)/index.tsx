@@ -75,14 +75,14 @@ function LogoutButton() {
   );
 }
 
-function StudentView({ data }: { data: StudentDashboard }) {
+function StudentView({ data, avatarUrl }: { data: StudentDashboard; avatarUrl?: string | null }) {
   const router = useRouter();
   const refresh = usePullRefresh(['dashboard', 'notifications']);
   const statusColor = data.planActive ? theme.colors.success : data.planExpired ? theme.colors.danger : theme.colors.warning;
 
   return (
     <ScrollView className="flex-1 bg-background" contentContainerClassName="px-4 pt-2 pb-8 gap-4" refreshControl={refresh}>
-      <DashboardHeader name={data.userName} />
+      <DashboardHeader name={data.userName} avatarUrl={avatarUrl} />
 
       {data.planExpired && (
         <View className="flex-row items-start gap-3 rounded-2xl border border-danger/20 bg-danger/5 px-4 py-3.5">
@@ -147,7 +147,7 @@ function StudentView({ data }: { data: StudentDashboard }) {
 
 // ─── Teacher view ─────────────────────────────────────────────────────────────
 
-function TeacherView({ data }: { data: TeacherDashboard }) {
+function TeacherView({ data, avatarUrl }: { data: TeacherDashboard; avatarUrl?: string | null }) {
   const router = useRouter();
   const refresh = usePullRefresh(['dashboard', 'notifications']);
   const dow = todayDow();
@@ -165,7 +165,7 @@ function TeacherView({ data }: { data: TeacherDashboard }) {
 
   return (
     <ScrollView className="flex-1 bg-background" contentContainerClassName="px-4 pt-2 pb-8 gap-4" refreshControl={refresh}>
-      <DashboardHeader name={data.userName} />
+      <DashboardHeader name={data.userName} avatarUrl={avatarUrl} />
 
       <View className="flex-row gap-3">
         <Kpi label="Mis Clases" value={String(data.totalClasses)} icon="albums-outline" className="flex-1" />
@@ -205,14 +205,14 @@ function TeacherView({ data }: { data: TeacherDashboard }) {
 
 // ─── Admin view ───────────────────────────────────────────────────────────────
 
-function AdminView({ data }: { data: AdminDashboard }) {
+function AdminView({ data, avatarUrl }: { data: AdminDashboard; avatarUrl?: string | null }) {
   const refresh = usePullRefresh(['dashboard', 'notifications']);
 
   const payMutation = usePaySubscription();
 
   return (
     <ScrollView className="flex-1 bg-background" contentContainerClassName="px-4 pt-2 pb-8 gap-4" refreshControl={refresh}>
-      <DashboardHeader name={data.userName} />
+      <DashboardHeader name={data.userName} avatarUrl={avatarUrl} />
 
       <View className="flex-row gap-3 flex-wrap">
         <Kpi label="Alumnos Activos" value={String(data.activeStudents)} sub={`+${data.newStudents.length} nuevos`} subColor="text-success" icon="people-outline" className="flex-1 min-w-[140px]" />
@@ -232,7 +232,7 @@ function AdminView({ data }: { data: AdminDashboard }) {
           <View className="gap-2">
             {data.pendingPayments.slice(0, 6).map((p) => (
               <View key={p.studentId} className="flex-row items-center gap-3 rounded-xl bg-background p-3">
-                <Avatar name={p.studentName} size="sm" />
+                <Avatar name={p.studentName} uri={p.studentAvatarUrl} size="sm" />
                 <View className="flex-1 min-w-0">
                   <Text className="text-sm font-semibold text-dark" numberOfLines={1}>{p.studentName}</Text>
                   <Text className="text-xs text-text-muted" numberOfLines={1}>{p.planName} · {formatPrice(p.amount)}</Text>
@@ -256,7 +256,7 @@ function AdminView({ data }: { data: AdminDashboard }) {
           <View className="gap-3">
             {data.newStudents.map((s) => (
               <View key={s.id} className="flex-row items-center gap-3">
-                <Avatar name={s.name ?? s.email} size="sm" />
+                <Avatar name={s.name ?? s.email} uri={s.avatarUrl} size="sm" />
                 <View className="flex-1 min-w-0">
                   <Text className="text-sm font-semibold text-dark" numberOfLines={1}>{s.name ?? s.email}</Text>
                   {s.planName && <Text className="text-xs text-primary">{s.planName}</Text>}
@@ -312,9 +312,9 @@ export default function Dashboard() {
   // ROL, no por cuál `.data` está definido (todas lo estarían).
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
-      {role === 'STUDENT' && student.data && <StudentView data={student.data} />}
-      {role === 'TEACHER' && teacher.data && <TeacherView data={teacher.data} />}
-      {role === 'ADMIN' && admin.data && <AdminView data={admin.data} />}
+      {role === 'STUDENT' && student.data && <StudentView data={student.data} avatarUrl={me?.avatarUrl} />}
+      {role === 'TEACHER' && teacher.data && <TeacherView data={teacher.data} avatarUrl={me?.avatarUrl} />}
+      {role === 'ADMIN' && admin.data && <AdminView data={admin.data} avatarUrl={me?.avatarUrl} />}
     </SafeAreaView>
   );
 }
