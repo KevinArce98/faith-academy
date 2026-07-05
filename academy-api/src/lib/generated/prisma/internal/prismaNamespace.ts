@@ -1803,6 +1803,8 @@ export const UserProfileScalarFieldEnum = {
   passwordHash: 'passwordHash',
   emailVerified: 'emailVerified',
   createdAt: 'createdAt',
+  notificationsEnabled: 'notificationsEnabled',
+  termsAcceptedAt: 'termsAcceptedAt',
   enrollmentFee: 'enrollmentFee',
   enrolledAt: 'enrolledAt',
   hourlyRate: 'hourlyRate'

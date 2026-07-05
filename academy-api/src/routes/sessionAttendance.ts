@@ -63,7 +63,7 @@ sessionAttendanceRoutes.get(
 					period,
 					OR: [{ sessionDate: null }, { sessionDate: date }],
 				},
-				include: { student: { select: { id: true, name: true } } },
+				include: { student: { select: { id: true, name: true, avatarUrl: true } } },
 			}),
 			db.monthlySubscription.findMany({
 				where: { isPaid: true, expiresAt: { gt: date } },

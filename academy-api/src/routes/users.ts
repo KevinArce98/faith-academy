@@ -43,7 +43,7 @@ usersRoutes.patch(
 		const user = await db.userProfile.update({
 			where: { id },
 			data: { role: role as Role },
-			select: { id: true, email: true, name: true, role: true, isActive: true },
+			select: { id: true, email: true, name: true, avatarUrl: true, role: true, isActive: true },
 		});
 
 		return c.json({ success: true, user });

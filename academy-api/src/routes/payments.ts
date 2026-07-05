@@ -1,4 +1,4 @@
-import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Hono } from 'hono';
 
@@ -6,6 +6,7 @@ import { db } from '../lib/db.js';
 import { AppError, badRequest, conflict, forbidden, notFound } from '../lib/errors.js';
 import { adminUserIds, notify } from '../lib/push.js';
 import { parseBody } from '../lib/request.js';
+import { getR2, R2_BUCKET, R2_UPLOAD_EXPIRES_IN } from '../lib/r2.js';
 import {
 	createEnrollmentSchema,
 	createOrderSchema,
@@ -36,7 +37,7 @@ type PlanItemSource = {
 	bookingDate: Date | null;
 	bookingClass: { name: string } | null;
 	plan: { id: string; name: string; price: unknown };
-	student?: { id: string; name: string | null; email: string };
+	student?: { id: string; name: string | null; avatarUrl: string | null; email: string };
 };
 
 type EnrollmentItemSource = {
@@ -48,7 +49,7 @@ type EnrollmentItemSource = {
 	receiptUrl: string | null;
 	expiresAt: Date | null;
 	notes: string | null;
-	student?: { id: string; name: string | null; email: string };
+	student?: { id: string; name: string | null; avatarUrl: string | null; email: string };
 };
 
 function planItem(o: PlanItemSource) {
@@ -78,22 +79,8 @@ function sortByCreatedDesc<T extends { createdAt: Date }>(items: T[]): T[] {
 
 const paymentsRoutes = new Hono<{ Variables: AuthVariables }>();
 
-let _r2: S3Client | null = null;
-function getR2(): S3Client {
-	if (_r2) return _r2;
-	_r2 = new S3Client({
-		region: 'auto',
-		endpoint: process.env.CLOUDFLARE_R2_ENDPOINT,
-		credentials: {
-			accessKeyId: process.env.CLOUDFLARE_R2_ACCESS_KEY_ID ?? '',
-			secretAccessKey: process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY ?? '',
-		},
-	});
-	return _r2;
-}
-
-const BUCKET = process.env.CLOUDFLARE_R2_BUCKET_NAME ?? '';
-const EXPIRES_IN = 300;
+const BUCKET = R2_BUCKET;
+const EXPIRES_IN = R2_UPLOAD_EXPIRES_IN;
 const ALLOWED_EXTS = new Set(['jpg', 'jpeg', 'png', 'webp', 'pdf']);
 const MAX_BYTES = 10 * 1024 * 1024;
 
@@ -119,7 +106,7 @@ paymentsRoutes.get('/orders', requireAuth, async (c) => {
 	// Solo ADMIN ve los pagos de todos los alumnos.
 	if (user.role !== 'ADMIN') throw forbidden();
 
-	const studentSelect = { select: { id: true, name: true, email: true } };
+	const studentSelect = { select: { id: true, name: true, avatarUrl: true, email: true } };
 	const [orders, enrollments] = await Promise.all([
 		db.membershipOrder.findMany({
 			include: {

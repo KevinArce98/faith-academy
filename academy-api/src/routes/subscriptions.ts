@@ -53,7 +53,7 @@ subscriptionsRoutes.get(
 						isSingleClass: true,
 					},
 				},
-				student: { select: { id: true, name: true, email: true } },
+				student: { select: { id: true, name: true, avatarUrl: true, email: true } },
 			},
 		});
 

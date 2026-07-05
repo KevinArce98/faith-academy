@@ -135,6 +135,7 @@ teachersRoutes.patch(
 				id: true,
 				email: true,
 				name: true,
+				avatarUrl: true,
 				role: true,
 				isActive: true,
 				hourlyRate: true,

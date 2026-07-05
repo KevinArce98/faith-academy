@@ -232,3 +232,84 @@ describe.runIf(RUN_DB)('flujo de plata (integración)', () => {
 		expect(days).toBeGreaterThan(360);
 	});
 });
+
+// ── Tests de integración: cambiar contraseña estando logueado ───────────────
+describe.runIf(RUN_DB)('cambiar contraseña', () => {
+	let token = '';
+	let email = '';
+	const currentPassword = 'clave-actual-123';
+	let userId = '';
+
+	beforeAll(async () => {
+		if (!RUN_DB) return;
+		const { hashPassword } = await import('./lib/utils/hash');
+		email = `changepw+${crypto.randomUUID()}@test.local`;
+		const user = await db.userProfile.create({
+			data: {
+				email,
+				role: 'STUDENT',
+				name: 'Cambio Password Test',
+				passwordHash: await hashPassword(currentPassword),
+				emailVerified: true,
+			},
+		});
+		userId = user.id;
+		token = await signAccessToken({
+			sub: user.id,
+			email: user.email,
+			role: 'STUDENT',
+		});
+	});
+
+	afterAll(async () => {
+		if (!RUN_DB || !userId) return;
+		await db.userProfile.deleteMany({ where: { id: userId } });
+	});
+
+	function asUser(path: string, init?: RequestInit) {
+		return app.request(path, {
+			...init,
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`,
+				...init?.headers,
+			},
+		});
+	}
+
+	it('contraseña actual incorrecta → 400', async () => {
+		const res = await asUser('/api/v1/auth/me/change-password', {
+			method: 'POST',
+			body: JSON.stringify({
+				currentPassword: 'clave-equivocada',
+				newPassword: 'clave-nueva-456',
+			}),
+		});
+		expect(res.status).toBe(400);
+	});
+
+	it('contraseña actual correcta → cambia y permite login con la nueva', async () => {
+		const res = await asUser('/api/v1/auth/me/change-password', {
+			method: 'POST',
+			body: JSON.stringify({
+				currentPassword,
+				newPassword: 'clave-nueva-456',
+			}),
+		});
+		expect(res.status).toBe(200);
+
+		const loginRes = await app.request('/api/v1/auth/login', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ email, password: 'clave-nueva-456' }),
+		});
+		expect(loginRes.status).toBe(200);
+
+		const oldLoginRes = await app.request('/api/v1/auth/login', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ email, password: currentPassword }),
+		});
+		expect(oldLoginRes.status).toBe(401);
+	});
+});

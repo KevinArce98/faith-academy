@@ -54,6 +54,9 @@ model UserProfile {
   emailVerified Boolean  @default(false)
   createdAt     DateTime @default(now())
 
+  notificationsEnabled Boolean   @default(true)
+  termsAcceptedAt      DateTime?
+
   enrollmentFee Decimal?  @db.Decimal(10, 2)
   enrolledAt    DateTime?
 

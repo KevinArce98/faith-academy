@@ -83,7 +83,7 @@ export async function notify(userIds: string[], input: NotifyInput): Promise<voi
 	// 2) Enviar push a los dispositivos registrados.
 	try {
 		const tokens = await db.pushToken.findMany({
-			where: { userId: { in: uniqueIds } },
+			where: { userId: { in: uniqueIds }, user: { notificationsEnabled: true } },
 			select: { token: true },
 		});
 		const valid = tokens.map((t) => t.token).filter(isExpoToken);

@@ -1,3 +1,5 @@
+import { DeleteObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { type Context, Hono } from 'hono';
 import { getCookie } from 'hono/cookie';
 import { z } from 'zod';
@@ -14,6 +16,7 @@ import {
 	sendPasswordResetEmail,
 	sendVerificationEmail,
 } from '../lib/mailer.js';
+import { getR2, R2_BUCKET, R2_UPLOAD_EXPIRES_IN } from '../lib/r2.js';
 import {
 	issueRefreshToken,
 	revokeAllForUser,
@@ -51,6 +54,9 @@ const registerSchema = z.object({
 	email: z.email('Email inválido'),
 	password: z.string().min(8, 'La contraseña debe tener al menos 8 caracteres'),
 	name: z.string().min(1, 'El nombre es requerido'),
+	termsAccepted: z.literal(true, {
+		message: 'Debes aceptar los términos y la política de privacidad.',
+	}),
 });
 
 const loginSchema = z.object({
@@ -65,6 +71,26 @@ const verifyEmailSchema = z.object({
 
 const forgotPasswordSchema = z.object({
 	email: z.email('Email inválido'),
+});
+
+const updateMeSchema = z.object({
+	name: z.string().min(1, 'El nombre es requerido').optional(),
+	phone: z.string().nullish(),
+	avatarUrl: z.string().nullish(),
+	notificationsEnabled: z.boolean().optional(),
+});
+
+const updateEmailSchema = z.object({
+	email: z.email('Email inválido'),
+});
+
+const avatarUploadUrlSchema = z.object({
+	ext: z.enum(['jpg', 'jpeg', 'png', 'webp']),
+});
+
+const changePasswordSchema = z.object({
+	currentPassword: z.string().min(1, 'La contraseña actual es requerida'),
+	newPassword: z.string().min(8, 'La contraseña debe tener al menos 8 caracteres'),
 });
 
 const resetPasswordSchema = z.object({
@@ -88,10 +114,156 @@ authRoutes.get('/me', authMiddleware, async (c) => {
 		id: user.id,
 		email: user.email,
 		name: user.name,
+		phone: user.phone,
+		avatarUrl: user.avatarUrl,
 		role: user.role,
 		isActive: user.isActive,
 		emailVerified: user.emailVerified,
+		notificationsEnabled: user.notificationsEnabled,
 	});
+});
+
+// PATCH /auth/me — el usuario edita su propio perfil (nombre, teléfono, avatar, notificaciones).
+authRoutes.patch('/me', authMiddleware, async (c) => {
+	const user = await getCurrentUser(c);
+	if (!user) return c.json({ error: 'UNAUTHENTICATED' }, 401);
+
+	const body = await c.req.json().catch(() => null);
+	const parsed = updateMeSchema.safeParse(body);
+	if (!parsed.success) {
+		return c.json({ error: 'BAD_REQUEST', details: parsed.error.flatten() }, 400);
+	}
+
+	const { name, phone, avatarUrl, notificationsEnabled } = parsed.data;
+
+	// Si cambia el avatar y había uno previo en R2, borrar el objeto viejo (best-effort).
+	if (avatarUrl !== undefined && user.avatarUrl && user.avatarUrl !== avatarUrl) {
+		const publicUrl = process.env.CLOUDFLARE_R2_PUBLIC_URL;
+		if (publicUrl && user.avatarUrl.startsWith(`${publicUrl}/`)) {
+			const oldKey = user.avatarUrl.slice(publicUrl.length + 1);
+			await getR2()
+				.send(new DeleteObjectCommand({ Bucket: R2_BUCKET, Key: oldKey }))
+				.catch(() => null);
+		}
+	}
+
+	const updated = await db.userProfile.update({
+		where: { id: user.id },
+		data: {
+			...(name !== undefined ? { name } : {}),
+			...(phone !== undefined ? { phone } : {}),
+			...(avatarUrl !== undefined ? { avatarUrl } : {}),
+			...(notificationsEnabled !== undefined ? { notificationsEnabled } : {}),
+		},
+	});
+
+	return c.json({
+		id: updated.id,
+		email: updated.email,
+		name: updated.name,
+		phone: updated.phone,
+		avatarUrl: updated.avatarUrl,
+		role: updated.role,
+		isActive: updated.isActive,
+		emailVerified: updated.emailVerified,
+		notificationsEnabled: updated.notificationsEnabled,
+	});
+});
+
+// PATCH /auth/me/email — cambia el email propio; requiere re-verificación (mismo OTP del registro).
+authRoutes.patch('/me/email', authMiddleware, async (c) => {
+	const user = await getCurrentUser(c);
+	if (!user) return c.json({ error: 'UNAUTHENTICATED' }, 401);
+
+	const body = await c.req.json().catch(() => null);
+	const parsed = updateEmailSchema.safeParse(body);
+	if (!parsed.success) {
+		return c.json({ error: 'BAD_REQUEST', details: parsed.error.flatten() }, 400);
+	}
+
+	const { email } = parsed.data;
+	if (email === user.email) {
+		return c.json({ success: true, emailVerified: user.emailVerified });
+	}
+
+	const existing = await db.userProfile.findUnique({ where: { email } });
+	if (existing) {
+		return c.json({ error: 'El correo ya está registrado.' }, 409);
+	}
+
+	await db.userProfile.update({
+		where: { id: user.id },
+		data: { email, emailVerified: false },
+	});
+
+	await db.emailToken.deleteMany({
+		where: { userId: user.id, type: 'EMAIL_VERIFICATION', usedAt: null },
+	});
+
+	const code = generateOtpCode();
+	const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+	await db.emailToken.create({
+		data: { userId: user.id, token: code, type: 'EMAIL_VERIFICATION', expiresAt },
+	});
+
+	await sendVerificationEmail(email, code).catch(() => null);
+
+	return c.json({ success: true, emailVerified: false });
+});
+
+// POST /auth/me/avatar-upload-url — URL firmada para subir la foto de perfil directo a R2.
+authRoutes.post('/me/avatar-upload-url', authMiddleware, async (c) => {
+	const user = await getCurrentUser(c);
+	if (!user) return c.json({ error: 'UNAUTHENTICATED' }, 401);
+
+	const body = await c.req.json().catch(() => null);
+	const parsed = avatarUploadUrlSchema.safeParse(body);
+	if (!parsed.success) {
+		return c.json({ error: 'BAD_REQUEST', details: parsed.error.flatten() }, 400);
+	}
+
+	if (!R2_BUCKET || !process.env.CLOUDFLARE_R2_ENDPOINT) {
+		return c.json({ error: 'R2_NOT_CONFIGURED' }, 500);
+	}
+
+	const { ext } = parsed.data;
+	const key = `avatars/${user.id}/${Date.now()}.${ext}`;
+
+	const command = new PutObjectCommand({ Bucket: R2_BUCKET, Key: key });
+	const uploadUrl = await getSignedUrl(getR2(), command, { expiresIn: R2_UPLOAD_EXPIRES_IN });
+
+	return c.json({ uploadUrl, key });
+});
+
+// POST /auth/me/change-password — requiere la contraseña actual.
+authRoutes.post('/me/change-password', authMiddleware, async (c) => {
+	const user = await getCurrentUser(c);
+	if (!user) return c.json({ error: 'UNAUTHENTICATED' }, 401);
+
+	const body = await c.req.json().catch(() => null);
+	const parsed = changePasswordSchema.safeParse(body);
+	if (!parsed.success) {
+		return c.json({ error: 'BAD_REQUEST', details: parsed.error.flatten() }, 400);
+	}
+
+	const { currentPassword, newPassword } = parsed.data;
+	const valid = await verifyPassword(user.passwordHash, currentPassword);
+	if (!valid) {
+		return c.json(
+			{ error: 'INVALID_PASSWORD', message: 'La contraseña actual no es correcta.' },
+			400,
+		);
+	}
+
+	const passwordHash = await hashPassword(newPassword);
+	await db.userProfile.update({ where: { id: user.id }, data: { passwordHash } });
+
+	// Cambiar contraseña cierra todas las sesiones previas (mismo criterio que reset-password).
+	await revokeAllForUser(user.id);
+
+	const isMobile = c.req.header('X-Client') === 'mobile';
+	const session = await startSession(c, user, isMobile);
+	return c.json(session);
 });
 
 // POST /auth/register
@@ -114,7 +286,7 @@ authRoutes.post('/register', async (c) => {
 
 	const passwordHash = await hashPassword(password);
 	const user = await db.userProfile.create({
-		data: { email, name, passwordHash, role: 'STUDENT' },
+		data: { email, name, passwordHash, role: 'STUDENT', termsAcceptedAt: new Date() },
 	});
 
 	const code = generateOtpCode();
