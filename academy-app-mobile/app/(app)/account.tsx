@@ -60,12 +60,14 @@ export default function AccountScreen() {
   const [avatarSuccess, setAvatarSuccess] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
+  /* eslint-disable react-hooks/set-state-in-effect -- initialize editable form from remote profile */
   useEffect(() => {
     if (!me) return;
     setName(me.name ?? '');
     setPhone(me.phone ?? '');
     setEmail(me.email);
   }, [me]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   function invalidateMe() {
     return queryClient.invalidateQueries({ queryKey: qk.me });

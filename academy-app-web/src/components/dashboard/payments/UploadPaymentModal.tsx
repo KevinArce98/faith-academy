@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { FileText, Upload, X } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 
 import { LEVEL_LABELS } from '@/components/dashboard/classes/classes.types';
 import { Button } from '@/components/ui/Button';
@@ -94,10 +94,6 @@ export function UploadPaymentModal({ isOpen, onClose, plans, onSuccess }: Upload
   const classes = (classesData?.classes ?? []).filter((cl) => !cl.isPrivate);
   const bookingClass = classes.find((cl) => cl.id === bookingClassId);
   const sessionOptions = bookingClass ? upcomingSessions(bookingClass) : [];
-
-  useEffect(() => {
-    setBookingDate('');
-  }, [bookingClassId]);
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
@@ -196,7 +192,10 @@ export function UploadPaymentModal({ isOpen, onClose, plans, onSuccess }: Upload
               label="Clase"
               placeholder="Selecciona la clase"
               value={bookingClassId}
-              onChange={setBookingClassId}
+              onChange={(value) => {
+                setBookingClassId(value);
+                setBookingDate('');
+              }}
               options={classes.map((cl) => ({
                 value: cl.id,
                 label: `${cl.name} · ${LEVEL_LABELS[cl.skillLevel] ?? cl.skillLevel}`,

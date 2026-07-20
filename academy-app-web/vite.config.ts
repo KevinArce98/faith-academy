@@ -11,4 +11,17 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  build: {
+    rolldownOptions: {
+      output: {
+        codeSplitting: {
+          groups: [
+            { name: 'react-vendor', test: /node_modules\/(react|react-dom|react-router-dom)\// },
+            { name: 'query-vendor', test: /node_modules\/@tanstack\/react-query\// },
+            { name: 'motion-vendor', test: /node_modules\/framer-motion\// },
+          ],
+        },
+      },
+    },
+  },
 });

@@ -16,9 +16,12 @@ export function usePushNotifications(enabled: boolean) {
   const api = useApiClient();
   const router = useRouter();
   const routerRef = useRef(router);
-  routerRef.current = router;
   const didRegister = useRef(false);
   const handledResponseIds = useRef(new Set<string>());
+
+  useEffect(() => {
+    routerRef.current = router;
+  }, [router]);
 
   useEffect(() => {
     if (!enabled || didRegister.current) return;

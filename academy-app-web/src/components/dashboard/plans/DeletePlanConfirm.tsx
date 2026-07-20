@@ -29,8 +29,12 @@ export function DeletePlanConfirm({ plan, onClose, onSuccess, onError }: DeleteP
     onSuccess: (planId) => {
       onSuccess(planId);
     },
-    onError: (err: any) => {
-      onError(err.error ?? getErrorMessage(err, 'Error al eliminar el plan'));
+    onError: (err: unknown) => {
+      const apiError =
+        err && typeof err === 'object' && 'error' in err
+          ? String((err as { error: unknown }).error)
+          : null;
+      onError(apiError ?? getErrorMessage(err, 'Error al eliminar el plan'));
       onClose();
     },
   });

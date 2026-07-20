@@ -52,12 +52,14 @@ export default function Account() {
   const [avatarSuccess, setAvatarSuccess] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  /* eslint-disable react-hooks/set-state-in-effect -- initialize editable form from remote profile */
   useEffect(() => {
     if (!me) return;
     setName(me.name ?? '');
     setPhone(me.phone ?? '');
     setEmail(me.email);
   }, [me]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   function invalidateMe() {
     return queryClient.invalidateQueries({ queryKey: qk.me });
@@ -183,7 +185,9 @@ export default function Account() {
         <VerificationCodeForm
           title="Verifica tu nuevo correo"
           description={`Enviamos un código de 6 dígitos a ${pendingEmail}`}
-          onSubmit={(form) => verifyEmailMutation.mutateAsync(form)}
+          onSubmit={async (form) => {
+            await verifyEmailMutation.mutateAsync(form);
+          }}
           isSubmitting={verifyEmailMutation.isPending}
           submitLabel="Verificar correo"
           submittingLabel="Verificando..."

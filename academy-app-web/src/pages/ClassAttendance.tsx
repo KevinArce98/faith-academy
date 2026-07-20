@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Check, Loader2, Users } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useOutletContext, useSearchParams } from 'react-router-dom';
 
 import { LEVEL_LABELS } from '@/components/dashboard/classes/classes.types';
@@ -64,13 +64,6 @@ export default function ClassAttendance() {
     );
   }, [classesData, role, userId, dow, date]);
 
-  // Si la clase seleccionada ya no se imparte el día elegido, se limpia.
-  useEffect(() => {
-    if (classId && !classes.some((c) => c.id === classId)) {
-      setClassId('');
-    }
-  }, [classes, classId]);
-
   const attKey = ['session-attendance', classId, date] as const;
   const { data, isLoading } = useQuery<{
     present: string[];
@@ -114,7 +107,14 @@ export default function ClassAttendance() {
 
       {/* Controls */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
-        <DatePicker label="Fecha" value={date} onChange={setDate} />
+        <DatePicker
+          label="Fecha"
+          value={date}
+          onChange={(value) => {
+            setDate(value);
+            setClassId('');
+          }}
+        />
         <SelectMenu
           className="sm:w-72"
           label="Clase"

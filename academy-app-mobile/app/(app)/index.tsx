@@ -18,7 +18,6 @@ import type {
   TeacherClass,
   TeacherDashboard,
   TeacherSlot,
-  PendingPayment,
 } from '@/lib/interfaces/dashboard';
 import { usePaySubscription } from '@/lib/mutations';
 import {
