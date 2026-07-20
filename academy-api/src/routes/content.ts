@@ -14,13 +14,32 @@ contentRoutes.get('/', requireAuth, async (c) => {
 		throw forbidden('Módulo no disponible.');
 	}
 
+	const user = c.get('user');
+	const now = new Date();
+	const period = new Date(now.getFullYear(), now.getMonth(), 1);
+	const classWhere =
+		user.role === 'ADMIN'
+			? {}
+			: user.role === 'TEACHER'
+				? { teacherId: user.id }
+				: {
+						monthlyAttendance: {
+							some: { studentId: user.id, period },
+						},
+					};
+	const contentWhere =
+		user.role === 'ADMIN'
+			? {}
+			: { OR: [{ classId: null }, { class: { is: classWhere } }] };
+
 	const [contents, classes] = await Promise.all([
 		db.content.findMany({
+			where: contentWhere,
 			include: { class: { select: { id: true, name: true } } },
 			orderBy: { createdAt: 'desc' },
 		}),
 		db.class.findMany({
-			where: { isActive: true },
+			where: { isActive: true, ...classWhere },
 			select: { id: true, name: true },
 			orderBy: { name: 'asc' },
 		}),

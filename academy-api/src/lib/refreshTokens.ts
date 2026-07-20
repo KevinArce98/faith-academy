@@ -23,27 +23,25 @@ export async function issueRefreshToken(userId: string): Promise<string> {
 export async function rotateRefreshToken(
 	token: string,
 ): Promise<{ userId: string; token: string } | null> {
-	const record = await db.refreshToken.findUnique({
-		where: { tokenHash: hashToken(token) },
-	});
-	if (!record || record.revokedAt || record.expiresAt <= new Date()) {
-		return null;
-	}
-	const next = randomBytes(32).toString('hex');
-	await db.$transaction([
-		db.refreshToken.update({
-			where: { id: record.id },
+	const tokenHash = hashToken(token);
+	return db.$transaction(async (tx) => {
+		const record = await tx.refreshToken.findUnique({ where: { tokenHash } });
+		if (!record) return null;
+		const consumed = await tx.refreshToken.updateMany({
+			where: { id: record.id, revokedAt: null, expiresAt: { gt: new Date() } },
 			data: { revokedAt: new Date() },
-		}),
-		db.refreshToken.create({
+		});
+		if (consumed.count !== 1) return null;
+		const next = randomBytes(32).toString('hex');
+		await tx.refreshToken.create({
 			data: {
 				userId: record.userId,
 				tokenHash: hashToken(next),
 				expiresAt: newExpiry(),
 			},
-		}),
-	]);
-	return { userId: record.userId, token: next };
+		});
+		return { userId: record.userId, token: next };
+	});
 }
 
 export async function revokeRefreshToken(token: string): Promise<void> {

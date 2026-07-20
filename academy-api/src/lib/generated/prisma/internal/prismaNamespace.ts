@@ -1858,6 +1858,7 @@ export const EmailTokenScalarFieldEnum = {
   type: 'type',
   expiresAt: 'expiresAt',
   usedAt: 'usedAt',
+  attempts: 'attempts',
   createdAt: 'createdAt'
 } as const
 

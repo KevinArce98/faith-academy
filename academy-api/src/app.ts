@@ -91,7 +91,12 @@ app.use('/api/v1/auth/login', ipLimiter(10));
 app.use('/api/v1/auth/refresh', ipLimiter(60));
 app.use('/api/v1/auth/register', ipLimiter(5));
 app.use('/api/v1/auth/forgot-password', ipLimiter(5));
+app.use('/api/v1/auth/verify-email', ipLimiter(10));
+app.use('/api/v1/auth/reset-password', ipLimiter(10));
+app.use('/api/v1/auth/resend-verification', ipLimiter(3));
 app.use('/api/v1/payments/upload-url', ipLimiter(10));
+app.use('/api/v1/payments/upload', ipLimiter(10));
+app.use('/api/v1/auth/me/avatar', ipLimiter(10));
 
 // ── Request logging ────────────────────────────────────────────────────────
 app.use('*', async (c, next) => {

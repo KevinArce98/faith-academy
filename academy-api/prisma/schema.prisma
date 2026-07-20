@@ -139,6 +139,7 @@ model EmailToken {
   type      TokenType
   expiresAt DateTime
   usedAt    DateTime?
+  attempts  Int       @default(0)
   createdAt DateTime  @default(now())
 
   user UserProfile @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -203,6 +204,8 @@ model MembershipOrder {
   @@index([status])
   @@index([expiresAt])
   @@index([studentId, status])
+  @@index([status, startsAt])
+  @@index([status, planId])
 }
 
 // Pago de matrícula (anual, por aniversario). El alumno sube comprobante y el

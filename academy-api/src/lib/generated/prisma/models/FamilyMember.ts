@@ -420,14 +420,6 @@ export type FamilyMemberUncheckedUpdateManyWithoutFamilyNestedInput = {
   deleteMany?: Prisma.FamilyMemberScalarWhereInput | Prisma.FamilyMemberScalarWhereInput[]
 }
 
-export type IntFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type FamilyMemberCreateWithoutStudentInput = {
   id?: string
   position: number

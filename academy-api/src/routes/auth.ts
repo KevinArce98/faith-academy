@@ -10,12 +10,14 @@ import {
 	setRefreshCookie,
 } from '../lib/cookies.js';
 import { db } from '../lib/db.js';
+import { consumeEmailToken } from '../lib/emailTokens.js';
 import { signAccessToken } from '../lib/jwt.js';
 import {
 	sendPasswordResetEmail,
 	sendVerificationEmail,
 } from '../lib/mailer.js';
 import { getR2, R2_BUCKET } from '../lib/r2.js';
+import { detectedUploadType } from '../lib/uploads.js';
 import {
 	issueRefreshToken,
 	revokeAllForUser,
@@ -184,7 +186,7 @@ authRoutes.patch('/me/email', authMiddleware, async (c) => {
 	});
 
 	const code = generateOtpCode();
-	const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+	const expiresAt = new Date(Date.now() + 30 * 60 * 1000);
 	await db.emailToken.create({
 		data: { userId: user.id, token: code, type: 'EMAIL_VERIFICATION', expiresAt },
 	});
@@ -226,20 +228,20 @@ authRoutes.post('/me/avatar', authMiddleware, async (c) => {
 		return c.json({ error: 'FILE_TOO_LARGE' }, 413);
 	}
 
-	const ext = file.name.split('.').pop()?.toLowerCase() ?? '';
-	if (!AVATAR_ALLOWED_EXTS.has(ext)) {
+	const buffer = Buffer.from(await file.arrayBuffer());
+	const detected = detectedUploadType(buffer.subarray(0, 16), AVATAR_ALLOWED_EXTS);
+	if (!detected) {
 		return c.json({ error: 'INVALID_FILE_TYPE' }, 422);
 	}
 
-	const key = `avatars/${user.id}/${Date.now()}.${ext}`;
-	const buffer = Buffer.from(await file.arrayBuffer());
+	const key = `avatars/${user.id}/${Date.now()}.${detected.ext}`;
 
 	await getR2().send(
 		new PutObjectCommand({
 			Bucket: R2_BUCKET,
 			Key: key,
 			Body: buffer,
-			ContentType: file.type,
+			ContentType: detected.contentType,
 		}),
 	);
 
@@ -317,7 +319,7 @@ authRoutes.post('/register', async (c) => {
 	});
 
 	const code = generateOtpCode();
-	const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+	const expiresAt = new Date(Date.now() + 30 * 60 * 1000);
 
 	await db.emailToken.create({
 		data: {
@@ -346,29 +348,15 @@ authRoutes.post('/verify-email', async (c) => {
 	const user = await db.userProfile.findUnique({ where: { email } });
 	if (!user) return c.json({ error: 'Código inválido o expirado.' }, 400);
 
-	const tokenRecord = await db.emailToken.findFirst({
-		where: {
-			userId: user.id,
-			token: code,
-			type: 'EMAIL_VERIFICATION',
-			usedAt: null,
-			expiresAt: { gt: new Date() },
-		},
-	});
+	const tokenRecord = await consumeEmailToken(user.id, 'EMAIL_VERIFICATION', code);
 
 	if (!tokenRecord)
 		return c.json({ error: 'Código inválido o expirado.' }, 400);
 
-	await db.$transaction([
-		db.emailToken.update({
-			where: { id: tokenRecord.id },
-			data: { usedAt: new Date() },
-		}),
-		db.userProfile.update({
-			where: { id: user.id },
-			data: { emailVerified: true },
-		}),
-	]);
+	await db.userProfile.update({
+		where: { id: user.id },
+		data: { emailVerified: true },
+	});
 
 	const isMobile = c.req.header('X-Client') === 'mobile';
 	const session = await startSession(c, user, isMobile);
@@ -391,7 +379,7 @@ authRoutes.post('/resend-verification', async (c) => {
 	});
 
 	const code = generateOtpCode();
-	const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+	const expiresAt = new Date(Date.now() + 30 * 60 * 1000);
 
 	await db.emailToken.create({
 		data: {
@@ -485,28 +473,14 @@ authRoutes.post('/reset-password', async (c) => {
 	const user = await db.userProfile.findUnique({ where: { email } });
 	if (!user) return c.json({ error: 'Código inválido o expirado.' }, 400);
 
-	const tokenRecord = await db.emailToken.findFirst({
-		where: {
-			userId: user.id,
-			token: code,
-			type: 'PASSWORD_RESET',
-			usedAt: null,
-			expiresAt: { gt: new Date() },
-		},
-	});
+	const tokenRecord = await consumeEmailToken(user.id, 'PASSWORD_RESET', code);
 
 	if (!tokenRecord)
 		return c.json({ error: 'Código inválido o expirado.' }, 400);
 
 	const passwordHash = await hashPassword(password);
 
-	await db.$transaction([
-		db.emailToken.update({
-			where: { id: tokenRecord.id },
-			data: { usedAt: new Date() },
-		}),
-		db.userProfile.update({ where: { id: user.id }, data: { passwordHash } }),
-	]);
+	await db.userProfile.update({ where: { id: user.id }, data: { passwordHash } });
 
 	// Resetear contraseña cierra todas las sesiones previas.
 	await revokeAllForUser(user.id);

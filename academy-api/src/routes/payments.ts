@@ -7,6 +7,7 @@ import { AppError, badRequest, conflict, forbidden, notFound } from '../lib/erro
 import { adminUserIds, notify } from '../lib/push.js';
 import { parseBody } from '../lib/request.js';
 import { getR2, R2_BUCKET, R2_UPLOAD_EXPIRES_IN } from '../lib/r2.js';
+import { detectedUploadType } from '../lib/uploads.js';
 import {
 	createEnrollmentSchema,
 	createOrderSchema,
@@ -366,8 +367,9 @@ paymentsRoutes.post('/upload', requireAuth, async (c) => {
 		);
 	}
 
-	const ext = file.name.split('.').pop()?.toLowerCase() ?? '';
-	if (!ALLOWED_EXTS.has(ext)) {
+	const buffer = Buffer.from(await file.arrayBuffer());
+	const detected = detectedUploadType(buffer.subarray(0, 16), ALLOWED_EXTS);
+	if (!detected) {
 		throw new AppError(
 			'INVALID_FILE_TYPE',
 			422,
@@ -375,15 +377,15 @@ paymentsRoutes.post('/upload', requireAuth, async (c) => {
 		);
 	}
 
-	const key = `receipts/${user.id}/${Date.now()}.${ext}`;
-	const buffer = Buffer.from(await file.arrayBuffer());
+	const key = `receipts/${user.id}/${Date.now()}.${detected.ext}`;
 
 	await getR2().send(
 		new PutObjectCommand({
 			Bucket: BUCKET,
 			Key: key,
 			Body: buffer,
-			ContentType: file.type,
+			ContentType: detected.contentType,
+			ContentDisposition: 'attachment',
 		}),
 	);
 
